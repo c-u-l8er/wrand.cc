@@ -2,1040 +2,1073 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Wrand.cc — Portfolio Company</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <title>Wrand.cc — R&D Domain Graph</title>
+        <meta
+            name="description"
+            content="Interactive graph of the Wrand.cc R&D portfolio — 23 domains mapped as a navigable network."
+        />
         <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
             rel="stylesheet"
         />
         <style>
             :root {
-                --bg-dark: #0a0a0f;
-                --bg-card: #141419;
-                --accent-primary: #00e5ff;
-                --accent-secondary: #7c3aed;
-                --accent-gold: #fbbf24;
-                --text-primary: #ffffff;
-                --text-secondary: #a1a1aa;
-                --border: rgba(255, 255, 255, 0.08);
+                --bg: #08090c;
+                --bg2: #0e1015;
+                --surface: #13151c;
+                --surface-hover: #1a1d28;
+                --border: #1e2130;
+                --border-bright: #2a2e44;
+                --text: #d4d7e5;
+                --text-dim: #6b7094;
+                --text-muted: #3d4160;
+                --cyan: #00d9ff;
+                --green: #00e87b;
+                --purple: #8b5cf6;
+                --pink: #f472b6;
+                --orange: #fb923c;
+                --gold: #fbbf24;
+                --red: #ef4444;
             }
-
             * {
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
             }
-
+            html,
             body {
-                font-family: "DM Sans", sans-serif;
-                background: var(--bg-dark);
-                color: var(--text-primary);
-                overflow-x: hidden;
-                line-height: 1.6;
-            }
-
-            /* Animated background gradient */
-            body::before {
-                content: "";
-                position: fixed;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background:
-                    radial-gradient(
-                        circle at 20% 50%,
-                        rgba(124, 58, 237, 0.15) 0%,
-                        transparent 50%
-                    ),
-                    radial-gradient(
-                        circle at 80% 80%,
-                        rgba(0, 229, 255, 0.12) 0%,
-                        transparent 50%
-                    ),
-                    radial-gradient(
-                        circle at 40% 90%,
-                        rgba(251, 191, 36, 0.08) 0%,
-                        transparent 50%
-                    );
-                animation: gradientShift 20s ease infinite;
-                z-index: -1;
-            }
-
-            @keyframes gradientShift {
-                0%,
-                100% {
-                    transform: translate(0, 0) rotate(0deg);
-                }
-                33% {
-                    transform: translate(-5%, -10%) rotate(120deg);
-                }
-                66% {
-                    transform: translate(5%, 5%) rotate(240deg);
-                }
-            }
-
-            /* Header */
-            header {
-                padding: 2rem 4rem;
-                position: fixed;
                 width: 100%;
-                top: 0;
-                z-index: 100;
-                background: rgba(10, 10, 15, 0.8);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid var(--border);
-                animation: slideDown 0.8s ease;
-
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 1.5rem;
-            }
-
-            @keyframes slideDown {
-                from {
-                    transform: translateY(-100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-
-            .logo {
-                font-family: "Playfair Display", serif;
-                font-size: 2rem;
-                font-weight: 900;
-                letter-spacing: -0.03em;
-                background: linear-gradient(
-                    135deg,
-                    var(--accent-primary),
-                    var(--accent-secondary)
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                display: inline-block;
-            }
-
-            .header-amp {
-                font-family: "JetBrains Mono", monospace;
-                font-size: 2rem;
-                letter-spacing: 0.08em;
-                color: var(--accent-gold);
-                text-decoration: none;
-                padding: 0.5rem 0.75rem;
-                border-radius: 10px;
-                border: 1px solid transparent;
-                transition:
-                    color 0.3s ease,
-                    border-color 0.3s ease,
-                    background 0.3s ease;
-            }
-
-            .header-amp:hover,
-            .header-amp:focus-visible {
-                color: var(--accent-gold);
-                border-color: rgba(251, 191, 36, 0.45);
-                background: rgba(251, 191, 36, 0.06);
-                outline: none;
-            }
-
-            /* Hero Section */
-            .hero {
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                padding: 8rem 4rem 4rem;
-                position: relative;
-            }
-
-            .hero-content {
-                max-width: 1200px;
-                margin: 0 auto;
-                width: 100%;
-            }
-
-            .eyebrow {
-                font-family: "Space Mono", monospace;
-                font-size: 0.875rem;
-                letter-spacing: 0.2em;
-                text-transform: uppercase;
-                color: var(--accent-primary);
-                margin-bottom: 1.5rem;
-                opacity: 0;
-                animation: fadeInUp 0.8s ease 0.2s forwards;
-            }
-
-            h1 {
-                font-family: "Playfair Display", serif;
-                font-size: clamp(3rem, 8vw, 6rem);
-                font-weight: 900;
-                line-height: 1.1;
-                margin-bottom: 2rem;
-                letter-spacing: -0.02em;
-                opacity: 0;
-                animation: fadeInUp 0.8s ease 0.4s forwards;
-            }
-
-            .gradient-text {
-                background: linear-gradient(
-                    135deg,
-                    var(--accent-primary) 0%,
-                    var(--accent-secondary) 50%,
-                    var(--accent-gold) 100%
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                background-size: 200% 200%;
-                animation: gradientFlow 8s ease infinite;
-            }
-
-            @keyframes gradientFlow {
-                0%,
-                100% {
-                    background-position: 0% 50%;
-                }
-                50% {
-                    background-position: 100% 50%;
-                }
-            }
-
-            .hero-description {
-                font-size: 1.5rem;
-                color: var(--text-secondary);
-                max-width: 700px;
-                margin-bottom: 3rem;
-                line-height: 1.7;
-                opacity: 0;
-                animation: fadeInUp 0.8s ease 0.6s forwards;
-            }
-
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 2rem;
-                margin-top: 4rem;
-                opacity: 0;
-                animation: fadeInUp 0.8s ease 0.8s forwards;
-            }
-
-            .stats-grid > a {
-                text-decoration: none;
-            }
-
-            .stat {
-                padding: 1.5rem;
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                transition: all 0.3s ease;
-            }
-
-            .stat:hover {
-                transform: translateY(-5px);
-                border-color: var(--accent-primary);
-                box-shadow: 0 10px 40px rgba(0, 229, 255, 0.15);
-            }
-
-            .stat-value {
-                font-family: "Playfair Display", serif;
-                font-size: 2.5rem;
-                font-weight: 900;
-                color: var(--accent-primary);
-                display: block;
-                margin-bottom: 0.5rem;
-            }
-
-            .stat-label {
-                font-family: "Space Mono", monospace;
-                font-size: 0.75rem;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                color: var(--text-secondary);
-            }
-
-            /* Portfolio Section */
-            .portfolio {
-                padding: 8rem 4rem;
-                position: relative;
-            }
-
-            .section-header {
-                max-width: 1200px;
-                margin: 0 auto 4rem;
-            }
-
-            .section-title {
-                font-family: "Playfair Display", serif;
-                font-size: clamp(2.5rem, 5vw, 4rem);
-                font-weight: 900;
-                margin-bottom: 1rem;
-                letter-spacing: -0.02em;
-            }
-
-            .section-subtitle {
-                font-size: 1.25rem;
-                color: var(--text-secondary);
-                max-width: 600px;
-            }
-
-            .companies-grid {
-                max-width: 1200px;
-                margin: 0 auto;
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 2rem;
-            }
-
-            .company-card-link {
-                text-decoration: none;
-                display: block;
-            }
-
-            .company-card {
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-radius: 20px;
-                padding: 2.5rem;
-                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                position: relative;
+                height: 100%;
                 overflow: hidden;
+                background: var(--bg);
+                color: var(--text);
+                font-family: "IBM Plex Mono", monospace;
             }
 
-            .company-card::before {
-                content: "";
-                position: absolute;
+            /* ── CANVAS ── */
+            #graph-canvas {
+                position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
-                height: 4px;
-                background: linear-gradient(
-                    90deg,
-                    var(--accent-primary),
-                    var(--accent-secondary)
-                );
-                transform: scaleX(0);
-                transform-origin: left;
-                transition: transform 0.4s ease;
+                height: 100%;
+                z-index: 1;
             }
 
-            .company-card:hover::before {
-                transform: scaleX(1);
-            }
-
-            .company-card:hover {
-                transform: translateY(-10px);
-                border-color: var(--accent-primary);
-                box-shadow: 0 20px 60px rgba(0, 229, 255, 0.2);
-            }
-
-            .company-icon {
-                width: 60px;
-                height: 60px;
-                background: linear-gradient(
-                    135deg,
-                    var(--accent-primary),
-                    var(--accent-secondary)
-                );
-                border-radius: 14px;
+            /* ── HEADER ── */
+            .hud-top {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                height: 50px;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                font-size: 1.75rem;
-                margin-bottom: 1.5rem;
-                transition: all 0.4s ease;
+                justify-content: space-between;
+                padding: 0 1.5rem;
+                background: rgba(8, 9, 12, 0.85);
+                backdrop-filter: blur(16px);
+                border-bottom: 1px solid var(--border);
             }
-
-            .company-card:hover .company-icon {
-                transform: rotate(10deg) scale(1.1);
-            }
-
-            .company-name {
-                font-family: "Playfair Display", serif;
-                font-size: 1.75rem;
-                font-weight: 700;
-                margin-bottom: 0.75rem;
-                color: var(--text-primary);
-            }
-
-            .company-tagline {
-                font-size: 0.95rem;
-                color: var(--accent-primary);
-                font-weight: 500;
-                margin-bottom: 1rem;
-                letter-spacing: 0.02em;
-            }
-
-            .company-description {
-                color: var(--text-secondary);
-                line-height: 1.7;
-                margin-bottom: 1.5rem;
-                font-size: 0.95rem;
-            }
-
-            .company-meta {
-                display: flex;
-                gap: 1rem;
-                flex-wrap: wrap;
-            }
-
-            .meta-tag {
-                font-family: "Space Mono", monospace;
-                font-size: 0.7rem;
-                padding: 0.4rem 0.8rem;
-                background: rgba(0, 229, 255, 0.1);
-                border: 1px solid rgba(0, 229, 255, 0.3);
-                border-radius: 6px;
-                color: var(--accent-primary);
-                letter-spacing: 0.05em;
-                text-transform: uppercase;
-            }
-
-            /* Featured Card Styling */
-            .company-card.featured {
-                grid-column: span 2;
-                background: linear-gradient(
-                    135deg,
-                    rgba(124, 58, 237, 0.15),
-                    rgba(0, 229, 255, 0.1)
-                );
-                border: 2px solid var(--accent-primary);
-            }
-
-            .company-card.featured .company-icon {
-                width: 80px;
-                height: 80px;
-                font-size: 2.25rem;
-            }
-
-            .company-card.featured .company-name {
-                font-size: 2.5rem;
-            }
-
-            .featured-badge {
-                position: absolute;
-                top: 2rem;
-                right: 2rem;
-                background: var(--accent-gold);
-                color: var(--bg-dark);
-                font-family: "Space Mono", monospace;
-                font-size: 0.65rem;
-                font-weight: 700;
-                padding: 0.5rem 1rem;
-                border-radius: 20px;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-            }
-
-            /* Contact Section */
-            .contact {
-                padding: 8rem 4rem;
-                text-align: center;
-                position: relative;
-            }
-
-            .contact-content {
-                max-width: 800px;
-                margin: 0 auto;
-            }
-
-            .contact h2 {
-                font-family: "Playfair Display", serif;
-                font-size: clamp(2.5rem, 5vw, 4rem);
-                font-weight: 900;
-                margin-bottom: 2rem;
+            .hud-logo {
+                font-family: "Instrument Serif", serif;
+                font-size: 1.4rem;
+                font-style: italic;
+                color: var(--text);
                 letter-spacing: -0.02em;
             }
-
-            .contact-description {
-                font-size: 1.25rem;
-                color: var(--text-secondary);
-                margin-bottom: 3rem;
-                line-height: 1.7;
+            .hud-logo em {
+                color: var(--cyan);
+                font-style: italic;
+            }
+            .hud-stats {
+                display: flex;
+                gap: 1.5rem;
+                align-items: center;
+            }
+            .hud-stat {
+                display: flex;
+                align-items: baseline;
+                gap: 0.35rem;
+                font-size: 0.7rem;
+            }
+            .hud-stat b {
+                color: var(--cyan);
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+            .hud-stat span {
+                color: var(--text-dim);
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                font-size: 0.6rem;
+            }
+            .hud-amp {
+                text-decoration: none;
+                color: var(--gold);
+                font-size: 1.1rem;
+                font-weight: 700;
+                padding: 0.3rem 0.6rem;
+                border-radius: 6px;
+                border: 1px solid transparent;
+                transition: all 0.2s;
+            }
+            .hud-amp:hover {
+                border-color: rgba(251, 191, 36, 0.4);
+                background: rgba(251, 191, 36, 0.06);
             }
 
-            .cta-button {
-                display: inline-block;
-                padding: 1.25rem 3rem;
-                background: linear-gradient(
-                    135deg,
-                    var(--accent-primary),
-                    var(--accent-secondary)
-                );
-                color: var(--bg-dark);
-                font-family: "Space Mono", monospace;
-                font-size: 0.875rem;
-                font-weight: 700;
-                letter-spacing: 0.1em;
+            /* ── FILTER BAR ── */
+            .filter-bar {
+                position: fixed;
+                bottom: 1.2rem;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 100;
+                display: flex;
+                gap: 0.4rem;
+                padding: 0.4rem;
+                background: rgba(14, 16, 21, 0.9);
+                backdrop-filter: blur(16px);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+            }
+            .filter-btn {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.65rem;
+                font-weight: 500;
+                padding: 0.4rem 0.8rem;
+                border: none;
+                border-radius: 6px;
+                background: transparent;
+                color: var(--text-dim);
+                cursor: pointer;
+                letter-spacing: 0.05em;
                 text-transform: uppercase;
+                transition: all 0.2s;
+                white-space: nowrap;
+            }
+            .filter-btn:hover {
+                color: var(--text);
+                background: var(--surface);
+            }
+            .filter-btn.active {
+                color: var(--cyan);
+                background: rgba(0, 217, 255, 0.1);
+            }
+
+            /* ── NODE CARDS ── */
+            .node-card {
+                position: absolute;
+                z-index: 50;
+                width: 220px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                overflow: hidden;
+                cursor: grab;
+                transition:
+                    box-shadow 0.3s,
+                    border-color 0.3s,
+                    opacity 0.3s;
+                user-select: none;
+                opacity: 0;
+                animation: nodeAppear 0.5s ease forwards;
+            }
+            .node-card:active {
+                cursor: grabbing;
+                z-index: 60;
+            }
+            .node-card:hover {
+                border-color: var(--border-bright);
+                box-shadow:
+                    0 8px 40px rgba(0, 0, 0, 0.5),
+                    0 0 20px rgba(0, 217, 255, 0.06);
+            }
+            .node-card.dimmed {
+                opacity: 0.12 !important;
+                pointer-events: none;
+            }
+            @keyframes nodeAppear {
+                from {
+                    opacity: 0;
+                    transform: scale(0.85);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            /* browser chrome */
+            .card-chrome {
+                display: flex;
+                align-items: center;
+                gap: 0.35rem;
+                padding: 0.4rem 0.6rem;
+                background: var(--bg2);
+                border-bottom: 1px solid var(--border);
+            }
+            .chrome-dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+            }
+            .chrome-dot.r {
+                background: #ef4444;
+            }
+            .chrome-dot.y {
+                background: #fbbf24;
+            }
+            .chrome-dot.g {
+                background: #22c55e;
+            }
+            .chrome-url {
+                flex: 1;
+                margin-left: 0.4rem;
+                font-size: 0.55rem;
+                color: var(--text-dim);
+                background: var(--bg);
+                padding: 0.2rem 0.5rem;
+                border-radius: 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                letter-spacing: 0.02em;
+            }
+            /* card body */
+            .card-body {
+                padding: 0.8rem;
+            }
+            .card-name {
+                font-family: "Instrument Serif", serif;
+                font-size: 1rem;
+                font-weight: 400;
+                font-style: italic;
+                margin-bottom: 0.25rem;
+                color: var(--text);
+            }
+            .card-tagline {
+                font-size: 0.65rem;
+                color: var(--text-dim);
+                line-height: 1.45;
+                margin-bottom: 0.5rem;
+            }
+            .card-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+            .card-tag {
+                font-size: 0.5rem;
+                padding: 0.15rem 0.4rem;
+                border-radius: 3px;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+
+            /* tag colors by category */
+            .tag-infra {
+                background: rgba(0, 217, 255, 0.12);
+                color: var(--cyan);
+            }
+            .tag-agent {
+                background: rgba(0, 232, 123, 0.12);
+                color: var(--green);
+            }
+            .tag-creative {
+                background: rgba(244, 114, 182, 0.12);
+                color: var(--pink);
+            }
+            .tag-lang {
+                background: rgba(139, 92, 246, 0.12);
+                color: var(--purple);
+            }
+            .tag-data {
+                background: rgba(251, 191, 36, 0.12);
+                color: var(--gold);
+            }
+            .tag-brand {
+                background: rgba(251, 146, 60, 0.12);
+                color: var(--orange);
+            }
+            .tag-observe {
+                background: rgba(239, 68, 68, 0.12);
+                color: var(--red);
+            }
+
+            /* card-link overlay */
+            .card-visit {
+                display: block;
+                text-align: center;
+                padding: 0.4rem;
+                font-size: 0.55rem;
+                color: var(--text-muted);
                 text-decoration: none;
-                border-radius: 50px;
-                transition: all 0.3s ease;
-                position: relative;
+                border-top: 1px solid var(--border);
+                transition: all 0.2s;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+            }
+            .card-visit:hover {
+                color: var(--cyan);
+                background: rgba(0, 217, 255, 0.04);
+            }
+
+            /* ── MINIMAP ── */
+            .minimap {
+                position: fixed;
+                bottom: 4rem;
+                right: 1.2rem;
+                z-index: 90;
+                width: 140px;
+                height: 100px;
+                background: rgba(14, 16, 21, 0.85);
+                backdrop-filter: blur(10px);
+                border: 1px solid var(--border);
+                border-radius: 6px;
                 overflow: hidden;
             }
-
-            .cta-button::before {
-                content: "";
-                position: absolute;
-                top: 0;
-                left: -100%;
+            .minimap canvas {
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255, 255, 255, 0.3),
-                    transparent
-                );
-                transition: left 0.5s ease;
             }
 
-            .cta-button:hover::before {
-                left: 100%;
-            }
-
-            .cta-button:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 10px 40px rgba(0, 229, 255, 0.4);
-            }
-
-            /* Footer */
-            footer {
-                padding: 3rem 4rem;
-                border-top: 1px solid var(--border);
-                text-align: center;
-            }
-
-            .footer-content {
-                max-width: 1200px;
-                margin: 0 auto;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 2rem;
-            }
-
-            .footer-logo {
-                font-family: "Playfair Display", serif;
-                font-size: 1.5rem;
-                font-weight: 900;
-                background: linear-gradient(
-                    135deg,
-                    var(--accent-primary),
-                    var(--accent-secondary)
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-
-            .footer-links {
-                display: flex;
-                gap: 2rem;
-            }
-
-            .footer-links a {
-                color: var(--text-secondary);
-                text-decoration: none;
-                font-family: "Space Mono", monospace;
-                font-size: 0.875rem;
-                transition: color 0.3s ease;
-            }
-
-            .footer-links a:hover {
-                color: var(--accent-primary);
-            }
-
-            .copyright {
-                font-family: "Space Mono", monospace;
-                font-size: 0.75rem;
-                color: var(--text-secondary);
-                width: 100%;
-                margin-top: 2rem;
-                text-align: center;
-            }
-
-            /* Responsive Design */
-            @media (min-width: 1400px) {
-                .companies-grid {
-                    grid-template-columns: repeat(3, 1fr);
-                }
-
-                .company-card.featured {
-                    grid-column: span 3;
-                }
-            }
-
-            @media (max-width: 1024px) {
-                .companies-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .company-card.featured {
-                    grid-column: span 1;
-                }
-            }
-
+            /* ── RESPONSIVE ── */
             @media (max-width: 768px) {
-                header,
-                .hero,
-                .portfolio,
-                .contact,
-                footer {
-                    padding-left: 2rem;
-                    padding-right: 2rem;
+                .hud-stats {
+                    display: none;
                 }
-
-                h1 {
-                    font-size: 3rem;
+                .filter-bar {
+                    bottom: 0.8rem;
+                    overflow-x: auto;
+                    max-width: 95vw;
                 }
-
-                .hero-description {
-                    font-size: 1.25rem;
+                .filter-bar::-webkit-scrollbar {
+                    display: none;
                 }
-
-                .stats-grid {
-                    grid-template-columns: repeat(2, 1fr);
+                .node-card {
+                    width: 170px;
                 }
-
-                .footer-content {
-                    flex-direction: column;
-                    text-align: center;
+                .card-name {
+                    font-size: 0.9rem;
                 }
-            }
-
-            /* Scroll animations */
-            .fade-in {
-                opacity: 0;
-                animation: fadeInUp 0.8s ease forwards;
-            }
-
-            .fade-in-delay-1 {
-                animation-delay: 0.1s;
-            }
-            .fade-in-delay-2 {
-                animation-delay: 0.2s;
-            }
-            .fade-in-delay-3 {
-                animation-delay: 0.3s;
-            }
-            .fade-in-delay-4 {
-                animation-delay: 0.4s;
-            }
-            .fade-in-delay-5 {
-                animation-delay: 0.5s;
-            }
-            .fade-in-delay-6 {
-                animation-delay: 0.6s;
-            }
-
-            /* Floating particles effect */
-            .particle {
-                position: fixed;
-                width: 4px;
-                height: 4px;
-                background: var(--accent-primary);
-                border-radius: 50%;
-                pointer-events: none;
-                opacity: 0;
-                animation: float 15s infinite;
-                z-index: -1;
-            }
-
-            @keyframes float {
-                0% {
-                    transform: translateY(100vh) translateX(0);
-                    opacity: 0;
-                }
-                10% {
-                    opacity: 0.3;
-                }
-                90% {
-                    opacity: 0.3;
-                }
-                100% {
-                    transform: translateY(-100vh) translateX(100px);
-                    opacity: 0;
+                .minimap {
+                    display: none;
                 }
             }
         </style>
     </head>
     <body>
-        <!-- Floating particles -->
-        <div class="particle" style="left: 10%; animation-delay: 0s"></div>
-        <div class="particle" style="left: 30%; animation-delay: 3s"></div>
-        <div class="particle" style="left: 50%; animation-delay: 6s"></div>
-        <div class="particle" style="left: 70%; animation-delay: 9s"></div>
-        <div class="particle" style="left: 90%; animation-delay: 12s"></div>
-
-        <!-- Header -->
-        <header>
-            <div class="logo">Wrand.cc</div>
+        <!-- HUD -->
+        <div class="hud-top">
+            <div class="hud-logo"><em>Wrand</em>.cc</div>
+            <div class="hud-stats">
+                <div class="hud-stat"><b>23</b><span>domains</span></div>
+                <div class="hud-stat">
+                    <b id="totalEdges">0</b><span>connections</span>
+                </div>
+            </div>
             <a
-                class="header-amp"
+                class="hud-amp"
                 href="https://ampersandboxdesign.com"
-                rel="noopener noreferrer"
-                referrerpolicy="no-referrer"
-                aria-label="Ampersandbox Design"
-                title="Ampersandbox Design"
+                target="_blank"
+                rel="noopener"
                 >[&]</a
             >
-        </header>
+        </div>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <div class="eyebrow">Portfolio Company</div>
-                <h1>
-                    Forking the<br />
-                    <span class="gradient-text">Landscape</span><br />
-                    of Tomorrow
-                </h1>
-                <p class="hero-description">
-                    A technology holding company pioneering next-generation
-                    infra across agents, prompting, and "-ic"
-                    intelligence—powered by 67&lstrok;P (Planck length)
-                    lithography.
-                </p>
+        <!-- FILTER -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All 23</button>
+            <button class="filter-btn" data-filter="agent">Agent Stack</button>
+            <button class="filter-btn" data-filter="infra">Infra</button>
+            <button class="filter-btn" data-filter="lang">Dev Tools</button>
+            <button class="filter-btn" data-filter="creative">Products</button>
+            <button class="filter-btn" data-filter="data">Primitives</button>
+            <button class="filter-btn" data-filter="brand">Brand</button>
+            <button class="filter-btn" data-filter="observe">Observe</button>
+        </div>
 
-                <div class="stats-grid">
-                    <div class="stat">
-                        <span class="stat-value">3</span>
-                        <span class="stat-label">Portfolio Companies</span>
-                    </div>
-                    <a
-                        href="https://ampersandboxdesign.com/portfolio_company_complete_research"
-                    >
-                        <div class="stat">
-                            <span class="stat-value">$135K</span>
-                            <span class="stat-label"
-                                >2026 Domain Asset Value</span
-                            >
-                        </div>
-                    </a>
-                    <a
-                        href="https://ampersandboxdesign.com/portfolio_company_complete_research"
-                    >
-                        <div class="stat">
-                            <span class="stat-value">$350K</span>
-                            <span class="stat-label"
-                                >Domain Asset Value by 2034</span
-                            >
-                        </div>
-                    </a>
-                    <div class="stat">
-                        <span class="stat-value">1</span>
-                        <span class="stat-label">Crown Jewels</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- MINIMAP -->
+        <div class="minimap"><canvas id="minimap-canvas"></canvas></div>
 
-        <!-- Portfolio Section -->
-        <section class="portfolio">
-            <div class="section-header">
-                <h2 class="section-title">Portfolio Companies</h2>
-                <p class="section-subtitle">
-                    Strategic investments across the highest-growth technology
-                    sectors, from winning keywords to breaking the record.
-                </p>
-            </div>
+        <!-- CANVAS for edges -->
+        <canvas id="graph-canvas"></canvas>
 
-            <div class="companies-grid">
-                <!-- BendScript -->
-                <a
-                    href="https://bendscript.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    referrerpolicy="no-referrer"
-                    class="company-card-link"
-                    aria-label="BendScript (opens in a new tab)"
-                    title="Visit BendScript"
-                >
-                    <article
-                        class="company-card featured fade-in fade-in-delay-2"
-                        data-company="bendscript"
-                        data-sector="ai-devtools"
-                    >
-                        <span class="featured-badge">Silver</span>
-                        <div class="company-icon" aria-hidden="true">BS</div>
-                        <h3 class="company-name">BendScript</h3>
-                        <p class="company-tagline">Software, bent to will.</p>
-                        <p class="company-description">Low-Code/No-Code</p>
-                        <div class="company-meta" aria-label="Key metrics">
-                            <span
-                                class="meta-tag"
-                                title="Estimated domain value"
-                                >$85k DOMAIN VALUE</span
-                            >
-                            <span
-                                class="meta-tag"
-                                title="Estimated domain growth"
-                                >$225k by 2034</span
-                            >
-                            <span
-                                class="meta-tag"
-                                title="Estimated total addressable market"
-                                >~$101B TAM (Low-Code)</span
-                            >
-                        </div>
-                    </article>
-                </a>
+        <!-- cards injected by JS -->
+        <div id="card-container"></div>
 
-                <!-- Alkeyword -->
-                <a
-                    href="https://alkeyword.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    referrerpolicy="no-referrer"
-                    class="company-card-link"
-                    aria-label="Alkeyword (opens in a new tab)"
-                    title="Visit Alkeyword"
-                >
-                    <article
-                        class="company-card fade-in fade-in-delay-1"
-                        data-company="alkeyword"
-                        data-sector="ai-seo"
-                    >
-                        <span class="featured-badge">Tin</span>
-                        <div class="company-icon" aria-hidden="true">AK</div>
-                        <h3 class="company-name">Alkeyword</h3>
-                        <p class="company-tagline">
-                            Search intent, manufactured.
-                        </p>
-                        <p class="company-description">
-                            An AI engine that turns faint demand into indexed,
-                            compounding pages.
-                        </p>
-                        <div class="company-meta" aria-label="Key metrics">
-                            <span
-                                class="meta-tag"
-                                title="Estimated domain value"
-                                >$50k DOMAIN VALUE</span
-                            >
-                            <span
-                                class="meta-tag"
-                                title="Estimated domain growth"
-                                >$125k by 2034</span
-                            >
-                            <span
-                                class="meta-tag"
-                                title="Estimated total addressable market"
-                                >Multi-billion SEO</span
-                            >
-                        </div>
-                    </article>
-                </a>
-
-                <!-- BrokenRecord.Studio -->
-                <a
-                    href="https://brokenrecord.studio"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    referrerpolicy="no-referrer"
-                    class="company-card-link"
-                    aria-label="BrokenRecord.Studio (opens in a new tab)"
-                    title="Visit BrokenRecord.Studio"
-                >
-                    <article
-                        class="company-card fade-in fade-in-delay-3"
-                        data-company="brokenrecord"
-                        data-sector="ai-audio"
-                    >
-                        <div class="company-icon" aria-hidden="true">BR</div>
-                        <h3 class="company-name">BrokenRecord.Studio</h3>
-                        <p class="company-tagline">Sound, without sessions.</p>
-                        <p class="company-description">
-                            A generative studio for stems, mixes, and
-                            cues—on-demand and on-brand.
-                        </p>
-                        <div class="company-meta" aria-label="Key metrics">
-                            <span
-                                class="meta-tag"
-                                title="Estimated category growth"
-                                >NOT FOR SALE</span
-                            >
-                        </div>
-                    </article>
-                </a>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section class="contact">
-            <div class="contact-content">
-                <h2>
-                    Let's Fork Something
-                    <span class="gradient-text">Wonderful</span>
-                </h2>
-                <p class="contact-description">
-                    Interested in partnerships, acquisitions, or investment
-                    opportunities? We're always open to strategic conversations
-                    with forward-thinking organizations.
-                </p>
-                <a href="mailto:contact@c-u-l8er.link" class="cta-button"
-                    >Get In Touch</a
-                >
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer>
-            <div class="footer-content">
-                <div class="footer-logo">Wrand.cc</div>
-                <div class="footer-links">
-                    <a href="https://traaviis.com">Building</a>
-                    <a href="https://c-u-l8er.link">Printing</a>
-                    <a href="https://wrand.cc">Forking</a>
-                </div>
-            </div>
-            <div class="copyright">
-                © 2026 Wrand.cc. Forking landscapes for the next generation of
-                atmospheres.
-            </div>
-        </footer>
-
-        <script
-            data-cfasync="false"
-            src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
-        ></script>
         <script>
-            // Smooth scroll for navigation
-            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-                anchor.addEventListener("click", function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(
-                        this.getAttribute("href"),
-                    );
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                        });
-                    }
-                });
-            });
+            // ═══════════════════════════════════════════
+            // DOMAIN DATA — all 23
+            // ═══════════════════════════════════════════
+            const domains = [
+                // ── [&] Hub ──
+                {
+                    id: "ampersandboxdesign",
+                    name: "ampersandboxdesign.com",
+                    label: "[&] Design",
+                    url: "https://ampersandboxdesign.com",
+                    tagline:
+                        "Holding company. [&] Protocol — capability composition for agents.",
+                    tags: ["brand"],
+                    cat: "brand",
+                },
 
-            // Intersection Observer for scroll animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: "0px 0px -100px 0px",
+                // ── Agent Platform (stack order 9→4) ──
+                {
+                    id: "delegatic",
+                    name: "delegatic.com",
+                    label: "Delegatic",
+                    url: "https://delegatic.com",
+                    tagline:
+                        "Governance & orchestration. Top of the [&] stack. Policy inheritance.",
+                    tags: ["agent"],
+                    cat: "agent",
+                },
+                {
+                    id: "specprompt",
+                    name: "specprompt.com",
+                    label: "SpecPrompt",
+                    url: "https://specprompt.com",
+                    tagline:
+                        "Spec-driven development. Every agent gets a validated SPEC.md.",
+                    tags: ["agent"],
+                    cat: "agent",
+                },
+                {
+                    id: "deliberatic",
+                    name: "deliberatic.com",
+                    label: "Deliberatic",
+                    url: "https://deliberatic.com",
+                    tagline:
+                        "Multi-agent consensus via wBAF semantics. How agents decide.",
+                    tags: ["agent"],
+                    cat: "agent",
+                },
+                {
+                    id: "agentelic",
+                    name: "agentelic.com",
+                    label: "Agentelic",
+                    url: "https://agentelic.com",
+                    tagline:
+                        "Agent collaboration. Telespaces, rooms, Studio. Build → publish.",
+                    tags: ["agent"],
+                    cat: "agent",
+                },
+                {
+                    id: "agentromatic",
+                    name: "agentromatic.com",
+                    label: "AgentRomatic",
+                    url: "https://agentromatic.com",
+                    tagline:
+                        "No-code agent automation. Zapier for AI agents. Visual workflows.",
+                    tags: ["agent"],
+                    cat: "agent",
+                },
+                {
+                    id: "fleetprompt",
+                    name: "fleetprompt.com",
+                    label: "FleetPrompt",
+                    url: "https://fleetprompt.com",
+                    tagline:
+                        "Agent skills marketplace & component registry. Distribution layer.",
+                    tags: ["agent"],
+                    cat: "agent",
+                },
+
+                // ── Cognitive Primitives ──
+                {
+                    id: "graphonomous",
+                    name: "graphonomous.com",
+                    label: "Graphonomous",
+                    url: "https://graphonomous.com",
+                    tagline:
+                        "Continual learning knowledge graph. What agents know.",
+                    tags: ["data"],
+                    cat: "data",
+                },
+                {
+                    id: "geofleetic",
+                    name: "geofleetic.com",
+                    label: "GeoFleetic",
+                    url: "https://geofleetic.com",
+                    tagline:
+                        "Geospatial fleet orchestration. PostGIS + graph-native.",
+                    tags: ["data"],
+                    cat: "data",
+                },
+                {
+                    id: "ticktickclock",
+                    name: "ticktickclock.com",
+                    label: "TickTickClock",
+                    url: "https://ticktickclock.com",
+                    tagline:
+                        "Temporal intelligence. Time-series CL engine for the [&] stack.",
+                    tags: ["data"],
+                    cat: "data",
+                },
+
+                // ── Infrastructure / Runtime ──
+                {
+                    id: "webhost",
+                    name: "webhost.systems",
+                    label: "WebHost.Systems",
+                    url: "https://webhost.systems",
+                    tagline:
+                        "Multi-tenant hosting infrastructure. Managed runtime.",
+                    tags: ["infra"],
+                    cat: "infra",
+                },
+                {
+                    id: "gpscoord",
+                    name: "gpscoord.com",
+                    label: "GPSCoord",
+                    url: "https://gpscoord.com",
+                    tagline: "GPS fleet tracking SaaS. Real-time positioning.",
+                    tags: ["infra"],
+                    cat: "infra",
+                },
+                {
+                    id: "opensentience",
+                    name: "opensentience.org",
+                    label: "OpenSentience",
+                    url: "https://opensentience.org",
+                    tagline:
+                        "Open-source agent runtime daemon. Execute, govern, observe. Local-first.",
+                    tags: ["infra"],
+                    cat: "infra",
+                },
+
+                // ── Languages / Developer Tools ──
+                {
+                    id: "bendscript",
+                    name: "bendscript.com",
+                    label: "BendScript",
+                    url: "https://bendscript.com",
+                    tagline:
+                        "Agent diagnostics protocols + Zapp GPU language. Medicine for AI.",
+                    tags: ["lang"],
+                    cat: "lang",
+                },
+                {
+                    id: "alkeyword",
+                    name: "alkeyword.com",
+                    label: "Alkeyword",
+                    url: "https://alkeyword.com",
+                    tagline:
+                        "Algebraic data types for Elixir. Type-safe DSL + Ash integration.",
+                    tags: ["lang"],
+                    cat: "lang",
+                },
+
+                // ── Creative / Products ──
+                {
+                    id: "brokenrecord",
+                    name: "brokenrecord.studio",
+                    label: "HVAC-Buddy",
+                    url: "https://brokenrecord.studio",
+                    tagline:
+                        "Field-first HVAC calculator toolkit. PT charts, refrigerants, equipment.",
+                    tags: ["creative"],
+                    cat: "creative",
+                },
+                {
+                    id: "runefort",
+                    name: "runefort.com",
+                    label: "Runefort",
+                    url: "https://runefort.com",
+                    tagline: "Norse-themed video game. Downloadable.",
+                    tags: ["creative"],
+                    cat: "creative",
+                },
+
+                // ── Observability ──
+                {
+                    id: "a2atraffic",
+                    name: "a2atraffic.com",
+                    label: "A2A Traffic",
+                    url: "https://a2atraffic.com",
+                    tagline:
+                        "A2A protocol monitoring. The observability layer above the stack.",
+                    tags: ["observe"],
+                    cat: "observe",
+                },
+
+                // ── Brand / Identity ──
+                {
+                    id: "wrand",
+                    name: "wrand.cc",
+                    label: "Wrand.cc",
+                    url: "https://wrand.cc",
+                    tagline: "R&D portfolio company. You are here.",
+                    tags: ["brand"],
+                    cat: "brand",
+                },
+                {
+                    id: "istrav",
+                    name: "istrav.com",
+                    label: "isTrav",
+                    url: "https://istrav.com",
+                    tagline: "Core business entity. Web solutions hub.",
+                    tags: ["brand"],
+                    cat: "brand",
+                },
+                {
+                    id: "traaviis",
+                    name: "traaviis.com",
+                    label: "Traaviis",
+                    url: "https://traaviis.com",
+                    tagline: "Personal brand. Building.",
+                    tags: ["brand"],
+                    cat: "brand",
+                },
+                {
+                    id: "subvind",
+                    name: "subvind.com",
+                    label: "Subvind",
+                    url: "https://subvind.com",
+                    tagline: "Open-source dev portfolio. NestJS microservices.",
+                    tags: ["brand"],
+                    cat: "brand",
+                },
+                {
+                    id: "cul8er",
+                    name: "c-u-l8er.link",
+                    label: "C-U-L8er",
+                    url: "https://c-u-l8er.link",
+                    tagline: "C U L8er LLC. GitHub identity & link brand.",
+                    tags: ["brand"],
+                    cat: "brand",
+                },
+            ];
+
+            // ═══════════════════════════════════════════
+            // EDGES — validated relationships
+            // ═══════════════════════════════════════════
+            const edges = [
+                // [&] hub — connected to everything in the ecosystem
+                { from: "ampersandboxdesign", to: "fleetprompt", s: 0.9 },
+                { from: "ampersandboxdesign", to: "webhost", s: 0.8 },
+                { from: "ampersandboxdesign", to: "a2atraffic", s: 0.7 },
+                { from: "ampersandboxdesign", to: "delegatic", s: 0.85 },
+                { from: "ampersandboxdesign", to: "specprompt", s: 0.7 },
+                { from: "ampersandboxdesign", to: "deliberatic", s: 0.7 },
+                { from: "ampersandboxdesign", to: "agentelic", s: 0.75 },
+                { from: "ampersandboxdesign", to: "agentromatic", s: 0.7 },
+                { from: "ampersandboxdesign", to: "graphonomous", s: 0.8 },
+                { from: "ampersandboxdesign", to: "geofleetic", s: 0.75 },
+                { from: "ampersandboxdesign", to: "ticktickclock", s: 0.7 },
+                { from: "ampersandboxdesign", to: "opensentience", s: 0.75 },
+                { from: "ampersandboxdesign", to: "bendscript", s: 0.6 },
+                // Agent platform chain (stack order: delegatic → specprompt → deliberatic → agentelic → agentromatic → fleetprompt)
+                { from: "delegatic", to: "specprompt", s: 0.9 },
+                { from: "delegatic", to: "deliberatic", s: 0.85 },
+                { from: "delegatic", to: "agentromatic", s: 0.7 },
+                { from: "specprompt", to: "agentelic", s: 0.8 },
+                { from: "deliberatic", to: "graphonomous", s: 0.9 }, // cognitive pair: decide + know
+                { from: "agentelic", to: "fleetprompt", s: 0.9 }, // build → publish
+                { from: "agentromatic", to: "fleetprompt", s: 0.8 }, // automate → distribute
+                { from: "agentromatic", to: "deliberatic", s: 0.6 }, // inherits deliberation
+                { from: "fleetprompt", to: "delegatic", s: 0.7 }, // registry → governance
+                { from: "fleetprompt", to: "specprompt", s: 0.8 }, // every skill has a spec
+                // Cognitive primitives
+                { from: "graphonomous", to: "geofleetic", s: 0.85 }, // graph + spatial
+                { from: "graphonomous", to: "ticktickclock", s: 0.8 }, // graph + temporal
+                { from: "geofleetic", to: "ticktickclock", s: 0.7 }, // spatial + temporal
+                { from: "geofleetic", to: "gpscoord", s: 0.85 }, // geospatial → GPS
+                { from: "graphonomous", to: "fleetprompt", s: 0.6 }, // learning → skills
+                // Infrastructure
+                { from: "webhost", to: "opensentience", s: 0.85 }, // hosting → runtime
+                { from: "webhost", to: "fleetprompt", s: 0.8 }, // hosting → platform
+                { from: "webhost", to: "gpscoord", s: 0.7 }, // hosting → fleet tracking
+                { from: "opensentience", to: "delegatic", s: 0.7 }, // runtime respects governance
+                { from: "opensentience", to: "graphonomous", s: 0.6 }, // runtime connects to graph MCP
+                // Languages / tools
+                { from: "bendscript", to: "a2atraffic", s: 0.7 }, // agent diagnostics → observability
+                { from: "bendscript", to: "opensentience", s: 0.6 }, // diagnostics → runtime
+                { from: "bendscript", to: "fleetprompt", s: 0.5 }, // diagnostics as skills
+                { from: "alkeyword", to: "bendscript", s: 0.5 }, // Elixir types → Elixir diagnostics
+                { from: "alkeyword", to: "specprompt", s: 0.4 }, // type safety → specs
+                // Observability
+                { from: "a2atraffic", to: "fleetprompt", s: 0.8 }, // watches the marketplace
+                { from: "a2atraffic", to: "delegatic", s: 0.6 }, // watches governance
+                { from: "a2atraffic", to: "webhost", s: 0.6 }, // watches infra
+                // Creative (loosely connected)
+                { from: "runefort", to: "wrand", s: 0.4 },
+                //
+                // Brand cluster
+                //
+                // forking
+                { from: "wrand", to: "traaviis", s: 0.7 },
+                { from: "wrand", to: "cul8er", s: 0.5 },
+                // printing
+                { from: "cul8er", to: "bendscript", s: 0.6 },
+                { from: "cul8er", to: "alkeyword", s: 0.5 },
+                { from: "cul8er", to: "brokenrecord", s: 0.4 },
+                // building
+                { from: "traaviis", to: "fleetprompt", s: 0.9 },
+                { from: "traaviis", to: "ticktickclock", s: 0.8 },
+                { from: "traaviis", to: "graphonomous", s: 0.7 },
+                { from: "traaviis", to: "webhost", s: 0.6 },
+                { from: "traaviis", to: "geofleetic", s: 0.5 },
+                { from: "traaviis", to: "gpscoord", s: 0.4 },
+                { from: "traaviis", to: "a2atraffic", s: 0.4 },
+                { from: "traaviis", to: "ampersandboxdesign", s: 0.4 },
+                // origin
+                { from: "istrav", to: "subvind", s: 0.6 },
+                { from: "subvind", to: "traaviis", s: 0.6 },
+            ];
+
+            // ═══════════════════════════════════════════
+            // SETUP
+            // ═══════════════════════════════════════════
+            const canvas = document.getElementById("graph-canvas");
+            const ctx = canvas.getContext("2d");
+            const container = document.getElementById("card-container");
+            let W, H;
+            function resize() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener("resize", resize);
+
+            const catColors = {
+                brand: "#fb923c",
+                agent: "#00e87b",
+                infra: "#00d9ff",
+                lang: "#8b5cf6",
+                creative: "#f472b6",
+                data: "#fbbf24",
+                observe: "#ef4444",
             };
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        const card =
-                            entry.target.querySelector(".company-card");
-                        if (card) {
-                            card.style.opacity = "1";
-                            card.style.transform = "translateY(0)";
-                        }
-                    }
+            // Create nodes with physics
+            const nodes = domains.map((d, i) => {
+                const angle = (i / domains.length) * Math.PI * 2;
+                const radius = Math.min(W, H) * 0.3;
+                return {
+                    ...d,
+                    hidden: false,
+                    x:
+                        W / 2 +
+                        Math.cos(angle) * radius +
+                        (Math.random() - 0.5) * 100,
+                    y:
+                        H / 2 +
+                        40 +
+                        Math.sin(angle) * radius +
+                        (Math.random() - 0.5) * 100,
+                    vx: 0,
+                    vy: 0,
+                    fx: 0,
+                    fy: 0,
+                    pinned: false,
+                    el: null,
+                };
+            });
+            const nodeMap = {};
+            nodes.forEach((n) => (nodeMap[n.id] = n));
+
+            // Stats
+            document.getElementById("totalEdges").textContent = edges.length;
+
+            // ── Create DOM cards ──
+            nodes.forEach((node, i) => {
+                const card = document.createElement("div");
+                card.className = "node-card";
+                card.dataset.id = node.id;
+                card.dataset.cat = node.cat;
+                card.style.animationDelay = i * 0.04 + "s";
+                const col = catColors[node.cat];
+                card.innerHTML = `
+    <div class="card-chrome">
+      <div class="chrome-dot r"></div>
+      <div class="chrome-dot y"></div>
+      <div class="chrome-dot g"></div>
+      <div class="chrome-url">${node.name}</div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">${node.label}</div>
+      <div class="card-tagline">${node.tagline}</div>
+      <div class="card-tags">
+        ${node.tags.map((t) => `<span class="card-tag tag-${t}">${t}</span>`).join("")}
+      </div>
+    </div>
+    <a class="card-visit" href="${node.url}" target="_blank" rel="noopener">Visit Site →</a>
+  `;
+                card.style.borderTop = `2px solid ${col}`;
+                container.appendChild(card);
+                node.el = card;
+
+                // Drag
+                let dragging = false,
+                    ox,
+                    oy;
+                const onDown = (e) => {
+                    if (e.target.closest(".card-visit")) return;
+                    dragging = true;
+                    node.pinned = true;
+                    const pt = e.touches ? e.touches[0] : e;
+                    ox = pt.clientX - node.x;
+                    oy = pt.clientY - node.y;
+                    card.style.zIndex = 60;
+                    e.preventDefault();
+                };
+                const onMove = (e) => {
+                    if (!dragging) return;
+                    const pt = e.touches ? e.touches[0] : e;
+                    node.x = pt.clientX - ox;
+                    node.y = pt.clientY - oy;
+                    node.vx = 0;
+                    node.vy = 0;
+                    e.preventDefault();
+                };
+                const onUp = () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    node.pinned = false;
+                    card.style.zIndex = 50;
+                };
+                card.addEventListener("mousedown", onDown);
+                card.addEventListener("touchstart", onDown, { passive: false });
+                window.addEventListener("mousemove", onMove);
+                window.addEventListener("touchmove", onMove, {
+                    passive: false,
                 });
-            }, observerOptions);
+                window.addEventListener("mouseup", onUp);
+                window.addEventListener("touchend", onUp);
 
-            // Observe all company cards
-            document.querySelectorAll(".company-card-link").forEach((card) => {
-                observer.observe(card);
+                // Hover highlight
+                card.addEventListener("mouseenter", () =>
+                    highlightNode(node.id),
+                );
+                card.addEventListener("mouseleave", () => clearHighlight());
             });
 
-            // Add parallax effect on mouse move
-            document.addEventListener("mousemove", (e) => {
-                const mouseX = e.clientX / window.innerWidth;
-                const mouseY = e.clientY / window.innerHeight;
-
-                document
-                    .querySelectorAll(".company-icon")
-                    .forEach((icon, index) => {
-                        const speed = (index + 1) * 0.5;
-                        const x = (mouseX - 0.5) * speed * 10;
-                        const y = (mouseY - 0.5) * speed * 10;
-                        icon.style.transform = `translate(${x}px, ${y}px)`;
-                    });
-            });
-
-            // Dynamic counter animation
-            function animateValue(element, start, end, duration) {
-                // Preserve formatting like "$600K" and "$600M" (prefix "$", suffix "K/M/B") during the animation.
-                const original =
-                    element.dataset.originalValue || element.textContent;
-                element.dataset.originalValue = original;
-
-                const trimmed = original.trim();
-                const prefix = (trimmed.match(/^[^0-9]+/) || [""])[0];
-                const suffix = (trimmed.match(/[^0-9]+$/) || [""])[0];
-
-                const range = end - start;
-                const increment = range / (duration / 16);
-                let current = start;
-
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (
-                        (increment > 0 && current >= end) ||
-                        (increment < 0 && current <= end)
-                    ) {
-                        current = end;
-                        clearInterval(timer);
-                    }
-
-                    if (element.classList.contains("stat-value")) {
-                        const numericValue = Math.floor(current);
-                        element.textContent = `${prefix}${numericValue}${suffix}`;
-                    }
-                }, 16);
+            // Highlight
+            let highlightedId = null;
+            function highlightNode(id) {
+                highlightedId = id;
+                const connected = new Set([id]);
+                edges.forEach((e) => {
+                    if (e.from === id) connected.add(e.to);
+                    if (e.to === id) connected.add(e.from);
+                });
+                nodes.forEach((n) => {
+                    n.el.classList.toggle("dimmed", !connected.has(n.id));
+                });
+            }
+            function clearHighlight() {
+                highlightedId = null;
+                nodes.forEach((n) => {
+                    if (!n.hidden) n.el.classList.remove("dimmed");
+                });
             }
 
-            // Trigger counter animation when stats come into view
-            const statsObserver = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (
-                            entry.isIntersecting &&
-                            !entry.target.dataset.animated
-                        ) {
-                            const value = entry.target.textContent;
-                            const numericValue = parseInt(
-                                value.replace(/[^0-9]/g, ""),
-                            );
-
-                            if (numericValue) {
-                                entry.target.dataset.animated = "true";
-                                animateValue(
-                                    entry.target,
-                                    0,
-                                    numericValue,
-                                    2000,
-                                );
-                            }
-                        }
+            // Filter
+            let activeFilter = "all";
+            document.querySelectorAll(".filter-btn").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    document
+                        .querySelectorAll(".filter-btn")
+                        .forEach((b) => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    activeFilter = btn.dataset.filter;
+                    nodes.forEach((n) => {
+                        const show =
+                            activeFilter === "all" || n.cat === activeFilter;
+                        n.hidden = !show;
+                        n.el.style.display = show ? "" : "none";
+                        n.el.classList.remove("dimmed");
                     });
-                },
-                { threshold: 0.1 },
-            );
-
-            document.querySelectorAll(".stat-value").forEach((stat) => {
-                statsObserver.observe(stat);
+                });
             });
+
+            // ═══════════════════════════════════════════
+            // FORCE SIMULATION
+            // ═══════════════════════════════════════════
+            const SIM = {
+                repulsion: 16000,
+                attraction: 0.00035,
+                edgeLen: 280,
+                damping: 0.86,
+                centerPull: 0.00012,
+                maxSpd: 3.5,
+            };
+
+            function simulate() {
+                nodes.forEach((n) => {
+                    n.fx = 0;
+                    n.fy = 0;
+                });
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const a = nodes[i],
+                            b = nodes[j];
+                        let dx = a.x - b.x,
+                            dy = a.y - b.y;
+                        let d = Math.sqrt(dx * dx + dy * dy) || 1;
+                        if (d > 900) continue;
+                        const f = SIM.repulsion / (d * d);
+                        const fx = (dx / d) * f,
+                            fy = (dy / d) * f;
+                        a.fx += fx;
+                        a.fy += fy;
+                        b.fx -= fx;
+                        b.fy -= fy;
+                    }
+                }
+                edges.forEach((e) => {
+                    const a = nodeMap[e.from],
+                        b = nodeMap[e.to];
+                    if (!a || !b) return;
+                    let dx = b.x - a.x,
+                        dy = b.y - a.y,
+                        d = Math.sqrt(dx * dx + dy * dy) || 1;
+                    const disp = d - SIM.edgeLen;
+                    const f = disp * SIM.attraction * (e.s || 0.5);
+                    const fx = (dx / d) * f,
+                        fy = (dy / d) * f;
+                    a.fx += fx;
+                    a.fy += fy;
+                    b.fx -= fx;
+                    b.fy -= fy;
+                });
+                nodes.forEach((n) => {
+                    n.fx += (W / 2 - n.x) * SIM.centerPull;
+                    n.fy += (H / 2 + 30 - n.y) * SIM.centerPull;
+                });
+                nodes.forEach((n) => {
+                    if (n.pinned) return;
+                    n.vx = (n.vx + n.fx) * SIM.damping;
+                    n.vy = (n.vy + n.fy) * SIM.damping;
+                    const spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
+                    if (spd > SIM.maxSpd) {
+                        n.vx = (n.vx / spd) * SIM.maxSpd;
+                        n.vy = (n.vy / spd) * SIM.maxSpd;
+                    }
+                    n.x += n.vx;
+                    n.y += n.vy;
+                    n.x = Math.max(120, Math.min(W - 120, n.x));
+                    n.y = Math.max(140, Math.min(H - 90, n.y));
+                });
+            }
+
+            // ═══════════════════════════════════════════
+            // RENDER
+            // ═══════════════════════════════════════════
+            function drawEdges() {
+                ctx.clearRect(0, 0, W, H);
+                // Subtle grid
+                ctx.strokeStyle = "#111325";
+                ctx.lineWidth = 0.5;
+                ctx.globalAlpha = 0.4;
+                for (let x = 0; x < W; x += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, H);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < H; y += 80) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(W, y);
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+
+                edges.forEach((e) => {
+                    const a = nodeMap[e.from],
+                        b = nodeMap[e.to];
+                    if (!a || !b) return;
+                    if (activeFilter !== "all" && a.hidden && b.hidden) return;
+
+                    const hl =
+                        highlightedId &&
+                        (e.from === highlightedId || e.to === highlightedId);
+                    const alpha = hl ? 0.5 : highlightedId ? 0.03 : 0.1;
+                    const width = hl ? 2 : 0.7;
+                    const col = catColors[a.cat] || "#444";
+
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.strokeStyle = col;
+                    ctx.globalAlpha = alpha;
+                    ctx.lineWidth = width;
+                    ctx.stroke();
+
+                    // Animated dot on highlighted edges
+                    if (hl) {
+                        const t = (Date.now() % 2200) / 2200;
+                        const px = a.x + (b.x - a.x) * t,
+                            py = a.y + (b.y - a.y) * t;
+                        ctx.globalAlpha = 0.9;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = col;
+                        ctx.fill();
+                    }
+                });
+                ctx.globalAlpha = 1;
+            }
+
+            function positionCards() {
+                nodes.forEach((n) => {
+                    if (n.hidden) return;
+                    const cw = 220,
+                        ch = n.el.offsetHeight || 160;
+                    n.el.style.left = n.x - cw / 2 + "px";
+                    n.el.style.top = n.y - ch / 2 + "px";
+                });
+            }
+
+            // Minimap
+            const mmC = document.getElementById("minimap-canvas");
+            const mmX = mmC.getContext("2d");
+            function drawMinimap() {
+                mmC.width = 140;
+                mmC.height = 100;
+                mmX.clearRect(0, 0, 140, 100);
+                const sx = 140 / W,
+                    sy = 100 / H;
+                mmX.strokeStyle = "#1e2130";
+                mmX.lineWidth = 0.5;
+                edges.forEach((e) => {
+                    const a = nodeMap[e.from],
+                        b = nodeMap[e.to];
+                    if (!a || !b) return;
+                    mmX.beginPath();
+                    mmX.moveTo(a.x * sx, a.y * sy);
+                    mmX.lineTo(b.x * sx, b.y * sy);
+                    mmX.stroke();
+                });
+                nodes.forEach((n) => {
+                    mmX.fillStyle = catColors[n.cat] || "#666";
+                    mmX.globalAlpha = n.hidden ? 0.1 : 0.8;
+                    mmX.beginPath();
+                    mmX.arc(n.x * sx, n.y * sy, 2.5, 0, Math.PI * 2);
+                    mmX.fill();
+                });
+                mmX.globalAlpha = 1;
+            }
+
+            let frame = 0;
+            function loop() {
+                simulate();
+                drawEdges();
+                positionCards();
+                if (frame % 5 === 0) drawMinimap();
+                frame++;
+                requestAnimationFrame(loop);
+            }
+            loop();
         </script>
     </body>
 </html>
