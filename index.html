@@ -6,7 +6,7 @@
         <title>Wrand.cc — R&D Domain Graph</title>
         <meta
             name="description"
-            content="Interactive graph of the Wrand.cc R&D portfolio — 23 domains mapped as a navigable network."
+            content="Interactive graph of the Wrand.cc R&D portfolio — 25 domains mapped as a navigable network."
         />
         <link
             href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
@@ -30,6 +30,7 @@
                 --orange: #fb923c;
                 --gold: #fbbf24;
                 --red: #ef4444;
+                --hub: #e8ecff;
             }
             * {
                 margin: 0;
@@ -54,6 +55,20 @@
                 width: 100%;
                 height: 100%;
                 z-index: 1;
+                /* purely decorative — never intercept a click meant for a card */
+                pointer-events: none;
+            }
+
+            /* The container carries the auto-fit transform, and a transform
+               creates a stacking context — which would otherwise paint the whole
+               card layer at z-index 0, i.e. UNDER the edge canvas. It must be
+               positioned and stacked explicitly. It spans the viewport, so it
+               stays transparent to the pointer and the cards opt back in. */
+            #card-container {
+                position: fixed;
+                inset: 0;
+                z-index: 50;
+                pointer-events: none;
             }
 
             /* ── HEADER ── */
@@ -162,6 +177,7 @@
             /* ── NODE CARDS ── */
             .node-card {
                 position: absolute;
+                pointer-events: auto;
                 z-index: 50;
                 width: 220px;
                 background: var(--surface);
@@ -189,7 +205,13 @@
             }
             .node-card.dimmed {
                 opacity: 0.12 !important;
-                pointer-events: none;
+                /* still clickable: hovering a dimmed card re-centres the
+                   highlight on it, so the graph stays explorable while a
+                   selection is held. */
+            }
+            .node-card.selected {
+                border-color: var(--cyan);
+                box-shadow: 0 0 0 1px var(--cyan), 0 10px 44px rgba(0, 0, 0, 0.6);
             }
             @keyframes nodeAppear {
                 from {
@@ -271,6 +293,10 @@
             }
 
             /* tag colors by category */
+            .tag-hub {
+                background: rgba(232, 236, 255, 0.14);
+                color: var(--hub);
+            }
             .tag-infra {
                 background: rgba(0, 217, 255, 0.12);
                 color: var(--cyan);
@@ -318,6 +344,164 @@
                 background: rgba(0, 217, 255, 0.04);
             }
 
+            /* ── DETAIL PANEL ── */
+            .detail {
+                position: fixed;
+                top: 50px;
+                right: 0;
+                bottom: 0;
+                z-index: 110;
+                width: 340px;
+                padding: 1.1rem 1.2rem 6rem;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                background: rgba(14, 16, 21, 0.96);
+                backdrop-filter: blur(18px);
+                border-left: 1px solid var(--border-bright);
+            }
+            .detail[hidden] {
+                display: none;
+            }
+            .detail-close {
+                position: absolute;
+                top: 0.6rem;
+                right: 0.8rem;
+                width: 26px;
+                height: 26px;
+                border: none;
+                border-radius: 6px;
+                background: transparent;
+                color: var(--text-dim);
+                font-size: 1.1rem;
+                line-height: 1;
+                cursor: pointer;
+            }
+            .detail-close:hover {
+                background: var(--surface);
+                color: var(--text);
+            }
+            .detail-url {
+                font-size: 0.55rem;
+                color: var(--text-dim);
+                letter-spacing: 0.04em;
+            }
+            .detail-name {
+                font-family: "Instrument Serif", serif;
+                font-style: italic;
+                font-size: 1.35rem;
+                margin: 0.15rem 0 0.4rem;
+            }
+            .detail-tagline {
+                font-size: 0.66rem;
+                line-height: 1.5;
+                color: var(--text-dim);
+            }
+            .detail-visit {
+                display: inline-block;
+                margin-top: 0.6rem;
+                font-size: 0.55rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                text-decoration: none;
+            }
+            .detail-visit:hover {
+                color: var(--cyan);
+            }
+            .detail-count {
+                margin: 1.2rem 0 0.5rem;
+                padding-top: 0.9rem;
+                border-top: 1px solid var(--border);
+                font-size: 0.58rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--text-dim);
+            }
+            /* one connection */
+            .nb {
+                display: block;
+                width: 100%;
+                text-align: left;
+                margin-bottom: 0.3rem;
+                padding: 0.5rem 0.55rem;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                background: transparent;
+                color: inherit;
+                font-family: inherit;
+                cursor: pointer;
+                transition: all 0.15s;
+            }
+            .nb:hover {
+                background: var(--surface);
+                border-color: var(--border-bright);
+            }
+            .nb-top {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+            }
+            .nb-dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                flex: none;
+            }
+            .nb-name {
+                font-size: 0.68rem;
+                color: var(--text);
+            }
+            .nb-dir {
+                margin-left: auto;
+                font-size: 0.6rem;
+                color: var(--text-muted);
+            }
+            /* evidence tier — the honest half of a connection */
+            .nb-tier {
+                display: inline-block;
+                margin: 0.3rem 0 0 1.1rem;
+                padding: 0.1rem 0.35rem;
+                border-radius: 3px;
+                font-size: 0.47rem;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+            .t-code {
+                background: rgba(0, 232, 123, 0.14);
+                color: var(--green);
+            }
+            .t-spec {
+                background: rgba(0, 217, 255, 0.12);
+                color: var(--cyan);
+            }
+            .t-intent {
+                background: rgba(251, 146, 60, 0.12);
+                color: var(--orange);
+            }
+            .t-owns {
+                background: rgba(107, 112, 148, 0.16);
+                color: var(--text-dim);
+            }
+            .nb-why {
+                display: block;
+                margin: 0.25rem 0 0.35rem 1.1rem;
+                font-size: 0.58rem;
+                line-height: 1.45;
+                color: var(--text-dim);
+            }
+            .nb-bar {
+                height: 2px;
+                margin-left: 1.1rem;
+                border-radius: 2px;
+                background: var(--border);
+            }
+            .nb-bar i {
+                display: block;
+                height: 100%;
+                border-radius: 2px;
+            }
+
             /* ── MINIMAP ── */
             .minimap {
                 position: fixed;
@@ -359,6 +543,16 @@
                 .minimap {
                     display: none;
                 }
+                .detail {
+                    top: auto;
+                    left: 0;
+                    right: 0;
+                    width: auto;
+                    max-height: 52vh;
+                    border-left: none;
+                    border-top: 1px solid var(--border-bright);
+                    padding-bottom: 4.5rem;
+                }
             }
         </style>
     </head>
@@ -367,7 +561,9 @@
         <div class="hud-top">
             <div class="hud-logo"><em>Wrand</em>.cc</div>
             <div class="hud-stats">
-                <div class="hud-stat"><b>23</b><span>domains</span></div>
+                <div class="hud-stat">
+                    <b id="totalDomains">0</b><span>domains</span>
+                </div>
                 <div class="hud-stat">
                     <b id="totalEdges">0</b><span>connections</span>
                 </div>
@@ -383,15 +579,33 @@
 
         <!-- FILTER -->
         <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all">All 23</button>
+            <button class="filter-btn active" id="filterAll" data-filter="all">
+                All
+            </button>
+            <button class="filter-btn" data-filter="hub">Hubs</button>
             <button class="filter-btn" data-filter="agent">Agent Stack</button>
-            <button class="filter-btn" data-filter="infra">Infra</button>
-            <button class="filter-btn" data-filter="lang">Dev Tools</button>
-            <button class="filter-btn" data-filter="creative">Products</button>
             <button class="filter-btn" data-filter="data">Primitives</button>
-            <button class="filter-btn" data-filter="brand">Brand</button>
-            <button class="filter-btn" data-filter="observe">Observe</button>
+            <button class="filter-btn" data-filter="infra">Runtime</button>
+            <button class="filter-btn" data-filter="lang">Dev Tools</button>
+            <button class="filter-btn" data-filter="observe">Evidence</button>
+            <button class="filter-btn" data-filter="creative">Products</button>
+            <button class="filter-btn" data-filter="brand">Identity</button>
         </div>
+
+        <!-- DETAIL PANEL — click a node to inspect its connections -->
+        <aside class="detail" id="detail" hidden>
+            <button class="detail-close" id="detailClose" aria-label="Close">
+                ×
+            </button>
+            <div class="detail-url" id="dUrl"></div>
+            <div class="detail-name" id="dName"></div>
+            <div class="detail-tagline" id="dTagline"></div>
+            <a class="detail-visit" id="dVisit" target="_blank" rel="noopener"
+                >Visit site →</a
+            >
+            <div class="detail-count" id="dCount"></div>
+            <div id="dList"></div>
+        </aside>
 
         <!-- MINIMAP -->
         <div class="minimap"><canvas id="minimap-canvas"></canvas></div>
@@ -404,19 +618,31 @@
 
         <script>
             // ═══════════════════════════════════════════
-            // DOMAIN DATA — all 23
+            // DOMAIN DATA — all 25
+            // Taglines track each domain's own live positioning.
+            // Last reconciled: 2026-08-10
             // ═══════════════════════════════════════════
             const domains = [
-                // ── [&] Hub ──
+                // ── Hubs — the two studios each stack hangs off ──
                 {
                     id: "ampersandboxdesign",
                     name: "ampersandboxdesign.com",
-                    label: "[&] Design",
+                    label: "[&] Ampersand Box",
                     url: "https://ampersandboxdesign.com",
                     tagline:
-                        "Holding company. [&] Protocol — capability composition for agents.",
-                    tags: ["brand"],
-                    cat: "brand",
+                        "Holding company. box-and-box — the governance kernel: feasible ▸ permitted ▸ best, 116 laws.",
+                    tags: ["hub"],
+                    cat: "hub",
+                },
+                {
+                    id: "computedriven",
+                    name: "computedriven.com",
+                    label: "ComputeDriven",
+                    url: "https://computedriven.com",
+                    tagline:
+                        "Systems studio. T&R — a FreeBSD 15 distro assembled from pkgbase — and RRABBIT.",
+                    tags: ["hub"],
+                    cat: "hub",
                 },
 
                 // ── Agent Platform (stack order 9→4) ──
@@ -426,7 +652,7 @@
                     label: "Delegatic",
                     url: "https://delegatic.com",
                     tagline:
-                        "Governance & orchestration. Top of the [&] stack. Policy inheritance.",
+                        "Policy engine — 8 modules, live on Fly. Fleet-wide governance: specified, not written.",
                     tags: ["agent"],
                     cat: "agent",
                 },
@@ -436,7 +662,7 @@
                     label: "SpecPrompt",
                     url: "https://specprompt.com",
                     tagline:
-                        "Spec-driven development. Every agent gets a validated SPEC.md.",
+                        "A spec you can checksum — content-addressed spec identity. Partly built.",
                     tags: ["agent"],
                     cat: "agent",
                 },
@@ -446,7 +672,7 @@
                     label: "Deliberatic",
                     url: "https://deliberatic.com",
                     tagline:
-                        "Multi-agent consensus via wBAF semantics. How agents decide.",
+                        "Argumentation-based consensus via wBAF. A specification, not a program.",
                     tags: ["agent"],
                     cat: "agent",
                 },
@@ -456,17 +682,17 @@
                     label: "Agentelic",
                     url: "https://agentelic.com",
                     tagline:
-                        "Agent collaboration. Telespaces, rooms, Studio. Build → publish.",
+                        "Agent builder. Spec-driven design, deterministic testing, governed deployment.",
                     tags: ["agent"],
                     cat: "agent",
                 },
                 {
                     id: "agentromatic",
                     name: "agentromatic.com",
-                    label: "AgentRomatic",
+                    label: "AgenTroMatic",
                     url: "https://agentromatic.com",
                     tagline:
-                        "No-code agent automation. Zapier for AI agents. Visual workflows.",
+                        "Agents bid, debate, elect leaders. A specification, not a program.",
                     tags: ["agent"],
                     cat: "agent",
                 },
@@ -476,7 +702,7 @@
                     label: "FleetPrompt",
                     url: "https://fleetprompt.com",
                     tagline:
-                        "Agent skills marketplace & component registry. Distribution layer.",
+                        "Planned registry for evidence-bundled agents. Install = replay. One entry today.",
                     tags: ["agent"],
                     cat: "agent",
                 },
@@ -488,7 +714,7 @@
                     label: "Graphonomous",
                     url: "https://graphonomous.com",
                     tagline:
-                        "Continual learning knowledge graph. What agents know.",
+                        "Closed-loop agent memory. Outcomes change beliefs; beliefs change retrieval.",
                     tags: ["data"],
                     cat: "data",
                 },
@@ -498,7 +724,7 @@
                     label: "GeoFleetic",
                     url: "https://geofleetic.com",
                     tagline:
-                        "Geospatial fleet orchestration. PostGIS + graph-native.",
+                        "Spatial intelligence. PostGIS + graph-native fleet orchestration. Spec only.",
                     tags: ["data"],
                     cat: "data",
                 },
@@ -508,7 +734,7 @@
                     label: "TickTickClock",
                     url: "https://ticktickclock.com",
                     tagline:
-                        "Temporal intelligence. Time-series CL engine for the [&] stack.",
+                        "Temporal intelligence. Time-series CL engine for the stack. Spec only.",
                     tags: ["data"],
                     cat: "data",
                 },
@@ -520,16 +746,17 @@
                     label: "WebHost.Systems",
                     url: "https://webhost.systems",
                     tagline:
-                        "Multi-tenant hosting infrastructure. Managed runtime.",
+                        "Multi-runtime AI agent deployment platform. Managed runtime.",
                     tags: ["infra"],
                     cat: "infra",
                 },
                 {
                     id: "gpscoord",
                     name: "gpscoord.com",
-                    label: "GPSCoord",
+                    label: "GPS Coord",
                     url: "https://gpscoord.com",
-                    tagline: "GPS fleet tracking SaaS. Real-time positioning.",
+                    tagline:
+                        "Precision coordinate utility. Lookup, convert, distance, elevation, APIs.",
                     tags: ["infra"],
                     cat: "infra",
                 },
@@ -539,18 +766,29 @@
                     label: "OpenSentience",
                     url: "https://opensentience.org",
                     tagline:
-                        "Open-source agent runtime daemon. Execute, govern, observe. Local-first.",
+                        "Open research protocols for machine cognition. OS-001…OS-011 · PRISM · PULSE.",
                     tags: ["infra"],
                     cat: "infra",
                 },
 
-                // ── Languages / Developer Tools ──
+                // ── Protocols / Developer Tools ──
                 {
                     id: "bendscript",
                     name: "bendscript.com",
                     label: "BendScript",
                     url: "https://bendscript.com",
-                    tagline: "[&] Playground; bend prompts into scripts!",
+                    tagline:
+                        "Graph-first document protocol. Typed inline link facets, content-addressable ids.",
+                    tags: ["lang"],
+                    cat: "lang",
+                },
+                {
+                    id: "runefort",
+                    name: "runefort.com",
+                    label: "Runefort",
+                    url: "https://runefort.com",
+                    tagline:
+                        "Open protocol + ~5KB Web Components for AI-authored tile layouts. BYOK.",
                     tags: ["lang"],
                     cat: "lang",
                 },
@@ -560,33 +798,43 @@
                     label: "Alkeyword",
                     url: "https://alkeyword.com",
                     tagline:
-                        "Algebraic data types for Elixir. Type-safe DSL + Ash integration.",
+                        "Observable type safety for Elixir. Algebraic data types + Ash integration.",
                     tags: ["lang"],
                     cat: "lang",
                 },
 
                 // ── Creative / Products ──
                 {
-                    id: "brokenrecord",
-                    name: "brokenrecord.studio",
-                    label: "HVAC-Buddy",
-                    url: "https://brokenrecord.studio",
+                    id: "toolboxhvac",
+                    name: "toolboxhvac.com",
+                    label: "Toolbox HVAC",
+                    url: "https://toolboxhvac.com",
                     tagline:
-                        "Field-first HVAC calculator toolkit. PT charts, refrigerants, equipment.",
+                        "Field diagnostic instrument for HVAC techs. Sourced PT data, evidence-gated verdicts.",
                     tags: ["creative"],
                     cat: "creative",
                 },
                 {
-                    id: "runefort",
-                    name: "runefort.com",
-                    label: "Runefort",
-                    url: "https://runefort.com",
-                    tagline: "Norse-themed video game. Downloadable.",
+                    id: "brokenrecord",
+                    name: "brokenrecord.studio",
+                    label: "Broken Record",
+                    url: "https://brokenrecord.studio",
+                    tagline: "U.A.P. — Unidentified Antique Phenomena.",
+                    tags: ["creative"],
+                    cat: "creative",
+                },
+                {
+                    id: "cul8er",
+                    name: "c-u-l8er.link",
+                    label: "c u l8er",
+                    url: "https://c-u-l8er.link",
+                    tagline:
+                        "Music & videos. Two albums, 28 videos — Travelmonstr and Telefoldal.",
                     tags: ["creative"],
                     cat: "creative",
                 },
 
-                // ── Observability ──
+                // ── Observability / Evidence ──
                 {
                     id: "a2atraffic",
                     name: "a2atraffic.com",
@@ -597,8 +845,18 @@
                     tags: ["observe"],
                     cat: "observe",
                 },
+                {
+                    id: "traaviis",
+                    name: "traaviis.com",
+                    label: "TRAAVIIS",
+                    url: "https://traaviis.com",
+                    tagline:
+                        "Evidence-grade environments for evaluating agents. TRVM · WRL · code.",
+                    tags: ["observe"],
+                    cat: "observe",
+                },
 
-                // ── Brand / Identity ──
+                // ── Identity ──
                 {
                     id: "wrand",
                     name: "wrand.cc",
@@ -618,15 +876,6 @@
                     cat: "brand",
                 },
                 {
-                    id: "traaviis",
-                    name: "traaviis.com",
-                    label: "Traaviis",
-                    url: "https://traaviis.com",
-                    tagline: "Personal brand. Building.",
-                    tags: ["brand"],
-                    cat: "brand",
-                },
-                {
                     id: "subvind",
                     name: "subvind.com",
                     label: "Subvind",
@@ -635,92 +884,85 @@
                     tags: ["brand"],
                     cat: "brand",
                 },
-                {
-                    id: "cul8er",
-                    name: "c-u-l8er.link",
-                    label: "C-U-L8er",
-                    url: "https://c-u-l8er.link",
-                    tagline: "Personal brand. Printing.",
-                    tags: ["brand"],
-                    cat: "brand",
-                },
             ];
 
             // ═══════════════════════════════════════════
             // EDGES — validated relationships
             // ═══════════════════════════════════════════
+            // Every edge carries WHY it exists and TIER = how well it is
+            // evidenced. Verified 2026-08-10 against the repos, not from memory:
+            //   code   — a real call site or dependency exists
+            //   spec   — written in a spec/protocol doc, not implemented
+            //   intent — stated positioning or a plan; nothing built
+            //   owns   — ownership/identity, true by construction
             const edges = [
-                // [&] hub — connected to everything in the ecosystem
-                { from: "ampersandboxdesign", to: "fleetprompt", s: 0.9 },
-                { from: "ampersandboxdesign", to: "webhost", s: 0.8 },
-                { from: "ampersandboxdesign", to: "a2atraffic", s: 0.7 },
-                { from: "ampersandboxdesign", to: "delegatic", s: 0.85 },
-                { from: "ampersandboxdesign", to: "specprompt", s: 0.7 },
-                { from: "ampersandboxdesign", to: "deliberatic", s: 0.7 },
-                { from: "ampersandboxdesign", to: "agentelic", s: 0.75 },
-                { from: "ampersandboxdesign", to: "agentromatic", s: 0.7 },
-                { from: "ampersandboxdesign", to: "graphonomous", s: 0.8 },
-                { from: "ampersandboxdesign", to: "geofleetic", s: 0.75 },
-                { from: "ampersandboxdesign", to: "ticktickclock", s: 0.7 },
-                { from: "ampersandboxdesign", to: "opensentience", s: 0.75 },
-                { from: "ampersandboxdesign", to: "bendscript", s: 0.6 },
-                // Agent platform chain (stack order: delegatic → specprompt → deliberatic → agentelic → agentromatic → fleetprompt)
-                { from: "delegatic", to: "specprompt", s: 0.9 },
-                { from: "delegatic", to: "deliberatic", s: 0.85 },
-                { from: "delegatic", to: "agentromatic", s: 0.7 },
-                { from: "specprompt", to: "agentelic", s: 0.8 },
-                { from: "deliberatic", to: "graphonomous", s: 0.9 }, // cognitive pair: decide + know
-                { from: "agentelic", to: "fleetprompt", s: 0.9 }, // build → publish
-                { from: "agentromatic", to: "fleetprompt", s: 0.8 }, // automate → distribute
-                { from: "agentromatic", to: "deliberatic", s: 0.6 }, // inherits deliberation
-                { from: "fleetprompt", to: "delegatic", s: 0.7 }, // registry → governance
-                { from: "fleetprompt", to: "specprompt", s: 0.8 }, // every skill has a spec
-                // Cognitive primitives
-                { from: "graphonomous", to: "geofleetic", s: 0.85 }, // graph + spatial
-                { from: "graphonomous", to: "ticktickclock", s: 0.8 }, // graph + temporal
-                { from: "geofleetic", to: "ticktickclock", s: 0.7 }, // spatial + temporal
-                { from: "geofleetic", to: "gpscoord", s: 0.85 }, // geospatial → GPS
-                { from: "graphonomous", to: "fleetprompt", s: 0.6 }, // learning → skills
-                // Infrastructure
-                { from: "webhost", to: "opensentience", s: 0.85 }, // hosting → runtime
-                { from: "webhost", to: "fleetprompt", s: 0.8 }, // hosting → platform
-                { from: "webhost", to: "gpscoord", s: 0.7 }, // hosting → fleet tracking
-                { from: "opensentience", to: "delegatic", s: 0.7 }, // runtime respects governance
-                { from: "opensentience", to: "graphonomous", s: 0.6 }, // runtime connects to graph MCP
-                // Languages / tools
-                { from: "bendscript", to: "a2atraffic", s: 0.7 }, // agent diagnostics → observability
-                { from: "bendscript", to: "opensentience", s: 0.6 }, // diagnostics → runtime
-                { from: "bendscript", to: "fleetprompt", s: 0.5 }, // diagnostics as skills
-                { from: "alkeyword", to: "bendscript", s: 0.5 }, // Elixir types → Elixir diagnostics
-                { from: "alkeyword", to: "specprompt", s: 0.4 }, // type safety → specs
-                // Observability
-                { from: "a2atraffic", to: "fleetprompt", s: 0.8 }, // watches the marketplace
-                { from: "a2atraffic", to: "delegatic", s: 0.6 }, // watches governance
-                { from: "a2atraffic", to: "webhost", s: 0.6 }, // watches infra
-                // Creative (loosely connected)
-                { from: "runefort", to: "wrand", s: 0.4 },
-                //
-                // Brand cluster
-                //
-                // forking
-                { from: "wrand", to: "traaviis", s: 0.7 },
-                { from: "wrand", to: "cul8er", s: 0.5 },
-                // printing
-                { from: "cul8er", to: "bendscript", s: 0.6 },
-                { from: "cul8er", to: "alkeyword", s: 0.5 },
-                { from: "cul8er", to: "brokenrecord", s: 0.4 },
-                // building
-                { from: "traaviis", to: "fleetprompt", s: 0.9 },
-                { from: "traaviis", to: "ticktickclock", s: 0.8 },
-                { from: "traaviis", to: "graphonomous", s: 0.7 },
-                { from: "traaviis", to: "webhost", s: 0.6 },
-                { from: "traaviis", to: "geofleetic", s: 0.5 },
-                { from: "traaviis", to: "gpscoord", s: 0.4 },
-                { from: "traaviis", to: "a2atraffic", s: 0.4 },
-                { from: "traaviis", to: "ampersandboxdesign", s: 0.4 },
-                // origin
-                { from: "istrav", to: "subvind", s: 0.6 },
-                { from: "subvind", to: "traaviis", s: 0.6 },
+                // ── [&] hub → the portfolio it owns ──
+                { from: "ampersandboxdesign", to: "delegatic", s: 0.85, tier: "owns", why: "Portfolio: the governance layer (OS-006)." },
+                { from: "ampersandboxdesign", to: "graphonomous", s: 0.8, tier: "owns", why: "Portfolio: the memory substrate (OS-001)." },
+                { from: "ampersandboxdesign", to: "webhost", s: 0.8, tier: "owns", why: "Portfolio: the runtime layer." },
+                { from: "ampersandboxdesign", to: "opensentience", s: 0.75, tier: "owns", why: "Publishes the OS-001…OS-011 protocol research." },
+                { from: "ampersandboxdesign", to: "agentelic", s: 0.75, tier: "owns", why: "Portfolio: the agent builder." },
+                { from: "ampersandboxdesign", to: "geofleetic", s: 0.75, tier: "owns", why: "Portfolio: the spatial primitive." },
+                { from: "ampersandboxdesign", to: "a2atraffic", s: 0.7, tier: "owns", why: "Portfolio: the observability surface." },
+                { from: "ampersandboxdesign", to: "deliberatic", s: 0.7, tier: "owns", why: "Portfolio: the consensus spec." },
+                { from: "ampersandboxdesign", to: "agentromatic", s: 0.7, tier: "owns", why: "Portfolio: the deliberation spec." },
+                { from: "ampersandboxdesign", to: "ticktickclock", s: 0.7, tier: "owns", why: "Portfolio: the temporal primitive." },
+                { from: "ampersandboxdesign", to: "bendscript", s: 0.6, tier: "owns", why: "Portfolio: the document protocol." },
+                { from: "ampersandboxdesign", to: "runefort", s: 0.6, tier: "owns", why: "Portfolio: the tile-layout protocol." },
+                { from: "ampersandboxdesign", to: "computedriven", s: 0.5, tier: "owns", why: "amp-nav carries a ComputeDriven CTA on every site." },
+
+                // ── The dark-factory chain — the only edges wired in real code.
+                // specprompt/lib/publisher.ex names it outright:
+                // SpecPrompt → Agentelic → FleetPrompt → OpenSentience → PRISM
+                { from: "specprompt", to: "agentelic", s: 0.9, tier: "code", why: "Agentelic's parser consumes a SPEC.md into a SpecPrompt.Spec; its test DSL compiles the acceptance tests." },
+                { from: "agentelic", to: "fleetprompt", s: 0.9, tier: "code", why: "publisher.ex POSTs a CloudEvents ConsolidationEvent to the FleetPrompt webhook on build success." },
+                { from: "fleetprompt", to: "delegatic", s: 0.9, tier: "code", why: "Install step 4 calls Delegatic.authorize/1 — a policy denial hard-fails the install. Git dependency." },
+                { from: "fleetprompt", to: "opensentience", s: 0.85, tier: "code", why: "Install step 5 proves the manifest is Harness-loadable via OpenSentience.Harness.start_session/1. Git dependency." },
+                { from: "fleetprompt", to: "graphonomous", s: 0.8, tier: "code", why: "Install step 6 initializes a memory telespace through KILN's GraphonomousClient." },
+                { from: "computedriven", to: "traaviis", s: 0.8, tier: "code", why: "The trvs stack ships inside the T&R image — verified on a pristine build." },
+
+                // ── Declared in a spec, not implemented ──
+                { from: "opensentience", to: "delegatic", s: 0.8, tier: "spec", why: "OS-006 Governance Shim is delegatic's normative spec." },
+                { from: "opensentience", to: "graphonomous", s: 0.8, tier: "spec", why: "OS-001 Continual Learning and OS-002 κ-Routing are graphonomous's normative spec." },
+                { from: "deliberatic", to: "graphonomous", s: 0.8, tier: "spec", why: "Spec names graphonomous://workspace/{id} as its evidence and reputation store." },
+                { from: "delegatic", to: "agentromatic", s: 0.7, tier: "spec", why: "Spec §7: Delegatic defines the boundaries, AgenTroMatic automates within them." },
+                { from: "fleetprompt", to: "specprompt", s: 0.7, tier: "spec", why: "Every listing is expected to carry a spec." },
+                { from: "webhost", to: "fleetprompt", s: 0.7, tier: "spec", why: "Spec declares deploy_to_fleetprompt — a ConsolidationEvent carrying usage-based trust signals." },
+                { from: "webhost", to: "opensentience", s: 0.7, tier: "spec", why: "Runtime follows the OS-010 PULSE specification." },
+                { from: "traaviis", to: "opensentience", s: 0.7, tier: "spec", why: "OS-008 harness lineage; trvs is the evaluation terminal that succeeded it." },
+                { from: "agentromatic", to: "deliberatic", s: 0.6, tier: "spec", why: "Built on the Deliberatic protocol — which is itself only a specification." },
+                { from: "agentromatic", to: "fleetprompt", s: 0.6, tier: "spec", why: "Automate → distribute." },
+                { from: "graphonomous", to: "geofleetic", s: 0.6, tier: "spec", why: "Graph memory + spatial index." },
+                { from: "graphonomous", to: "ticktickclock", s: 0.6, tier: "spec", why: "Graph memory + temporal index." },
+                { from: "geofleetic", to: "ticktickclock", s: 0.5, tier: "spec", why: "Where meets when. Both are spec-only." },
+                { from: "bendscript", to: "graphonomous", s: 0.5, tier: "spec", why: "Facet bendscript.memory.v1 targets Graphonomous-style memory nodes." },
+                { from: "bendscript", to: "specprompt", s: 0.5, tier: "spec", why: "Facet bendscript.spec.v1 targets SpecPrompt-style capability specifications." },
+                { from: "bendscript", to: "runefort", s: 0.4, tier: "spec", why: "Facet bendscript.runefort.v1 — documents claimed by Runefort rooms." },
+                { from: "runefort", to: "opensentience", s: 0.4, tier: "spec", why: "@runefort/vocab-supervisor-floor implements the supervisor-floor vocabulary." },
+
+                // ── Stated positioning; nothing built ──
+                { from: "computedriven", to: "specprompt", s: 0.8, tier: "intent", why: "“The specification layer of the ComputeDriven stack.” Unpushed, and no other site says so yet." },
+                { from: "computedriven", to: "fleetprompt", s: 0.8, tier: "intent", why: "“The distribution layer of the ComputeDriven stack.” Unpushed, and no other site says so yet." },
+                { from: "a2atraffic", to: "fleetprompt", s: 0.5, tier: "intent", why: "Claims to watch the marketplace. a2atraffic has a landing page and no code." },
+                { from: "a2atraffic", to: "delegatic", s: 0.4, tier: "intent", why: "Claims to watch governance decisions. Not wired." },
+                { from: "a2atraffic", to: "webhost", s: 0.4, tier: "intent", why: "Claims to watch the infrastructure. Not wired." },
+                { from: "traaviis", to: "a2atraffic", s: 0.3, tier: "intent", why: "Two ways to measure a running system; no shared code." },
+
+                // ── Identity — wrand.cc is the fork point ──
+                { from: "traaviis", to: "ampersandboxdesign", s: 0.6, tier: "owns", why: "Portfolio member." },
+                { from: "wrand", to: "ampersandboxdesign", s: 0.7, tier: "owns", why: "Fork: the [&] portfolio." },
+                { from: "wrand", to: "computedriven", s: 0.7, tier: "owns", why: "Fork: the systems studio." },
+                { from: "wrand", to: "traaviis", s: 0.7, tier: "owns", why: "Fork: agent evaluation." },
+                { from: "wrand", to: "istrav", s: 0.6, tier: "owns", why: "Fork: web solutions." },
+                { from: "wrand", to: "subvind", s: 0.6, tier: "owns", why: "Fork: community solutions." },
+                { from: "wrand", to: "cul8er", s: 0.6, tier: "owns", why: "Fork: music and video." },
+                { from: "wrand", to: "brokenrecord", s: 0.5, tier: "owns", why: "Fork: U.A.P." },
+                { from: "wrand", to: "toolboxhvac", s: 0.5, tier: "owns", why: "Fork: the HVAC instrument." },
+                { from: "wrand", to: "alkeyword", s: 0.5, tier: "owns", why: "Fork: Elixir type safety. Standalone — nothing in the stack references it." },
+                { from: "wrand", to: "gpscoord", s: 0.5, tier: "owns", why: "Fork: the coordinate utility. Standalone — nothing in the stack references it." },
+                { from: "istrav", to: "subvind", s: 0.6, tier: "owns", why: "Origin: the two founding entities." },
+                { from: "subvind", to: "traaviis", s: 0.6, tier: "owns", why: "Community entity → the evaluation product." },
+                { from: "cul8er", to: "brokenrecord", s: 0.5, tier: "owns", why: "Two sides of the same making." },
             ];
 
             // ═══════════════════════════════════════════
@@ -730,14 +972,88 @@
             const ctx = canvas.getContext("2d");
             const container = document.getElementById("card-container");
             let W, H;
+
+            // ── VIEW ──────────────────────────────────────────────────────
+            // The cards do not fit a phone, and 25 of them do not fit a 1280px
+            // laptop either: ~1.06M px² of card against ~890k px² of usable
+            // viewport. So the simulation runs in its OWN world, sized to hold
+            // every card comfortably, and the whole thing is scaled down to fit
+            // the screen. Nothing is ever pushed off-canvas or buried.
+            const VIEW = { s: 1, top: 50, bottom: 0, worldW: 0, worldH: 0 };
+
+            function bottomInset() {
+                const fb = document.querySelector(".filter-bar");
+                return fb ? H - fb.getBoundingClientRect().top + 12 : 60;
+            }
+
+            function fit() {
+                VIEW.top = 50;
+                VIEW.bottom = bottomInset();
+                // The open detail panel is not drawable area. It docks right on
+                // desktop and along the bottom on narrow screens, so subtract
+                // from whichever axis it actually occupies.
+                const d = document.getElementById("detail");
+                let panelW = 0,
+                    panelH = 0;
+                if (d && !d.hidden) {
+                    const r = d.getBoundingClientRect();
+                    if (r.width < W * 0.6) panelW = r.width;
+                    else panelH = r.height;
+                }
+                const availW = W - panelW;
+                const availH = Math.max(
+                    200,
+                    H - VIEW.top - VIEW.bottom - panelH,
+                );
+                // Cards need roughly 2.4x their own area to look like a graph
+                // rather than a mosaic; that factor is what buys the whitespace
+                // the edges are drawn in.
+                const need =
+                    nodes.reduce(
+                        (t, n) => t + (n.hidden ? 0 : n.w * n.h),
+                        0,
+                    ) * 2.4;
+                const s = Math.min(1, Math.sqrt((availW * availH) / need));
+                const prevW = VIEW.worldW,
+                    prevH = VIEW.worldH;
+                VIEW.s = Math.max(0.3, s);
+                VIEW.worldW = availW / VIEW.s;
+                VIEW.worldH = availH / VIEW.s;
+                // The world just changed size; carry the nodes with it. Without
+                // this, filtering shrinks the world and leaves cards stranded
+                // outside it until the clamp drags them back over many frames.
+                if (prevW > 0 && prevH > 0) {
+                    const rx = VIEW.worldW / prevW,
+                        ry = VIEW.worldH / prevH;
+                    nodes.forEach((n) => {
+                        n.x *= rx;
+                        n.y *= ry;
+                    });
+                }
+                if (typeof alpha === "number") reheat(0.5);
+                container.style.transformOrigin = "0 0";
+                container.style.transform =
+                    "translate(0," + VIEW.top + "px) scale(" + VIEW.s + ")";
+            }
+
+            // `fit()` reads `nodes`, which is created further down — so the very
+            // first resize() only sizes the canvas, and layout starts once the
+            // cards exist and have been measured.
+            let laidOut = false;
             function resize() {
                 W = canvas.width = window.innerWidth;
                 H = canvas.height = window.innerHeight;
+                if (laidOut) fit();
             }
             resize();
             window.addEventListener("resize", resize);
 
+            // screen px → world px (drag handlers work in world coordinates)
+            const toWorldX = (px) => px / VIEW.s;
+            const toWorldY = (py) => (py - VIEW.top) / VIEW.s;
+
             const catColors = {
+                hub: "#e8ecff",
                 brand: "#fb923c",
                 agent: "#00e87b",
                 infra: "#00d9ff",
@@ -767,6 +1083,8 @@
                     vy: 0,
                     fx: 0,
                     fy: 0,
+                    w: 220,
+                    h: 180,
                     pinned: false,
                     el: null,
                 };
@@ -774,8 +1092,12 @@
             const nodeMap = {};
             nodes.forEach((n) => (nodeMap[n.id] = n));
 
-            // Stats
+            // Stats — derived, so the counts can never drift from the data
+            document.getElementById("totalDomains").textContent =
+                domains.length;
             document.getElementById("totalEdges").textContent = edges.length;
+            document.getElementById("filterAll").textContent =
+                "All " + domains.length;
 
             // ── Create DOM cards ──
             nodes.forEach((node, i) => {
@@ -808,22 +1130,34 @@
                 // Drag
                 let dragging = false,
                     ox,
-                    oy;
+                    oy,
+                    downX = 0,
+                    downY = 0,
+                    travelled = 0;
                 const onDown = (e) => {
                     if (e.target.closest(".card-visit")) return;
                     dragging = true;
                     node.pinned = true;
                     const pt = e.touches ? e.touches[0] : e;
-                    ox = pt.clientX - node.x;
-                    oy = pt.clientY - node.y;
+                    ox = toWorldX(pt.clientX) - node.x;
+                    oy = toWorldY(pt.clientY) - node.y;
+                    downX = pt.clientX;
+                    downY = pt.clientY;
+                    travelled = 0;
                     card.style.zIndex = 60;
+                    reheat(0.5);
                     e.preventDefault();
                 };
                 const onMove = (e) => {
                     if (!dragging) return;
                     const pt = e.touches ? e.touches[0] : e;
-                    node.x = pt.clientX - ox;
-                    node.y = pt.clientY - oy;
+                    travelled = Math.max(
+                        travelled,
+                        Math.abs(pt.clientX - downX) +
+                            Math.abs(pt.clientY - downY),
+                    );
+                    node.x = toWorldX(pt.clientX) - ox;
+                    node.y = toWorldY(pt.clientY) - oy;
                     node.vx = 0;
                     node.vy = 0;
                     e.preventDefault();
@@ -833,6 +1167,8 @@
                     dragging = false;
                     node.pinned = false;
                     card.style.zIndex = 50;
+                    // A press that barely moved is a click, not a drag.
+                    if (travelled < 5) selectNode(node.id);
                 };
                 card.addEventListener("mousedown", onDown);
                 card.addEventListener("touchstart", onDown, { passive: false });
@@ -850,8 +1186,9 @@
                 card.addEventListener("mouseleave", () => clearHighlight());
             });
 
-            // Highlight
+            // Highlight — hover is transient, selection sticks.
             let highlightedId = null;
+            let selectedId = null;
             function highlightNode(id) {
                 highlightedId = id;
                 const connected = new Set([id]);
@@ -864,11 +1201,131 @@
                 });
             }
             function clearHighlight() {
+                // A selected node keeps its neighbourhood lit after the pointer leaves.
+                if (selectedId) return highlightNode(selectedId);
                 highlightedId = null;
                 nodes.forEach((n) => {
                     if (!n.hidden) n.el.classList.remove("dimmed");
                 });
             }
+
+            // ── DETAIL PANEL ──────────────────────────────────────────────
+            const detail = document.getElementById("detail");
+
+            function neighboursOf(id) {
+                return edges
+                    .filter((e) => e.from === id || e.to === id)
+                    .map((e) => {
+                        const otherId = e.from === id ? e.to : e.from;
+                        return {
+                            node: nodeMap[otherId],
+                            s: e.s,
+                            why: e.why || "",
+                            tier: e.tier || "intent",
+                            out: e.from === id,
+                        };
+                    })
+                    .sort((a, b) => b.s - a.s);
+            }
+
+            const TIER_LABEL = {
+                code: "wired in code",
+                spec: "in the spec",
+                intent: "stated only",
+                owns: "ownership",
+            };
+
+            const esc = (t) =>
+                String(t).replace(
+                    /[&<>"]/g,
+                    (c) =>
+                        ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                        })[c],
+                );
+
+            function selectNode(id) {
+                const n = nodeMap[id];
+                if (!n) return;
+                selectedId = id;
+                highlightNode(id);
+
+                document.getElementById("dUrl").textContent = n.name;
+                document.getElementById("dName").textContent = n.label;
+                document.getElementById("dTagline").textContent = n.tagline;
+                const visit = document.getElementById("dVisit");
+                visit.href = n.url;
+
+                const nbs = neighboursOf(id);
+                document.getElementById("dCount").textContent =
+                    nbs.length +
+                    (nbs.length === 1 ? " connection" : " connections");
+                document.getElementById("dList").innerHTML = nbs
+                    .map((nb) => {
+                        const col = catColors[nb.node.cat] || "#666";
+                        return `
+    <button class="nb" data-goto="${nb.node.id}">
+      <span class="nb-top">
+        <span class="nb-dot" style="background:${col}"></span>
+        <span class="nb-name">${esc(nb.node.label)}</span>
+        <span class="nb-dir">${nb.out ? "→" : "←"} ${nb.s.toFixed(2)}</span>
+      </span>
+      <span class="nb-tier t-${nb.tier}">${TIER_LABEL[nb.tier]}</span>
+      <span class="nb-why">${esc(nb.why)}</span>
+      <span class="nb-bar"
+        ><i style="width:${Math.round(nb.s * 100)}%;background:${col}"></i
+      ></span>
+    </button>`;
+                    })
+                    .join("");
+                detail.hidden = false;
+                detail.scrollTop = 0;
+                nodes.forEach((x) =>
+                    x.el.classList.toggle("selected", x.id === id),
+                );
+                if (laidOut) fit();
+            }
+
+            function deselect() {
+                selectedId = null;
+                detail.hidden = true;
+                nodes.forEach((x) => x.el.classList.remove("selected"));
+                clearHighlight();
+                if (laidOut) fit();
+            }
+
+            // Clicking empty space clears the selection. The canvas is
+            // pointer-events:none, so a background click lands on <body>.
+            window.addEventListener("mousedown", (e) => {
+                if (!selectedId) return;
+                if (
+                    e.target.closest(
+                        ".node-card, .detail, .filter-bar, .hud-top, .minimap",
+                    )
+                )
+                    return;
+                deselect();
+            });
+
+            // Jump to a neighbour from inside the panel.
+            document.getElementById("dList").addEventListener("click", (e) => {
+                const btn = e.target.closest("[data-goto]");
+                if (!btn) return;
+                const target = nodeMap[btn.dataset.goto];
+                // A hidden node can't be inspected while a filter excludes it.
+                if (target && target.hidden)
+                    document.querySelector('[data-filter="all"]').click();
+                selectNode(btn.dataset.goto);
+            });
+            document
+                .getElementById("detailClose")
+                .addEventListener("click", deselect);
+            window.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") deselect();
+            });
 
             // Filter
             let activeFilter = "all";
@@ -886,6 +1343,10 @@
                         n.el.style.display = show ? "" : "none";
                         n.el.classList.remove("dimmed");
                     });
+                    // Fewer cards need less room, so re-fit — filtering down to
+                    // one category scales the survivors back up to readable size.
+                    // This is what makes the graph usable on a phone.
+                    if (laidOut) fit();
                 });
             });
 
@@ -901,7 +1362,115 @@
                 maxSpd: 3.5,
             };
 
+            // Chrome the cards must stay clear of: the 50px header, the filter
+            // bar along the bottom, and the minimap in the bottom-right corner.
+            // Without this the clamp bounds the card CENTRE, so the bottom half
+            // of a ~180px card slides under the filter bar and is unreadable.
+            const PAD = 10;
+            // The world already excludes the header and the filter bar, so the
+            // only chrome left to dodge is the minimap — converted into world
+            // coordinates here. NB: .minimap is position:fixed, and a fixed
+            // element always reports offsetParent === null, so visibility has to
+            // be tested on the rect, not the parent.
+            function chrome() {
+                const mm = document.querySelector(".minimap");
+                const r = mm && mm.getBoundingClientRect();
+                if (!r || !r.width) return { mm: null };
+                return {
+                    mm: {
+                        left: toWorldX(r.left),
+                        right: toWorldX(r.right),
+                        top: toWorldY(r.top),
+                        bottom: toWorldY(r.bottom),
+                    },
+                };
+            }
+
+            // Cards are boxes, not points. Resolve real rectangle overlaps by
+            // pushing along the axis of least penetration — point repulsion
+            // alone leaves wide cards visibly stacked on each other.
+            function separate(cr) {
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const a = nodes[i],
+                            b = nodes[j];
+                        if (a.hidden || b.hidden) continue;
+                        const minX = (a.w + b.w) / 2 + PAD;
+                        const minY = (a.h + b.h) / 2 + PAD;
+                        const dx = b.x - a.x,
+                            dy = b.y - a.y;
+                        const ox = minX - Math.abs(dx),
+                            oy = minY - Math.abs(dy);
+                        if (ox <= 0 || oy <= 0) continue;
+                        // push along whichever axis needs the smaller shove
+                        if (ox < oy) {
+                            const s = (dx < 0 ? -1 : 1) * ox * 0.5;
+                            if (!a.pinned) a.x -= s;
+                            if (!b.pinned) b.x += s;
+                        } else {
+                            const s = (dy < 0 ? -1 : 1) * oy * 0.5;
+                            if (!a.pinned) a.y -= s;
+                            if (!b.pinned) b.y += s;
+                        }
+                    }
+                }
+                nodes.forEach((n) => clampNode(n, cr));
+            }
+
+            function clampNode(n, cr) {
+                const hw = n.w / 2,
+                    hh = n.h / 2;
+                const x0 = n.x,
+                    y0 = n.y;
+                n.x = Math.max(
+                    hw + PAD,
+                    Math.min(VIEW.worldW - hw - PAD, n.x),
+                );
+                n.y = Math.max(
+                    hh + PAD,
+                    Math.min(VIEW.worldH - hh - PAD, n.y),
+                );
+                // Nudge out of the minimap rather than letting a card sit under it.
+                if (cr.mm) {
+                    const ox =
+                        Math.min(n.x + hw, cr.mm.right) -
+                        Math.max(n.x - hw, cr.mm.left);
+                    const oy =
+                        Math.min(n.y + hh, cr.mm.bottom) -
+                        Math.max(n.y - hh, cr.mm.top);
+                    if (ox > 0 && oy > 0) {
+                        if (ox < oy) n.x = cr.mm.left - hw - PAD;
+                        else n.y = cr.mm.top - hh - PAD;
+                        n.x = Math.max(hw + PAD, n.x);
+                        n.y = Math.max(hh + PAD, n.y);
+                    }
+                }
+                // Kill the velocity on any axis we had to correct. Without this
+                // the force keeps pushing into the boundary, the clamp keeps
+                // snapping back, and the node bounces against it forever.
+                if (n.x !== x0) n.vx = 0;
+                if (n.y !== y0) n.vy = 0;
+            }
+
+            // ── COOLING ──────────────────────────────────────────────────
+            // The original loop integrated forces forever at a fixed damping,
+            // so the layout never came to rest — it drifted indefinitely and
+            // read as nodes bouncing. Forces are now scaled by a decaying
+            // alpha, so the graph settles and stops; anything that changes the
+            // layout re-heats it.
+            let alpha = 1;
+            const ALPHA_MIN = 0.004,
+                ALPHA_DECAY = 0.014;
+            function reheat(a = 0.6) {
+                alpha = Math.max(alpha, a);
+            }
+
             function simulate() {
+                const dragging = nodes.some((n) => n.pinned);
+                if (alpha < ALPHA_MIN && !dragging) return false;
+                alpha = dragging
+                    ? Math.max(alpha, 0.25)
+                    : alpha * (1 - ALPHA_DECAY);
                 nodes.forEach((n) => {
                     n.fx = 0;
                     n.fy = 0;
@@ -940,13 +1509,14 @@
                     b.fy -= fy;
                 });
                 nodes.forEach((n) => {
-                    n.fx += (W / 2 - n.x) * SIM.centerPull;
-                    n.fy += (H / 2 + 30 - n.y) * SIM.centerPull;
+                    n.fx += (VIEW.worldW / 2 - n.x) * SIM.centerPull;
+                    n.fy += (VIEW.worldH / 2 - n.y) * SIM.centerPull;
                 });
+                const cr = chrome();
                 nodes.forEach((n) => {
                     if (n.pinned) return;
-                    n.vx = (n.vx + n.fx) * SIM.damping;
-                    n.vy = (n.vy + n.fy) * SIM.damping;
+                    n.vx = (n.vx + n.fx * alpha) * SIM.damping;
+                    n.vy = (n.vy + n.fy * alpha) * SIM.damping;
                     const spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
                     if (spd > SIM.maxSpd) {
                         n.vx = (n.vx / spd) * SIM.maxSpd;
@@ -954,17 +1524,20 @@
                     }
                     n.x += n.vx;
                     n.y += n.vy;
-                    n.x = Math.max(120, Math.min(W - 120, n.x));
-                    n.y = Math.max(140, Math.min(H - 90, n.y));
+                    clampNode(n, cr);
                 });
+                separate(cr);
+                return true;
             }
 
             // ═══════════════════════════════════════════
             // RENDER
             // ═══════════════════════════════════════════
             function drawEdges() {
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
                 ctx.clearRect(0, 0, W, H);
-                // Subtle grid
+                // Subtle grid — screen space, so it stays a fixed 80px lattice
+                // regardless of how far the world is scaled down.
                 ctx.strokeStyle = "#111325";
                 ctx.lineWidth = 0.5;
                 ctx.globalAlpha = 0.4;
@@ -982,6 +1555,9 @@
                 }
                 ctx.globalAlpha = 1;
 
+                // Everything below is world space — same transform as the cards.
+                ctx.setTransform(VIEW.s, 0, 0, VIEW.s, 0, VIEW.top);
+
                 edges.forEach((e) => {
                     const a = nodeMap[e.from],
                         b = nodeMap[e.to];
@@ -992,7 +1568,8 @@
                         highlightedId &&
                         (e.from === highlightedId || e.to === highlightedId);
                     const alpha = hl ? 0.5 : highlightedId ? 0.03 : 0.1;
-                    const width = hl ? 2 : 0.7;
+                    // divide by scale so stroke weight stays constant on screen
+                    const width = (hl ? 2 : 0.7) / VIEW.s;
                     const col = catColors[a.cat] || "#444";
 
                     ctx.beginPath();
@@ -1010,21 +1587,33 @@
                             py = a.y + (b.y - a.y) * t;
                         ctx.globalAlpha = 0.9;
                         ctx.beginPath();
-                        ctx.arc(px, py, 3, 0, Math.PI * 2);
+                        ctx.arc(px, py, 3 / VIEW.s, 0, Math.PI * 2);
                         ctx.fillStyle = col;
                         ctx.fill();
                     }
                 });
                 ctx.globalAlpha = 1;
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
 
             function positionCards() {
                 nodes.forEach((n) => {
                     if (n.hidden) return;
-                    const cw = 220,
-                        ch = n.el.offsetHeight || 160;
-                    n.el.style.left = n.x - cw / 2 + "px";
-                    n.el.style.top = n.y - ch / 2 + "px";
+                    n.el.style.left = n.x - n.w / 2 + "px";
+                    n.el.style.top = n.y - n.h / 2 + "px";
+                });
+            }
+
+            // Card size is CSS-driven (220px desktop, 170px under 768px) and the
+            // height depends on how the tagline wraps, so measure rather than assume.
+            function measureCards() {
+                nodes.forEach((n) => {
+                    if (!n.el) return;
+                    const wasHidden = n.el.style.display === "none";
+                    if (wasHidden) n.el.style.display = "";
+                    n.w = n.el.offsetWidth || n.w;
+                    n.h = n.el.offsetHeight || n.h;
+                    if (wasHidden) n.el.style.display = "none";
                 });
             }
 
@@ -1035,8 +1624,8 @@
                 mmC.width = 140;
                 mmC.height = 100;
                 mmX.clearRect(0, 0, 140, 100);
-                const sx = 140 / W,
-                    sy = 100 / H;
+                const sx = 140 / (VIEW.worldW || W),
+                    sy = 100 / (VIEW.worldH || H);
                 mmX.strokeStyle = "#1e2130";
                 mmX.lineWidth = 0.5;
                 edges.forEach((e) => {
@@ -1058,11 +1647,42 @@
                 mmX.globalAlpha = 1;
             }
 
+            // Seed the ring in world coordinates once the world exists.
+            function seed() {
+                nodes.forEach((n, i) => {
+                    const a = (i / nodes.length) * Math.PI * 2;
+                    const r =
+                        Math.min(VIEW.worldW, VIEW.worldH) * 0.34 + 40;
+                    n.x = VIEW.worldW / 2 + Math.cos(a) * r;
+                    n.y = VIEW.worldH / 2 + Math.sin(a) * r;
+                    n.vx = n.vy = 0;
+                });
+                alpha = 1;
+            }
+
+            measureCards();
+            laidOut = true;
+            fit();
+            seed();
+            window.addEventListener("resize", () => {
+                measureCards();
+                fit();
+            });
+            // Fonts land after first paint and change how taglines wrap.
+            if (document.fonts && document.fonts.ready)
+                document.fonts.ready.then(() => {
+                    measureCards();
+                    fit();
+                });
+
             let frame = 0;
             function loop() {
-                simulate();
+                // Re-measure periodically: fonts land late, taglines rewrap, and
+                // filtering changes which cards are laid out. A stale height makes
+                // the chrome clamp undershoot and a card slides under the minimap.
+                if (frame % 30 === 0) measureCards();
+                if (simulate()) positionCards();
                 drawEdges();
-                positionCards();
                 if (frame % 5 === 0) drawMinimap();
                 frame++;
                 requestAnimationFrame(loop);
