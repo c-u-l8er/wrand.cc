@@ -6,12 +6,330 @@
         <title>Wrand.cc — R&D Domain Graph</title>
         <meta
             name="description"
-            content="Interactive graph of the Wrand.cc R&D portfolio — 25 domains mapped as a navigable network."
+            content="The Wrand.cc R&D portfolio: 25 domains and 56 recorded connections, each connection labelled with how well it is evidenced. Full inventory in the page source, no JavaScript required."
         />
+        <link rel="canonical" href="https://wrand.cc/" />
         <link
             href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
             rel="stylesheet"
         />
+        <!-- Machine-readable inventory. This is the ONE derived copy of the
+             data in the #inventory section below; it is not generated at
+             runtime, because a reader that does not execute JS must still see
+             it. It is CHECKED at runtime instead — see checkDrift() — and any
+             divergence is reported loudly rather than silently tolerated. -->
+        <script type="application/ld+json" id="portfolio-ld">
+        {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Wrand.cc domain graph",
+            "description": "The 25 domains of the Wrand.cc R&D portfolio and the 56 recorded connections between them.",
+            "numberOfItems": 25,
+            "itemListOrder": "https://schema.org/ItemListUnordered",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "[&] Ampersand Box",
+                        "alternateName": "ampersandboxdesign.com",
+                        "url": "https://ampersandboxdesign.com",
+                        "description": "Holding company. box-and-box — the governance kernel: feasible ▸ permitted ▸ best, over an un-weakenable safety floor.",
+                        "keywords": "hub"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "ComputeDriven",
+                        "alternateName": "computedriven.com",
+                        "url": "https://computedriven.com",
+                        "description": "Systems studio. T&R — a FreeBSD 15 distro assembled from pkgbase — and RRABBIT.",
+                        "keywords": "hub"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Delegatic",
+                        "alternateName": "delegatic.com",
+                        "url": "https://delegatic.com",
+                        "description": "Policy engine — 8 modules, live on Fly. Fleet-wide governance: specified, not written.",
+                        "keywords": "agent"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 4,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "SpecPrompt",
+                        "alternateName": "specprompt.com",
+                        "url": "https://specprompt.com",
+                        "description": "A spec you can checksum — content-addressed spec identity. Partly built.",
+                        "keywords": "agent"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 5,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Deliberatic",
+                        "alternateName": "deliberatic.com",
+                        "url": "https://deliberatic.com",
+                        "description": "Argumentation-based consensus via wBAF. A specification, not a program.",
+                        "keywords": "agent"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 6,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Agentelic",
+                        "alternateName": "agentelic.com",
+                        "url": "https://agentelic.com",
+                        "description": "Agent builder. Spec-driven design, deterministic testing, governed deployment.",
+                        "keywords": "agent"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 7,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "AgenTroMatic",
+                        "alternateName": "agentromatic.com",
+                        "url": "https://agentromatic.com",
+                        "description": "Agents bid, debate, elect leaders. A specification, not a program.",
+                        "keywords": "agent"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 8,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "FleetPrompt",
+                        "alternateName": "fleetprompt.com",
+                        "url": "https://fleetprompt.com",
+                        "description": "Planned registry for evidence-bundled agents. Install = replay. One entry today.",
+                        "keywords": "agent"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 9,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Graphonomous",
+                        "alternateName": "graphonomous.com",
+                        "url": "https://graphonomous.com",
+                        "description": "Closed-loop agent memory. Outcomes change beliefs; beliefs change retrieval.",
+                        "keywords": "data"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 10,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "GeoFleetic",
+                        "alternateName": "geofleetic.com",
+                        "url": "https://geofleetic.com",
+                        "description": "Spatial intelligence. PostGIS + graph-native fleet orchestration. Spec only.",
+                        "keywords": "data"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 11,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "TickTickClock",
+                        "alternateName": "ticktickclock.com",
+                        "url": "https://ticktickclock.com",
+                        "description": "Temporal intelligence. Time-series CL engine for the stack. Spec only.",
+                        "keywords": "data"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 12,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "WebHost.Systems",
+                        "alternateName": "webhost.systems",
+                        "url": "https://webhost.systems",
+                        "description": "Multi-runtime AI agent deployment platform. Managed runtime.",
+                        "keywords": "infra"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 13,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "GPS Coord",
+                        "alternateName": "gpscoord.com",
+                        "url": "https://gpscoord.com",
+                        "description": "Precision coordinate utility. Lookup, convert, distance, elevation, APIs.",
+                        "keywords": "infra"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 14,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "OpenSentience",
+                        "alternateName": "opensentience.org",
+                        "url": "https://opensentience.org",
+                        "description": "Open research protocols for machine cognition. OS-001…OS-011 · PRISM · PULSE.",
+                        "keywords": "infra"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 15,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "BendScript",
+                        "alternateName": "bendscript.com",
+                        "url": "https://bendscript.com",
+                        "description": "Graph-first document protocol. Typed inline link facets, content-addressable ids.",
+                        "keywords": "lang"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 16,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Runefort",
+                        "alternateName": "runefort.com",
+                        "url": "https://runefort.com",
+                        "description": "Open protocol + ~5KB Web Components for AI-authored tile layouts. BYOK.",
+                        "keywords": "lang"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 17,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Alkeyword",
+                        "alternateName": "alkeyword.com",
+                        "url": "https://alkeyword.com",
+                        "description": "Transmutes a domain into AI-search visibility. Crawls a site, measures what AI engines say about it, turns its own claims into research briefs.",
+                        "keywords": "lang"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 18,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Toolbox HVAC",
+                        "alternateName": "toolboxhvac.com",
+                        "url": "https://toolboxhvac.com",
+                        "description": "Field diagnostic instrument for HVAC techs. Sourced PT data, evidence-gated verdicts.",
+                        "keywords": "creative"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 19,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Broken Record",
+                        "alternateName": "brokenrecord.studio",
+                        "url": "https://brokenrecord.studio",
+                        "description": "U.A.P. — Unidentified Antique Phenomena.",
+                        "keywords": "creative"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 20,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "c u l8er",
+                        "alternateName": "c-u-l8er.link",
+                        "url": "https://c-u-l8er.link",
+                        "description": "Music & videos. Two albums, 28 videos — Travelmonstr and Telefoldal.",
+                        "keywords": "creative"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 21,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "A2A Traffic",
+                        "alternateName": "a2atraffic.com",
+                        "url": "https://a2atraffic.com",
+                        "description": "A2A protocol monitoring. The observability layer above the stack.",
+                        "keywords": "observe"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 22,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "TRAAVIIS",
+                        "alternateName": "traaviis.com",
+                        "url": "https://traaviis.com",
+                        "description": "Evidence-grade environments for evaluating agents. TRVM · WRL · code.",
+                        "keywords": "observe"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 23,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Wrand.cc",
+                        "alternateName": "wrand.cc",
+                        "url": "https://wrand.cc",
+                        "description": "Personal brand. Forking. You are here.",
+                        "keywords": "brand"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 24,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "isTrav",
+                        "alternateName": "istrav.com",
+                        "url": "https://istrav.com",
+                        "description": "Core business entity. Web solutions hub.",
+                        "keywords": "brand"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 25,
+                    "item": {
+                        "@type": "WebSite",
+                        "name": "Subvind",
+                        "alternateName": "subvind.com",
+                        "url": "https://subvind.com",
+                        "description": "Core business entity. Community solutions hub.",
+                        "keywords": "brand"
+                    }
+                }
+            ]
+        }
+        </script>
         <style>
             :root {
                 --bg: #08090c;
@@ -521,6 +839,216 @@
                 height: 100%;
             }
 
+            /* ── STATIC INVENTORY ──
+               Real DOM, served before any JS runs. See the long comment on the
+               section itself. It is position:fixed with its own scroller so it
+               stays readable even though <body> is overflow:hidden for the
+               canvas. */
+            #inventory {
+                position: fixed;
+                inset: 0;
+                /* Under the 50px HUD (z-index 100), not over it — the button
+                   that switches back to the graph lives up there. */
+                z-index: 95;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                background: var(--bg);
+                padding: 4.2rem 1.5rem 5rem;
+            }
+            #inventory[hidden] {
+                display: none;
+            }
+            .inv-wrap {
+                max-width: 880px;
+                margin: 0 auto;
+            }
+            .inv-wrap h1 {
+                font-family: "Instrument Serif", serif;
+                font-style: italic;
+                font-weight: 400;
+                font-size: 1.9rem;
+                letter-spacing: -0.02em;
+                margin-bottom: 0.6rem;
+            }
+            .inv-intro {
+                font-size: 0.72rem;
+                line-height: 1.65;
+                color: var(--text-dim);
+                margin-bottom: 0.5rem;
+                max-width: 62ch;
+            }
+            .inv-intro b {
+                color: var(--text);
+                font-weight: 600;
+            }
+            .inv-legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                margin: 0.9rem 0 1.6rem;
+            }
+            .inv-item {
+                padding: 1rem 0;
+                border-top: 1px solid var(--border);
+            }
+            .inv-name {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: baseline;
+                gap: 0.55rem;
+                font-size: 0.82rem;
+                font-weight: 600;
+            }
+            .inv-domain {
+                color: var(--cyan);
+                text-decoration: none;
+            }
+            .inv-domain:hover {
+                text-decoration: underline;
+            }
+            .inv-label {
+                font-family: "Instrument Serif", serif;
+                font-style: italic;
+                font-weight: 400;
+                font-size: 0.95rem;
+                color: var(--text);
+            }
+            .inv-tagline {
+                margin: 0.35rem 0 0.6rem;
+                font-size: 0.68rem;
+                line-height: 1.55;
+                color: var(--text-dim);
+                max-width: 70ch;
+            }
+            .inv-meta {
+                display: grid;
+                grid-template-columns: 7.5rem 1fr;
+                gap: 0.15rem 0.6rem;
+                font-size: 0.63rem;
+                margin-bottom: 0.7rem;
+            }
+            .inv-meta dt {
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                font-size: 0.55rem;
+                padding-top: 0.12rem;
+            }
+            .inv-meta dd {
+                color: var(--text-dim);
+                word-break: break-word;
+            }
+            .inv-meta a {
+                color: var(--text-dim);
+            }
+            .inv-rung {
+                color: var(--gold) !important;
+                font-weight: 700;
+            }
+            .inv-note {
+                color: var(--text-muted);
+            }
+            .inv-h {
+                font-size: 0.55rem;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                color: var(--text-muted);
+                margin-bottom: 0.3rem;
+            }
+            .inv-edges {
+                list-style: none;
+                display: grid;
+                gap: 0.3rem;
+            }
+            .inv-edge {
+                font-size: 0.63rem;
+                line-height: 1.5;
+                color: var(--text-dim);
+                padding-left: 0.9rem;
+                border-left: 1px solid var(--border);
+            }
+            .inv-edge::before {
+                content: "\2192\00a0";
+                color: var(--text-muted);
+            }
+            .inv-to {
+                color: var(--text);
+                text-decoration: none;
+            }
+            .inv-to:hover {
+                text-decoration: underline;
+            }
+            .inv-tier {
+                display: inline-block;
+                margin: 0 0.25rem;
+                padding: 0.05rem 0.35rem;
+                border-radius: 3px;
+                font-size: 0.47rem;
+                letter-spacing: 0.09em;
+                text-transform: uppercase;
+                font-weight: 600;
+                vertical-align: 0.08em;
+            }
+            .inv-strength {
+                color: var(--text-muted);
+                font-size: 0.58rem;
+            }
+            .inv-why {
+                display: block;
+                color: var(--text-muted);
+            }
+
+            /* view toggle in the HUD */
+            .view-btn {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.6rem;
+                font-weight: 500;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                padding: 0.35rem 0.7rem;
+                margin-right: 0.5rem;
+                border: 1px solid var(--border-bright);
+                border-radius: 6px;
+                background: transparent;
+                color: var(--text-dim);
+                cursor: pointer;
+                transition: all 0.2s;
+                white-space: nowrap;
+            }
+            .view-btn:hover {
+                color: var(--cyan);
+                border-color: var(--cyan);
+            }
+
+            /* The filter bar and the minimap are driven entirely by script.
+               With JS off they are dead chrome over the inventory, and in list
+               view they control something nobody is looking at. Both cases hide
+               them; the mobile rule in the media query still governs the rest. */
+            body:not(.js) .filter-bar,
+            body:not(.js) .minimap,
+            body.list-view .filter-bar,
+            body.list-view .minimap {
+                display: none;
+            }
+
+            /* Drift banner — only ever visible if a derived copy of the data
+               has fallen out of step with the inventory. */
+            #drift {
+                position: fixed;
+                top: 50px;
+                left: 0;
+                right: 0;
+                z-index: 300;
+                padding: 0.5rem 1rem;
+                background: var(--red);
+                color: #fff;
+                font-size: 0.65rem;
+                line-height: 1.5;
+            }
+            #drift[hidden] {
+                display: none;
+            }
+
             /* ── RESPONSIVE ── */
             @media (max-width: 768px) {
                 .hud-stats {
@@ -543,6 +1071,16 @@
                 .minimap {
                     display: none;
                 }
+                #inventory {
+                    padding: 3.8rem 1rem 4rem;
+                }
+                .inv-meta {
+                    grid-template-columns: 1fr;
+                    gap: 0 0;
+                }
+                .inv-meta dt {
+                    padding-top: 0.4rem;
+                }
                 .detail {
                     top: auto;
                     left: 0;
@@ -561,13 +1099,17 @@
         <div class="hud-top">
             <div class="hud-logo"><em>Wrand</em>.cc</div>
             <div class="hud-stats">
+                <!-- Real numbers, not placeholders. The script derives both
+                     from the inventory and shouts if they disagree. -->
                 <div class="hud-stat">
-                    <b id="totalDomains">0</b><span>domains</span>
+                    <b id="totalDomains">25</b><span>domains</span>
                 </div>
                 <div class="hud-stat">
-                    <b id="totalEdges">0</b><span>connections</span>
+                    <b id="totalEdges">56</b><span>connections</span>
                 </div>
             </div>
+            <div style="display:flex;align-items:center">
+            <button class="view-btn" id="viewToggle" hidden>List</button>
             <a
                 class="hud-amp"
                 href="https://ampersandboxdesign.com"
@@ -575,7 +1117,442 @@
                 rel="noopener"
                 >[&]</a
             >
+            </div>
         </div>
+
+        <div id="drift" hidden></div>
+
+        <!-- ══ STATIC INVENTORY — THE PAYLOAD ═══════════════════════════════
+             and the reason this file is shaped the way it is.
+
+             Until 2026-08-16 the graph existed only inside the script block at
+             the foot of this file. The served
+             HTML was 72,642 bytes and yielded 157 characters of extractable
+             text, whose only two numbers were "0 domains" and "0 connections" —
+             the pre-hydration placeholders. Crawlers, answer engines and no-JS
+             readers all saw an empty page, and an external audit duly reported
+             the portfolio as containing nothing. The data was never missing. It
+             was merely unrenderable without a browser.
+
+             So the inventory below is real DOM, present before any JS runs, and
+             the script PARSES IT rather than carrying its own copy. There is
+             exactly one source of truth for `domains` and `edges`, and it is
+             this section — edit the data here and nowhere else. The
+             force-directed graph is an enhancement of this list, not a
+             replacement for it.
+
+             RUNG is "?" on every row on purpose. Nothing in this tree records a
+             per-domain evidence rung, and an invented status is worse than a
+             missing one because it stops the question being asked. When a real
+             source of rungs exists, fill them from it. Do not guess them. -->
+        <section id="inventory">
+            <div class="inv-wrap">
+                <h1>The Wrand.cc domain graph</h1>
+                <p class="inv-intro">
+                    <b>25 domains and 56 recorded connections.</b> Every
+                    connection carries why it exists and how well it is
+                    evidenced &mdash; <b>6 of the 56 are wired in real code</b>;
+                    the rest are specified, merely stated, or ownership. That
+                    ratio is the honest part, and it is why the tiers are shown
+                    rather than hidden.
+                </p>
+                <p class="inv-intro">
+                    <b>Rung is <span class="inv-rung">?</span> on every row.</b>
+                    No per-domain evidence rung is recorded anywhere in this
+                    tree, so none is asserted here. A missing status can still
+                    be asked about; an invented one cannot.
+                </p>
+                <p class="inv-intro">
+                    All 25 domains returned HTTP&nbsp;200 to a plain
+                    <code>curl</code> on 2026-08-16. That is the only status
+                    claim on this page that has been measured, it says nothing
+                    about what is behind each domain, and it moves only in a
+                    commit that also moves this date.
+                </p>
+                <div class="inv-legend">
+                    <span class="inv-tier t-code">wired in code</span>
+                    <span class="inv-tier t-spec">in the spec</span>
+                    <span class="inv-tier t-intent">stated only</span>
+                    <span class="inv-tier t-owns">ownership</span>
+                </div>
+                <article class="inv-item" id="inv-ampersandboxdesign" data-id="ampersandboxdesign" data-cat="hub" data-tags="hub" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://ampersandboxdesign.com">ampersandboxdesign.com</a><span class="inv-label">[&amp;] Ampersand Box</span></h3>
+                    <p class="inv-tagline">Holding company. box-and-box — the governance kernel: feasible ▸ permitted ▸ best, over an un-weakenable safety floor.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">hub</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-traaviis">traaviis.com</a>, <a href="#inv-wrand">wrand.cc</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://ampersandboxdesign.com">https://ampersandboxdesign.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (13)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="delegatic" data-s="0.85" data-tier="owns"><a class="inv-to" href="#inv-delegatic">delegatic.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.85</span> <span class="inv-why">Portfolio: the governance layer (OS-006).</span></li>
+                        <li class="inv-edge" data-to="graphonomous" data-s="0.8" data-tier="owns"><a class="inv-to" href="#inv-graphonomous">graphonomous.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.80</span> <span class="inv-why">Portfolio: the memory substrate (OS-001).</span></li>
+                        <li class="inv-edge" data-to="webhost" data-s="0.8" data-tier="owns"><a class="inv-to" href="#inv-webhost">webhost.systems</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.80</span> <span class="inv-why">Portfolio: the runtime layer.</span></li>
+                        <li class="inv-edge" data-to="opensentience" data-s="0.75" data-tier="owns"><a class="inv-to" href="#inv-opensentience">opensentience.org</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.75</span> <span class="inv-why">Publishes the OS-001…OS-011 protocol research.</span></li>
+                        <li class="inv-edge" data-to="agentelic" data-s="0.75" data-tier="owns"><a class="inv-to" href="#inv-agentelic">agentelic.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.75</span> <span class="inv-why">Portfolio: the agent builder.</span></li>
+                        <li class="inv-edge" data-to="geofleetic" data-s="0.75" data-tier="owns"><a class="inv-to" href="#inv-geofleetic">geofleetic.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.75</span> <span class="inv-why">Portfolio: the spatial primitive.</span></li>
+                        <li class="inv-edge" data-to="a2atraffic" data-s="0.7" data-tier="owns"><a class="inv-to" href="#inv-a2atraffic">a2atraffic.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.70</span> <span class="inv-why">Portfolio: the observability surface.</span></li>
+                        <li class="inv-edge" data-to="deliberatic" data-s="0.7" data-tier="owns"><a class="inv-to" href="#inv-deliberatic">deliberatic.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.70</span> <span class="inv-why">Portfolio: the consensus spec.</span></li>
+                        <li class="inv-edge" data-to="agentromatic" data-s="0.7" data-tier="owns"><a class="inv-to" href="#inv-agentromatic">agentromatic.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.70</span> <span class="inv-why">Portfolio: the deliberation spec.</span></li>
+                        <li class="inv-edge" data-to="ticktickclock" data-s="0.7" data-tier="owns"><a class="inv-to" href="#inv-ticktickclock">ticktickclock.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.70</span> <span class="inv-why">Portfolio: the temporal primitive.</span></li>
+                        <li class="inv-edge" data-to="bendscript" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-bendscript">bendscript.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Portfolio: the document protocol.</span></li>
+                        <li class="inv-edge" data-to="runefort" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-runefort">runefort.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Portfolio: the tile-layout protocol.</span></li>
+                        <li class="inv-edge" data-to="computedriven" data-s="0.5" data-tier="owns"><a class="inv-to" href="#inv-computedriven">computedriven.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.50</span> <span class="inv-why">amp-nav carries a ComputeDriven CTA on every site.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-computedriven" data-id="computedriven" data-cat="hub" data-tags="hub" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://computedriven.com">computedriven.com</a><span class="inv-label">ComputeDriven</span></h3>
+                    <p class="inv-tagline">Systems studio. T&amp;R — a FreeBSD 15 distro assembled from pkgbase — and RRABBIT.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">hub</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a>, <a href="#inv-wrand">wrand.cc</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://computedriven.com">https://computedriven.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (3)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="traaviis" data-s="0.8" data-tier="code"><a class="inv-to" href="#inv-traaviis">traaviis.com</a> <span class="inv-tier t-code">wired in code</span> <span class="inv-strength">0.80</span> <span class="inv-why">The trvs stack ships inside the T&amp;R image — verified on a pristine build.</span></li>
+                        <li class="inv-edge" data-to="specprompt" data-s="0.8" data-tier="intent"><a class="inv-to" href="#inv-specprompt">specprompt.com</a> <span class="inv-tier t-intent">stated only</span> <span class="inv-strength">0.80</span> <span class="inv-why">“The specification layer of the ComputeDriven stack.” Unpushed, and no other site says so yet.</span></li>
+                        <li class="inv-edge" data-to="fleetprompt" data-s="0.8" data-tier="intent"><a class="inv-to" href="#inv-fleetprompt">fleetprompt.com</a> <span class="inv-tier t-intent">stated only</span> <span class="inv-strength">0.80</span> <span class="inv-why">“The distribution layer of the ComputeDriven stack.” Unpushed, and no other site says so yet.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-delegatic" data-id="delegatic" data-cat="agent" data-tags="agent" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://delegatic.com">delegatic.com</a><span class="inv-label">Delegatic</span></h3>
+                    <p class="inv-tagline">Policy engine — 8 modules, live on Fly. Fleet-wide governance: specified, not written.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">agent</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://delegatic.com">https://delegatic.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="agentromatic" data-s="0.7" data-tier="spec"><a class="inv-to" href="#inv-agentromatic">agentromatic.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.70</span> <span class="inv-why">Spec §7: Delegatic defines the boundaries, AgenTroMatic automates within them.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-specprompt" data-id="specprompt" data-cat="agent" data-tags="agent" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://specprompt.com">specprompt.com</a><span class="inv-label">SpecPrompt</span></h3>
+                    <p class="inv-tagline">A spec you can checksum — content-addressed spec identity. Partly built.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">agent</dd>
+                        <dt>owned by</dt><dd class="inv-parent">&mdash; <span class="inv-note">root of the graph</span></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://specprompt.com">https://specprompt.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="agentelic" data-s="0.9" data-tier="code"><a class="inv-to" href="#inv-agentelic">agentelic.com</a> <span class="inv-tier t-code">wired in code</span> <span class="inv-strength">0.90</span> <span class="inv-why">Agentelic&#x27;s parser consumes a SPEC.md into a SpecPrompt.Spec; its test DSL compiles the acceptance tests.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-deliberatic" data-id="deliberatic" data-cat="agent" data-tags="agent" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://deliberatic.com">deliberatic.com</a><span class="inv-label">Deliberatic</span></h3>
+                    <p class="inv-tagline">Argumentation-based consensus via wBAF. A specification, not a program.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">agent</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://deliberatic.com">https://deliberatic.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="graphonomous" data-s="0.8" data-tier="spec"><a class="inv-to" href="#inv-graphonomous">graphonomous.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.80</span> <span class="inv-why">Spec names graphonomous://workspace/{id} as its evidence and reputation store.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-agentelic" data-id="agentelic" data-cat="agent" data-tags="agent" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://agentelic.com">agentelic.com</a><span class="inv-label">Agentelic</span></h3>
+                    <p class="inv-tagline">Agent builder. Spec-driven design, deterministic testing, governed deployment.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">agent</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://agentelic.com">https://agentelic.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="fleetprompt" data-s="0.9" data-tier="code"><a class="inv-to" href="#inv-fleetprompt">fleetprompt.com</a> <span class="inv-tier t-code">wired in code</span> <span class="inv-strength">0.90</span> <span class="inv-why">publisher.ex POSTs a CloudEvents ConsolidationEvent to the FleetPrompt webhook on build success.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-agentromatic" data-id="agentromatic" data-cat="agent" data-tags="agent" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://agentromatic.com">agentromatic.com</a><span class="inv-label">AgenTroMatic</span></h3>
+                    <p class="inv-tagline">Agents bid, debate, elect leaders. A specification, not a program.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">agent</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://agentromatic.com">https://agentromatic.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (2)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="deliberatic" data-s="0.6" data-tier="spec"><a class="inv-to" href="#inv-deliberatic">deliberatic.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.60</span> <span class="inv-why">Built on the Deliberatic protocol — which is itself only a specification.</span></li>
+                        <li class="inv-edge" data-to="fleetprompt" data-s="0.6" data-tier="spec"><a class="inv-to" href="#inv-fleetprompt">fleetprompt.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.60</span> <span class="inv-why">Automate → distribute.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-fleetprompt" data-id="fleetprompt" data-cat="agent" data-tags="agent" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://fleetprompt.com">fleetprompt.com</a><span class="inv-label">FleetPrompt</span></h3>
+                    <p class="inv-tagline">Planned registry for evidence-bundled agents. Install = replay. One entry today.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">agent</dd>
+                        <dt>owned by</dt><dd class="inv-parent">&mdash; <span class="inv-note">root of the graph</span></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://fleetprompt.com">https://fleetprompt.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (4)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="delegatic" data-s="0.9" data-tier="code"><a class="inv-to" href="#inv-delegatic">delegatic.com</a> <span class="inv-tier t-code">wired in code</span> <span class="inv-strength">0.90</span> <span class="inv-why">Install step 4 calls Delegatic.authorize/1 — a policy denial hard-fails the install. Git dependency.</span></li>
+                        <li class="inv-edge" data-to="opensentience" data-s="0.85" data-tier="code"><a class="inv-to" href="#inv-opensentience">opensentience.org</a> <span class="inv-tier t-code">wired in code</span> <span class="inv-strength">0.85</span> <span class="inv-why">Install step 5 proves the manifest is Harness-loadable via OpenSentience.Harness.start_session/1. Git dependency.</span></li>
+                        <li class="inv-edge" data-to="graphonomous" data-s="0.8" data-tier="code"><a class="inv-to" href="#inv-graphonomous">graphonomous.com</a> <span class="inv-tier t-code">wired in code</span> <span class="inv-strength">0.80</span> <span class="inv-why">Install step 6 initializes a memory telespace through KILN&#x27;s GraphonomousClient.</span></li>
+                        <li class="inv-edge" data-to="specprompt" data-s="0.7" data-tier="spec"><a class="inv-to" href="#inv-specprompt">specprompt.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.70</span> <span class="inv-why">Every listing is expected to carry a spec.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-graphonomous" data-id="graphonomous" data-cat="data" data-tags="data" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://graphonomous.com">graphonomous.com</a><span class="inv-label">Graphonomous</span></h3>
+                    <p class="inv-tagline">Closed-loop agent memory. Outcomes change beliefs; beliefs change retrieval.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">data</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://graphonomous.com">https://graphonomous.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (2)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="geofleetic" data-s="0.6" data-tier="spec"><a class="inv-to" href="#inv-geofleetic">geofleetic.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.60</span> <span class="inv-why">Graph memory + spatial index.</span></li>
+                        <li class="inv-edge" data-to="ticktickclock" data-s="0.6" data-tier="spec"><a class="inv-to" href="#inv-ticktickclock">ticktickclock.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.60</span> <span class="inv-why">Graph memory + temporal index.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-geofleetic" data-id="geofleetic" data-cat="data" data-tags="data" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://geofleetic.com">geofleetic.com</a><span class="inv-label">GeoFleetic</span></h3>
+                    <p class="inv-tagline">Spatial intelligence. PostGIS + graph-native fleet orchestration. Spec only.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">data</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://geofleetic.com">https://geofleetic.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="ticktickclock" data-s="0.5" data-tier="spec"><a class="inv-to" href="#inv-ticktickclock">ticktickclock.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.50</span> <span class="inv-why">Where meets when. Both are spec-only.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-ticktickclock" data-id="ticktickclock" data-cat="data" data-tags="data" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://ticktickclock.com">ticktickclock.com</a><span class="inv-label">TickTickClock</span></h3>
+                    <p class="inv-tagline">Temporal intelligence. Time-series CL engine for the stack. Spec only.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">data</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://ticktickclock.com">https://ticktickclock.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (0)</p>
+                    <ul class="inv-edges"></ul>
+                </article>
+                <article class="inv-item" id="inv-webhost" data-id="webhost" data-cat="infra" data-tags="infra" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://webhost.systems">webhost.systems</a><span class="inv-label">WebHost.Systems</span></h3>
+                    <p class="inv-tagline">Multi-runtime AI agent deployment platform. Managed runtime.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">infra</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://webhost.systems">https://webhost.systems</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (2)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="fleetprompt" data-s="0.7" data-tier="spec"><a class="inv-to" href="#inv-fleetprompt">fleetprompt.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.70</span> <span class="inv-why">Spec declares deploy_to_fleetprompt — a ConsolidationEvent carrying usage-based trust signals.</span></li>
+                        <li class="inv-edge" data-to="opensentience" data-s="0.7" data-tier="spec"><a class="inv-to" href="#inv-opensentience">opensentience.org</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.70</span> <span class="inv-why">Runtime follows the OS-010 PULSE specification.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-gpscoord" data-id="gpscoord" data-cat="infra" data-tags="infra" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://gpscoord.com">gpscoord.com</a><span class="inv-label">GPS Coord</span></h3>
+                    <p class="inv-tagline">Precision coordinate utility. Lookup, convert, distance, elevation, APIs.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">infra</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://gpscoord.com">https://gpscoord.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (0)</p>
+                    <ul class="inv-edges"></ul>
+                </article>
+                <article class="inv-item" id="inv-opensentience" data-id="opensentience" data-cat="infra" data-tags="infra" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://opensentience.org">opensentience.org</a><span class="inv-label">OpenSentience</span></h3>
+                    <p class="inv-tagline">Open research protocols for machine cognition. OS-001…OS-011 · PRISM · PULSE.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">infra</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://opensentience.org">https://opensentience.org</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (2)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="delegatic" data-s="0.8" data-tier="spec"><a class="inv-to" href="#inv-delegatic">delegatic.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.80</span> <span class="inv-why">OS-006 Governance Shim is delegatic&#x27;s normative spec.</span></li>
+                        <li class="inv-edge" data-to="graphonomous" data-s="0.8" data-tier="spec"><a class="inv-to" href="#inv-graphonomous">graphonomous.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.80</span> <span class="inv-why">OS-001 Continual Learning and OS-002 κ-Routing are graphonomous&#x27;s normative spec.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-bendscript" data-id="bendscript" data-cat="lang" data-tags="lang" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://bendscript.com">bendscript.com</a><span class="inv-label">BendScript</span></h3>
+                    <p class="inv-tagline">Graph-first document protocol. Typed inline link facets, content-addressable ids.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">lang</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://bendscript.com">https://bendscript.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (3)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="graphonomous" data-s="0.5" data-tier="spec"><a class="inv-to" href="#inv-graphonomous">graphonomous.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.50</span> <span class="inv-why">Facet bendscript.memory.v1 targets Graphonomous-style memory nodes.</span></li>
+                        <li class="inv-edge" data-to="specprompt" data-s="0.5" data-tier="spec"><a class="inv-to" href="#inv-specprompt">specprompt.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.50</span> <span class="inv-why">Facet bendscript.spec.v1 targets SpecPrompt-style capability specifications.</span></li>
+                        <li class="inv-edge" data-to="runefort" data-s="0.4" data-tier="spec"><a class="inv-to" href="#inv-runefort">runefort.com</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.40</span> <span class="inv-why">Facet bendscript.runefort.v1 — documents claimed by Runefort rooms.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-runefort" data-id="runefort" data-cat="lang" data-tags="lang" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://runefort.com">runefort.com</a><span class="inv-label">Runefort</span></h3>
+                    <p class="inv-tagline">Open protocol + ~5KB Web Components for AI-authored tile layouts. BYOK.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">lang</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://runefort.com">https://runefort.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="opensentience" data-s="0.4" data-tier="spec"><a class="inv-to" href="#inv-opensentience">opensentience.org</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.40</span> <span class="inv-why">@runefort/vocab-supervisor-floor implements the supervisor-floor vocabulary.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-alkeyword" data-id="alkeyword" data-cat="lang" data-tags="lang" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://alkeyword.com">alkeyword.com</a><span class="inv-label">Alkeyword</span></h3>
+                    <p class="inv-tagline">Transmutes a domain into AI-search visibility. Crawls a site, measures what AI engines say about it, turns its own claims into research briefs.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">lang</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://alkeyword.com">https://alkeyword.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (0)</p>
+                    <ul class="inv-edges"></ul>
+                </article>
+                <article class="inv-item" id="inv-toolboxhvac" data-id="toolboxhvac" data-cat="creative" data-tags="creative" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://toolboxhvac.com">toolboxhvac.com</a><span class="inv-label">Toolbox HVAC</span></h3>
+                    <p class="inv-tagline">Field diagnostic instrument for HVAC techs. Sourced PT data, evidence-gated verdicts.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">creative</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://toolboxhvac.com">https://toolboxhvac.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (0)</p>
+                    <ul class="inv-edges"></ul>
+                </article>
+                <article class="inv-item" id="inv-brokenrecord" data-id="brokenrecord" data-cat="creative" data-tags="creative" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://brokenrecord.studio">brokenrecord.studio</a><span class="inv-label">Broken Record</span></h3>
+                    <p class="inv-tagline">U.A.P. — Unidentified Antique Phenomena.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">creative</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a>, <a href="#inv-cul8er">c-u-l8er.link</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://brokenrecord.studio">https://brokenrecord.studio</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (0)</p>
+                    <ul class="inv-edges"></ul>
+                </article>
+                <article class="inv-item" id="inv-cul8er" data-id="cul8er" data-cat="creative" data-tags="creative" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://c-u-l8er.link">c-u-l8er.link</a><span class="inv-label">c u l8er</span></h3>
+                    <p class="inv-tagline">Music &amp; videos. Two albums, 28 videos — Travelmonstr and Telefoldal.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">creative</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://c-u-l8er.link">https://c-u-l8er.link</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="brokenrecord" data-s="0.5" data-tier="owns"><a class="inv-to" href="#inv-brokenrecord">brokenrecord.studio</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.50</span> <span class="inv-why">Two sides of the same making.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-a2atraffic" data-id="a2atraffic" data-cat="observe" data-tags="observe" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://a2atraffic.com">a2atraffic.com</a><span class="inv-label">A2A Traffic</span></h3>
+                    <p class="inv-tagline">A2A protocol monitoring. The observability layer above the stack.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">observe</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-ampersandboxdesign">ampersandboxdesign.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://a2atraffic.com">https://a2atraffic.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (3)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="fleetprompt" data-s="0.5" data-tier="intent"><a class="inv-to" href="#inv-fleetprompt">fleetprompt.com</a> <span class="inv-tier t-intent">stated only</span> <span class="inv-strength">0.50</span> <span class="inv-why">Claims to watch the marketplace. a2atraffic has a landing page and no code.</span></li>
+                        <li class="inv-edge" data-to="delegatic" data-s="0.4" data-tier="intent"><a class="inv-to" href="#inv-delegatic">delegatic.com</a> <span class="inv-tier t-intent">stated only</span> <span class="inv-strength">0.40</span> <span class="inv-why">Claims to watch governance decisions. Not wired.</span></li>
+                        <li class="inv-edge" data-to="webhost" data-s="0.4" data-tier="intent"><a class="inv-to" href="#inv-webhost">webhost.systems</a> <span class="inv-tier t-intent">stated only</span> <span class="inv-strength">0.40</span> <span class="inv-why">Claims to watch the infrastructure. Not wired.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-traaviis" data-id="traaviis" data-cat="observe" data-tags="observe" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://traaviis.com">traaviis.com</a><span class="inv-label">TRAAVIIS</span></h3>
+                    <p class="inv-tagline">Evidence-grade environments for evaluating agents. TRVM · WRL · code.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">observe</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a>, <a href="#inv-subvind">subvind.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://traaviis.com">https://traaviis.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (3)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="opensentience" data-s="0.7" data-tier="spec"><a class="inv-to" href="#inv-opensentience">opensentience.org</a> <span class="inv-tier t-spec">in the spec</span> <span class="inv-strength">0.70</span> <span class="inv-why">OS-008 harness lineage; trvs is the evaluation terminal that succeeded it.</span></li>
+                        <li class="inv-edge" data-to="ampersandboxdesign" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-ampersandboxdesign">ampersandboxdesign.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Portfolio member.</span></li>
+                        <li class="inv-edge" data-to="a2atraffic" data-s="0.3" data-tier="intent"><a class="inv-to" href="#inv-a2atraffic">a2atraffic.com</a> <span class="inv-tier t-intent">stated only</span> <span class="inv-strength">0.30</span> <span class="inv-why">Two ways to measure a running system; no shared code.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-wrand" data-id="wrand" data-cat="brand" data-tags="brand" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://wrand.cc">wrand.cc</a><span class="inv-label">Wrand.cc</span></h3>
+                    <p class="inv-tagline">Personal brand. Forking. You are here.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">brand</dd>
+                        <dt>owned by</dt><dd class="inv-parent">&mdash; <span class="inv-note">root of the graph</span></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://wrand.cc">https://wrand.cc</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (10)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="ampersandboxdesign" data-s="0.7" data-tier="owns"><a class="inv-to" href="#inv-ampersandboxdesign">ampersandboxdesign.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.70</span> <span class="inv-why">Fork: the [&amp;] portfolio.</span></li>
+                        <li class="inv-edge" data-to="computedriven" data-s="0.7" data-tier="owns"><a class="inv-to" href="#inv-computedriven">computedriven.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.70</span> <span class="inv-why">Fork: the systems studio.</span></li>
+                        <li class="inv-edge" data-to="traaviis" data-s="0.7" data-tier="owns"><a class="inv-to" href="#inv-traaviis">traaviis.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.70</span> <span class="inv-why">Fork: agent evaluation.</span></li>
+                        <li class="inv-edge" data-to="istrav" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-istrav">istrav.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Fork: web solutions.</span></li>
+                        <li class="inv-edge" data-to="subvind" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-subvind">subvind.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Fork: community solutions.</span></li>
+                        <li class="inv-edge" data-to="cul8er" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-cul8er">c-u-l8er.link</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Fork: music and video.</span></li>
+                        <li class="inv-edge" data-to="brokenrecord" data-s="0.5" data-tier="owns"><a class="inv-to" href="#inv-brokenrecord">brokenrecord.studio</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.50</span> <span class="inv-why">Fork: U.A.P.</span></li>
+                        <li class="inv-edge" data-to="toolboxhvac" data-s="0.5" data-tier="owns"><a class="inv-to" href="#inv-toolboxhvac">toolboxhvac.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.50</span> <span class="inv-why">Fork: the HVAC instrument.</span></li>
+                        <li class="inv-edge" data-to="alkeyword" data-s="0.5" data-tier="owns"><a class="inv-to" href="#inv-alkeyword">alkeyword.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.50</span> <span class="inv-why">Fork: AI-search visibility. Standalone — nothing in the stack references it.</span></li>
+                        <li class="inv-edge" data-to="gpscoord" data-s="0.5" data-tier="owns"><a class="inv-to" href="#inv-gpscoord">gpscoord.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.50</span> <span class="inv-why">Fork: the coordinate utility. Standalone — nothing in the stack references it.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-istrav" data-id="istrav" data-cat="brand" data-tags="brand" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://istrav.com">istrav.com</a><span class="inv-label">isTrav</span></h3>
+                    <p class="inv-tagline">Core business entity. Web solutions hub.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">brand</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://istrav.com">https://istrav.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="subvind" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-subvind">subvind.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Origin: the two founding entities.</span></li>
+                    </ul>
+                </article>
+                <article class="inv-item" id="inv-subvind" data-id="subvind" data-cat="brand" data-tags="brand" data-rung="?">
+                    <h3 class="inv-name"><a class="inv-domain" href="https://subvind.com">subvind.com</a><span class="inv-label">Subvind</span></h3>
+                    <p class="inv-tagline">Core business entity. Community solutions hub.</p>
+                    <dl class="inv-meta">
+                        <dt>rung</dt><dd class="inv-rung">?</dd>
+                        <dt>group</dt><dd class="inv-cat">brand</dd>
+                        <dt>owned by</dt><dd class="inv-parent"><a href="#inv-wrand">wrand.cc</a>, <a href="#inv-istrav">istrav.com</a></dd>
+                        <dt>destination</dt><dd><a class="inv-dest" href="https://subvind.com">https://subvind.com</a></dd>
+                    </dl>
+                    <p class="inv-h">Connects to (1)</p>
+                    <ul class="inv-edges">
+                        <li class="inv-edge" data-to="traaviis" data-s="0.6" data-tier="owns"><a class="inv-to" href="#inv-traaviis">traaviis.com</a> <span class="inv-tier t-owns">ownership</span> <span class="inv-strength">0.60</span> <span class="inv-why">Community entity → the evaluation product.</span></li>
+                    </ul>
+                </article>
+            </div>
+        </section>
 
         <!-- FILTER -->
         <div class="filter-bar">
@@ -618,352 +1595,119 @@
 
         <script>
             // ═══════════════════════════════════════════
-            // DOMAIN DATA — all 25
-            // Taglines track each domain's own live positioning.
-            // Last reconciled: 2026-08-10
+            // DATA — parsed from the #inventory section above
             // ═══════════════════════════════════════════
-            const domains = [
-                // ── Hubs — the two studios each stack hangs off ──
-                {
-                    id: "ampersandboxdesign",
-                    name: "ampersandboxdesign.com",
-                    label: "[&] Ampersand Box",
-                    url: "https://ampersandboxdesign.com",
-                    tagline:
-                        "Holding company. box-and-box — the governance kernel: feasible ▸ permitted ▸ best, 116 laws.",
-                    tags: ["hub"],
-                    cat: "hub",
-                },
-                {
-                    id: "computedriven",
-                    name: "computedriven.com",
-                    label: "ComputeDriven",
-                    url: "https://computedriven.com",
-                    tagline:
-                        "Systems studio. T&R — a FreeBSD 15 distro assembled from pkgbase — and RRABBIT.",
-                    tags: ["hub"],
-                    cat: "hub",
-                },
+            // There is no data literal in this script, deliberately. The graph
+            // used to be defined here and rendered from here, which meant the
+            // served HTML carried the entire portfolio and displayed none of
+            // it. Now the DOM is the source and this is only its reader, so the
+            // markup a crawler sees and the graph a browser draws cannot
+            // disagree with each other.
+            const invRoot = document.getElementById("inventory");
+            const invItems = [...invRoot.querySelectorAll(".inv-item")];
 
-                // ── Agent Platform (stack order 9→4) ──
-                {
-                    id: "delegatic",
-                    name: "delegatic.com",
-                    label: "Delegatic",
-                    url: "https://delegatic.com",
-                    tagline:
-                        "Policy engine — 8 modules, live on Fly. Fleet-wide governance: specified, not written.",
-                    tags: ["agent"],
-                    cat: "agent",
-                },
-                {
-                    id: "specprompt",
-                    name: "specprompt.com",
-                    label: "SpecPrompt",
-                    url: "https://specprompt.com",
-                    tagline:
-                        "A spec you can checksum — content-addressed spec identity. Partly built.",
-                    tags: ["agent"],
-                    cat: "agent",
-                },
-                {
-                    id: "deliberatic",
-                    name: "deliberatic.com",
-                    label: "Deliberatic",
-                    url: "https://deliberatic.com",
-                    tagline:
-                        "Argumentation-based consensus via wBAF. A specification, not a program.",
-                    tags: ["agent"],
-                    cat: "agent",
-                },
-                {
-                    id: "agentelic",
-                    name: "agentelic.com",
-                    label: "Agentelic",
-                    url: "https://agentelic.com",
-                    tagline:
-                        "Agent builder. Spec-driven design, deterministic testing, governed deployment.",
-                    tags: ["agent"],
-                    cat: "agent",
-                },
-                {
-                    id: "agentromatic",
-                    name: "agentromatic.com",
-                    label: "AgenTroMatic",
-                    url: "https://agentromatic.com",
-                    tagline:
-                        "Agents bid, debate, elect leaders. A specification, not a program.",
-                    tags: ["agent"],
-                    cat: "agent",
-                },
-                {
-                    id: "fleetprompt",
-                    name: "fleetprompt.com",
-                    label: "FleetPrompt",
-                    url: "https://fleetprompt.com",
-                    tagline:
-                        "Planned registry for evidence-bundled agents. Install = replay. One entry today.",
-                    tags: ["agent"],
-                    cat: "agent",
-                },
+            const txt = (el, sel) => {
+                const n = el.querySelector(sel);
+                return n ? n.textContent.trim() : "";
+            };
 
-                // ── Cognitive Primitives ──
-                {
-                    id: "graphonomous",
-                    name: "graphonomous.com",
-                    label: "Graphonomous",
-                    url: "https://graphonomous.com",
-                    tagline:
-                        "Closed-loop agent memory. Outcomes change beliefs; beliefs change retrieval.",
-                    tags: ["data"],
-                    cat: "data",
-                },
-                {
-                    id: "geofleetic",
-                    name: "geofleetic.com",
-                    label: "GeoFleetic",
-                    url: "https://geofleetic.com",
-                    tagline:
-                        "Spatial intelligence. PostGIS + graph-native fleet orchestration. Spec only.",
-                    tags: ["data"],
-                    cat: "data",
-                },
-                {
-                    id: "ticktickclock",
-                    name: "ticktickclock.com",
-                    label: "TickTickClock",
-                    url: "https://ticktickclock.com",
-                    tagline:
-                        "Temporal intelligence. Time-series CL engine for the stack. Spec only.",
-                    tags: ["data"],
-                    cat: "data",
-                },
+            const domains = invItems.map((el) => ({
+                id: el.dataset.id,
+                cat: el.dataset.cat,
+                tags: (el.dataset.tags || "").split(/\s+/).filter(Boolean),
+                name: txt(el, ".inv-domain"),
+                label: txt(el, ".inv-label"),
+                tagline: txt(el, ".inv-tagline"),
+                url: el.querySelector(".inv-domain").getAttribute("href"),
+                // Render whatever is stored. Never default to a rung.
+                rung: (el.dataset.rung || "").trim() || "?",
+            }));
 
-                // ── Infrastructure / Runtime ──
-                {
-                    id: "webhost",
-                    name: "webhost.systems",
-                    label: "WebHost.Systems",
-                    url: "https://webhost.systems",
-                    tagline:
-                        "Multi-runtime AI agent deployment platform. Managed runtime.",
-                    tags: ["infra"],
-                    cat: "infra",
-                },
-                {
-                    id: "gpscoord",
-                    name: "gpscoord.com",
-                    label: "GPS Coord",
-                    url: "https://gpscoord.com",
-                    tagline:
-                        "Precision coordinate utility. Lookup, convert, distance, elevation, APIs.",
-                    tags: ["infra"],
-                    cat: "infra",
-                },
-                {
-                    id: "opensentience",
-                    name: "opensentience.org",
-                    label: "OpenSentience",
-                    url: "https://opensentience.org",
-                    tagline:
-                        "Open research protocols for machine cognition. OS-001…OS-011 · PRISM · PULSE.",
-                    tags: ["infra"],
-                    cat: "infra",
-                },
+            const edges = invItems.flatMap((el) =>
+                [...el.querySelectorAll(".inv-edge")].map((le) => ({
+                    from: el.dataset.id,
+                    to: le.dataset.to,
+                    s: parseFloat(le.dataset.s),
+                    tier: le.dataset.tier || "intent",
+                    why: txt(le, ".inv-why"),
+                })),
+            );
 
-                // ── Protocols / Developer Tools ──
-                {
-                    id: "bendscript",
-                    name: "bendscript.com",
-                    label: "BendScript",
-                    url: "https://bendscript.com",
-                    tagline:
-                        "Graph-first document protocol. Typed inline link facets, content-addressable ids.",
-                    tags: ["lang"],
-                    cat: "lang",
-                },
-                {
-                    id: "runefort",
-                    name: "runefort.com",
-                    label: "Runefort",
-                    url: "https://runefort.com",
-                    tagline:
-                        "Open protocol + ~5KB Web Components for AI-authored tile layouts. BYOK.",
-                    tags: ["lang"],
-                    cat: "lang",
-                },
-                {
-                    id: "alkeyword",
-                    name: "alkeyword.com",
-                    label: "Alkeyword",
-                    url: "https://alkeyword.com",
-                    tagline:
-                        "Observable type safety for Elixir. Algebraic data types + Ash integration.",
-                    tags: ["lang"],
-                    cat: "lang",
-                },
+            // ── DRIFT CHECK ──────────────────────────────────────────────
+            // Three things in this file are derived from the inventory and are
+            // written by hand: the JSON-LD block and the two HUD counts. They
+            // exist because a reader with no JS has to see them, which is
+            // exactly why they cannot be generated at runtime — so they are
+            // checked at runtime instead, and any divergence is made loud. A
+            // silent derived copy is how the "116 laws" that used to sit on
+            // this page drifted two behind the number its own subject was
+            // publishing.
+            const driftMsgs = [];
+            function warnDrift(m) {
+                driftMsgs.push(m);
+                console.error("[wrand.cc] data drift: " + m);
+                const b = document.getElementById("drift");
+                b.textContent =
+                    "This page's derived data is out of step with its inventory: " +
+                    driftMsgs.join("; ") +
+                    ". The inventory section is authoritative.";
+                b.hidden = false;
+            }
 
-                // ── Creative / Products ──
-                {
-                    id: "toolboxhvac",
-                    name: "toolboxhvac.com",
-                    label: "Toolbox HVAC",
-                    url: "https://toolboxhvac.com",
-                    tagline:
-                        "Field diagnostic instrument for HVAC techs. Sourced PT data, evidence-gated verdicts.",
-                    tags: ["creative"],
-                    cat: "creative",
-                },
-                {
-                    id: "brokenrecord",
-                    name: "brokenrecord.studio",
-                    label: "Broken Record",
-                    url: "https://brokenrecord.studio",
-                    tagline: "U.A.P. — Unidentified Antique Phenomena.",
-                    tags: ["creative"],
-                    cat: "creative",
-                },
-                {
-                    id: "cul8er",
-                    name: "c-u-l8er.link",
-                    label: "c u l8er",
-                    url: "https://c-u-l8er.link",
-                    tagline:
-                        "Music & videos. Two albums, 28 videos — Travelmonstr and Telefoldal.",
-                    tags: ["creative"],
-                    cat: "creative",
-                },
+            (function checkDrift() {
+                const hudD = document.getElementById("totalDomains");
+                const hudE = document.getElementById("totalEdges");
+                if (hudD.textContent.trim() !== String(domains.length))
+                    warnDrift(
+                        "the served domain count says " +
+                            hudD.textContent.trim() +
+                            ", the inventory has " +
+                            domains.length,
+                    );
+                if (hudE.textContent.trim() !== String(edges.length))
+                    warnDrift(
+                        "the served connection count says " +
+                            hudE.textContent.trim() +
+                            ", the inventory has " +
+                            edges.length,
+                    );
 
-                // ── Observability / Evidence ──
-                {
-                    id: "a2atraffic",
-                    name: "a2atraffic.com",
-                    label: "A2A Traffic",
-                    url: "https://a2atraffic.com",
-                    tagline:
-                        "A2A protocol monitoring. The observability layer above the stack.",
-                    tags: ["observe"],
-                    cat: "observe",
-                },
-                {
-                    id: "traaviis",
-                    name: "traaviis.com",
-                    label: "TRAAVIIS",
-                    url: "https://traaviis.com",
-                    tagline:
-                        "Evidence-grade environments for evaluating agents. TRVM · WRL · code.",
-                    tags: ["observe"],
-                    cat: "observe",
-                },
+                const ldEl = document.getElementById("portfolio-ld");
+                let ld = null;
+                try {
+                    ld = JSON.parse(ldEl.textContent);
+                } catch (e) {
+                    return warnDrift("the JSON-LD block does not parse");
+                }
+                const ldUrls = (ld.itemListElement || []).map(
+                    (it) => it && it.item && it.item.url,
+                );
+                const domUrls = domains.map((d) => d.url);
+                if (
+                    ld.numberOfItems !== domains.length ||
+                    ldUrls.length !== domUrls.length ||
+                    ldUrls.some((u, k) => u !== domUrls[k])
+                )
+                    warnDrift(
+                        "the JSON-LD lists " +
+                            ldUrls.length +
+                            " sites, the inventory lists " +
+                            domUrls.length,
+                    );
+            })();
 
-                // ── Identity ──
-                {
-                    id: "wrand",
-                    name: "wrand.cc",
-                    label: "Wrand.cc",
-                    url: "https://wrand.cc",
-                    tagline: "Personal brand. Forking. You are here.",
-                    tags: ["brand"],
-                    cat: "brand",
-                },
-                {
-                    id: "istrav",
-                    name: "istrav.com",
-                    label: "isTrav",
-                    url: "https://istrav.com",
-                    tagline: "Core business entity. Web solutions hub.",
-                    tags: ["brand"],
-                    cat: "brand",
-                },
-                {
-                    id: "subvind",
-                    name: "subvind.com",
-                    label: "Subvind",
-                    url: "https://subvind.com",
-                    tagline: "Core business entity. Community solutions hub.",
-                    tags: ["brand"],
-                    cat: "brand",
-                },
-            ];
-
-            // ═══════════════════════════════════════════
-            // EDGES — validated relationships
-            // ═══════════════════════════════════════════
-            // Every edge carries WHY it exists and TIER = how well it is
-            // evidenced. Verified 2026-08-10 against the repos, not from memory:
-            //   code   — a real call site or dependency exists
-            //   spec   — written in a spec/protocol doc, not implemented
-            //   intent — stated positioning or a plan; nothing built
-            //   owns   — ownership/identity, true by construction
-            const edges = [
-                // ── [&] hub → the portfolio it owns ──
-                { from: "ampersandboxdesign", to: "delegatic", s: 0.85, tier: "owns", why: "Portfolio: the governance layer (OS-006)." },
-                { from: "ampersandboxdesign", to: "graphonomous", s: 0.8, tier: "owns", why: "Portfolio: the memory substrate (OS-001)." },
-                { from: "ampersandboxdesign", to: "webhost", s: 0.8, tier: "owns", why: "Portfolio: the runtime layer." },
-                { from: "ampersandboxdesign", to: "opensentience", s: 0.75, tier: "owns", why: "Publishes the OS-001…OS-011 protocol research." },
-                { from: "ampersandboxdesign", to: "agentelic", s: 0.75, tier: "owns", why: "Portfolio: the agent builder." },
-                { from: "ampersandboxdesign", to: "geofleetic", s: 0.75, tier: "owns", why: "Portfolio: the spatial primitive." },
-                { from: "ampersandboxdesign", to: "a2atraffic", s: 0.7, tier: "owns", why: "Portfolio: the observability surface." },
-                { from: "ampersandboxdesign", to: "deliberatic", s: 0.7, tier: "owns", why: "Portfolio: the consensus spec." },
-                { from: "ampersandboxdesign", to: "agentromatic", s: 0.7, tier: "owns", why: "Portfolio: the deliberation spec." },
-                { from: "ampersandboxdesign", to: "ticktickclock", s: 0.7, tier: "owns", why: "Portfolio: the temporal primitive." },
-                { from: "ampersandboxdesign", to: "bendscript", s: 0.6, tier: "owns", why: "Portfolio: the document protocol." },
-                { from: "ampersandboxdesign", to: "runefort", s: 0.6, tier: "owns", why: "Portfolio: the tile-layout protocol." },
-                { from: "ampersandboxdesign", to: "computedriven", s: 0.5, tier: "owns", why: "amp-nav carries a ComputeDriven CTA on every site." },
-
-                // ── The dark-factory chain — the only edges wired in real code.
-                // specprompt/lib/publisher.ex names it outright:
-                // SpecPrompt → Agentelic → FleetPrompt → OpenSentience → PRISM
-                { from: "specprompt", to: "agentelic", s: 0.9, tier: "code", why: "Agentelic's parser consumes a SPEC.md into a SpecPrompt.Spec; its test DSL compiles the acceptance tests." },
-                { from: "agentelic", to: "fleetprompt", s: 0.9, tier: "code", why: "publisher.ex POSTs a CloudEvents ConsolidationEvent to the FleetPrompt webhook on build success." },
-                { from: "fleetprompt", to: "delegatic", s: 0.9, tier: "code", why: "Install step 4 calls Delegatic.authorize/1 — a policy denial hard-fails the install. Git dependency." },
-                { from: "fleetprompt", to: "opensentience", s: 0.85, tier: "code", why: "Install step 5 proves the manifest is Harness-loadable via OpenSentience.Harness.start_session/1. Git dependency." },
-                { from: "fleetprompt", to: "graphonomous", s: 0.8, tier: "code", why: "Install step 6 initializes a memory telespace through KILN's GraphonomousClient." },
-                { from: "computedriven", to: "traaviis", s: 0.8, tier: "code", why: "The trvs stack ships inside the T&R image — verified on a pristine build." },
-
-                // ── Declared in a spec, not implemented ──
-                { from: "opensentience", to: "delegatic", s: 0.8, tier: "spec", why: "OS-006 Governance Shim is delegatic's normative spec." },
-                { from: "opensentience", to: "graphonomous", s: 0.8, tier: "spec", why: "OS-001 Continual Learning and OS-002 κ-Routing are graphonomous's normative spec." },
-                { from: "deliberatic", to: "graphonomous", s: 0.8, tier: "spec", why: "Spec names graphonomous://workspace/{id} as its evidence and reputation store." },
-                { from: "delegatic", to: "agentromatic", s: 0.7, tier: "spec", why: "Spec §7: Delegatic defines the boundaries, AgenTroMatic automates within them." },
-                { from: "fleetprompt", to: "specprompt", s: 0.7, tier: "spec", why: "Every listing is expected to carry a spec." },
-                { from: "webhost", to: "fleetprompt", s: 0.7, tier: "spec", why: "Spec declares deploy_to_fleetprompt — a ConsolidationEvent carrying usage-based trust signals." },
-                { from: "webhost", to: "opensentience", s: 0.7, tier: "spec", why: "Runtime follows the OS-010 PULSE specification." },
-                { from: "traaviis", to: "opensentience", s: 0.7, tier: "spec", why: "OS-008 harness lineage; trvs is the evaluation terminal that succeeded it." },
-                { from: "agentromatic", to: "deliberatic", s: 0.6, tier: "spec", why: "Built on the Deliberatic protocol — which is itself only a specification." },
-                { from: "agentromatic", to: "fleetprompt", s: 0.6, tier: "spec", why: "Automate → distribute." },
-                { from: "graphonomous", to: "geofleetic", s: 0.6, tier: "spec", why: "Graph memory + spatial index." },
-                { from: "graphonomous", to: "ticktickclock", s: 0.6, tier: "spec", why: "Graph memory + temporal index." },
-                { from: "geofleetic", to: "ticktickclock", s: 0.5, tier: "spec", why: "Where meets when. Both are spec-only." },
-                { from: "bendscript", to: "graphonomous", s: 0.5, tier: "spec", why: "Facet bendscript.memory.v1 targets Graphonomous-style memory nodes." },
-                { from: "bendscript", to: "specprompt", s: 0.5, tier: "spec", why: "Facet bendscript.spec.v1 targets SpecPrompt-style capability specifications." },
-                { from: "bendscript", to: "runefort", s: 0.4, tier: "spec", why: "Facet bendscript.runefort.v1 — documents claimed by Runefort rooms." },
-                { from: "runefort", to: "opensentience", s: 0.4, tier: "spec", why: "@runefort/vocab-supervisor-floor implements the supervisor-floor vocabulary." },
-
-                // ── Stated positioning; nothing built ──
-                { from: "computedriven", to: "specprompt", s: 0.8, tier: "intent", why: "“The specification layer of the ComputeDriven stack.” Unpushed, and no other site says so yet." },
-                { from: "computedriven", to: "fleetprompt", s: 0.8, tier: "intent", why: "“The distribution layer of the ComputeDriven stack.” Unpushed, and no other site says so yet." },
-                { from: "a2atraffic", to: "fleetprompt", s: 0.5, tier: "intent", why: "Claims to watch the marketplace. a2atraffic has a landing page and no code." },
-                { from: "a2atraffic", to: "delegatic", s: 0.4, tier: "intent", why: "Claims to watch governance decisions. Not wired." },
-                { from: "a2atraffic", to: "webhost", s: 0.4, tier: "intent", why: "Claims to watch the infrastructure. Not wired." },
-                { from: "traaviis", to: "a2atraffic", s: 0.3, tier: "intent", why: "Two ways to measure a running system; no shared code." },
-
-                // ── Identity — wrand.cc is the fork point ──
-                { from: "traaviis", to: "ampersandboxdesign", s: 0.6, tier: "owns", why: "Portfolio member." },
-                { from: "wrand", to: "ampersandboxdesign", s: 0.7, tier: "owns", why: "Fork: the [&] portfolio." },
-                { from: "wrand", to: "computedriven", s: 0.7, tier: "owns", why: "Fork: the systems studio." },
-                { from: "wrand", to: "traaviis", s: 0.7, tier: "owns", why: "Fork: agent evaluation." },
-                { from: "wrand", to: "istrav", s: 0.6, tier: "owns", why: "Fork: web solutions." },
-                { from: "wrand", to: "subvind", s: 0.6, tier: "owns", why: "Fork: community solutions." },
-                { from: "wrand", to: "cul8er", s: 0.6, tier: "owns", why: "Fork: music and video." },
-                { from: "wrand", to: "brokenrecord", s: 0.5, tier: "owns", why: "Fork: U.A.P." },
-                { from: "wrand", to: "toolboxhvac", s: 0.5, tier: "owns", why: "Fork: the HVAC instrument." },
-                { from: "wrand", to: "alkeyword", s: 0.5, tier: "owns", why: "Fork: Elixir type safety. Standalone — nothing in the stack references it." },
-                { from: "wrand", to: "gpscoord", s: 0.5, tier: "owns", why: "Fork: the coordinate utility. Standalone — nothing in the stack references it." },
-                { from: "istrav", to: "subvind", s: 0.6, tier: "owns", why: "Origin: the two founding entities." },
-                { from: "subvind", to: "traaviis", s: 0.6, tier: "owns", why: "Community entity → the evaluation product." },
-                { from: "cul8er", to: "brokenrecord", s: 0.5, tier: "owns", why: "Two sides of the same making." },
-            ];
+            // An edge naming a domain that is not in the inventory would
+            // silently vanish from the graph. Say so instead of dropping it.
+            (function checkEdges() {
+                const ids = new Set(domains.map((d) => d.id));
+                const bad = edges.filter(
+                    (e) => !ids.has(e.to) || Number.isNaN(e.s),
+                );
+                if (bad.length)
+                    warnDrift(
+                        bad.length + " connection(s) name an unknown domain",
+                    );
+            })();
 
             // ═══════════════════════════════════════════
             // SETUP
@@ -1052,6 +1796,21 @@
             const toWorldX = (px) => px / VIEW.s;
             const toWorldY = (py) => (py - VIEW.top) / VIEW.s;
 
+            // Data now arrives as decoded textContent, so anything re-injected
+            // as innerHTML has to be re-escaped. "[&] Ampersand Box" is the
+            // label that makes this non-theoretical.
+            const esc = (t) =>
+                String(t).replace(
+                    /[&<>"]/g,
+                    (c) =>
+                        ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                        })[c],
+                );
+
             const catColors = {
                 hub: "#e8ecff",
                 brand: "#fb923c",
@@ -1112,16 +1871,16 @@
       <div class="chrome-dot r"></div>
       <div class="chrome-dot y"></div>
       <div class="chrome-dot g"></div>
-      <div class="chrome-url">${node.name}</div>
+      <div class="chrome-url">${esc(node.name)}</div>
     </div>
     <div class="card-body">
-      <div class="card-name">${node.label}</div>
-      <div class="card-tagline">${node.tagline}</div>
+      <div class="card-name">${esc(node.label)}</div>
+      <div class="card-tagline">${esc(node.tagline)}</div>
       <div class="card-tags">
-        ${node.tags.map((t) => `<span class="card-tag tag-${t}">${t}</span>`).join("")}
+        ${node.tags.map((t) => `<span class="card-tag tag-${esc(t)}">${esc(t)}</span>`).join("")}
       </div>
     </div>
-    <a class="card-visit" href="${node.url}" target="_blank" rel="noopener">Visit Site →</a>
+    <a class="card-visit" href="${esc(node.url)}" target="_blank" rel="noopener">Visit Site →</a>
   `;
                 card.style.borderTop = `2px solid ${col}`;
                 container.appendChild(card);
@@ -1234,18 +1993,6 @@
                 intent: "stated only",
                 owns: "ownership",
             };
-
-            const esc = (t) =>
-                String(t).replace(
-                    /[&<>"]/g,
-                    (c) =>
-                        ({
-                            "&": "&amp;",
-                            "<": "&lt;",
-                            ">": "&gt;",
-                            '"': "&quot;",
-                        })[c],
-                );
 
             function selectNode(id) {
                 const n = nodeMap[id];
@@ -1659,6 +2406,32 @@
                 });
                 alpha = 1;
             }
+
+            // ── PROGRESSIVE ENHANCEMENT ──────────────────────────────────
+            // The inventory has been read, so the interactive graph can take
+            // the screen. It is hidden rather than removed: it stays in the
+            // document, it stays linkable, and the List button brings it back.
+            // With JS off none of this runs and the list simply remains the
+            // page — which is the whole point of the section existing.
+            document.body.classList.add("js");
+            const viewToggle = document.getElementById("viewToggle");
+            viewToggle.hidden = false;
+            function setView(showList) {
+                invRoot.hidden = !showList;
+                document.body.classList.toggle("list-view", showList);
+                viewToggle.textContent = showList ? "Graph" : "List";
+                viewToggle.setAttribute("aria-pressed", String(showList));
+                // The detail panel floats above everything and belongs to the
+                // graph; leaving it open over the list is just clutter.
+                if (showList && selectedId) deselect();
+            }
+            setView(false);
+            viewToggle.addEventListener("click", () => setView(invRoot.hidden));
+            // A link to #inv-<id> should show the list it points into.
+            window.addEventListener("hashchange", () => {
+                if (location.hash.startsWith("#inv-")) setView(true);
+            });
+            if (location.hash.startsWith("#inv-")) setView(true);
 
             measureCards();
             laidOut = true;
