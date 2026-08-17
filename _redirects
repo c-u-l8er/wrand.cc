@@ -1,0 +1,9 @@
+# Cloudflare Pages redirects.
+#
+# old_scrap/ holds a previous revision of this page. It stays in the repository
+# because deleting the thing you replaced is how a correction stops being
+# checkable — but it must not be REACHABLE, because a stale artifact served
+# beside an approved one is a stale artifact served. Its index.html has already
+# been renamed so no host will serve it as a page; this closes the directory
+# itself. SHELL.md r6, hole 2.
+/old_scrap/*  /  301

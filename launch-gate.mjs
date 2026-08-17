@@ -21,7 +21,7 @@
    Break each check once and watch it refuse. A gate nobody has seen fail is an
    opinion; the results of doing that are recorded in the commit message.
    ========================================================================== */
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 
 const HTML = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const SURFACE = JSON.parse(
@@ -63,7 +63,42 @@ function decode(s) {
         return e in NAMED ? NAMED[e] : m;
     });
 }
-const strip = (h) => decode(h.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+/* SHELL.md r8 — COMMENTS COME OFF FIRST, AS THEIR OWN PASS.
+   `<[^>]+>` stops at the first `>`. An HTML comment that CONTAINS a `>` — and
+   this repository's comments are full of them: `-->`, `a > b`, `κ > 0` — is
+   therefore only partly removed, and the remainder is counted as visible page
+   text. A sibling surface measured 93 characters of invisible comment leaking
+   into a scan that way.
+
+   MEASURED ON THIS ARTIFACT 2026-08-17: the delta is 0 characters. All of
+   this page's HTML comments happen to be free of a bare `>`, so nothing was
+   leaking here and no earlier count on this surface is invalidated. The order
+   is fixed regardless — the next comment somebody writes is the defect, and
+   it would arrive silently. */
+const decomment = (h) => h.replace(/<!--[\s\S]*?-->/g, " ");
+const strip = (h) => decode(decomment(h).replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+/* SHELL.md r12 — SPLIT ON TAGS, DO NOT REPLACE THEM WITH A SPACE.
+   `replace(/<[^>]+>/g, " ")` flattens the document into one blob, and that
+   breaks a phrase rule in BOTH directions: a phrase that spans a tag boundary
+   is shredded and can never be found, and two unrelated text nodes joined by
+   a space can manufacture a phrase that nobody wrote. Every multi-word rule
+   below is therefore evaluated against TEXT NODES — each one still a node.
+
+   VERIFIED ON THIS ARTIFACT: the retracted webhost tagline lives inside a
+   single <em>, so the flattened form did find it and the check was already
+   falsifiable here (break W4 refuses on it). It is done properly anyway,
+   because the next rule somebody adds may well straddle a <code>. */
+const TEXT_NODES = decomment(HTML)
+    .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "")
+    .split(/<[^>]+>/)
+    .map((t) => decode(t).replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+/* The joined form is still what a character COUNT is about — a reader reads
+   the page, not its text nodes — so both exist and each is used for the thing
+   it is right for. */
+const VISIBLE = TEXT_NODES.join(" ");
+const seenInText = (needle) =>
+    TEXT_NODES.reduce((n, t) => n + (t.split(needle).length - 1), 0);
 const attr = (tag, name) => {
     const m = tag.match(new RegExp(name + '="([^"]*)"'));
     return m ? decode(m[1]) : null;
@@ -259,7 +294,7 @@ OK(`${domains.length} per-domain connection counts and ${edges.length} printed s
    6. The page is readable without a browser
    ========================================================================== */
 {
-    const text = strip(HTML.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, ""));
+    const text = VISIBLE;
     if (text.length < SURFACE.text_floor)
         REFUSE(`only ${text.length} characters of text survive with script and style stripped; the floor is ${SURFACE.text_floor}`);
     else OK(`${text.length.toLocaleString()} characters of extractable text (floor ${SURFACE.text_floor.toLocaleString()})`);
@@ -285,8 +320,7 @@ OK(`${domains.length} per-domain connection counts and ${edges.length} printed s
         if (!consts.length) REFUSE("the IDENTITY-CONSTANTS block declares nothing");
         /* The 12-Active-Pathfinders defect, mechanised: a number that steers
            the animation may not also be printed as a figure on the page. */
-        const pageText = strip(HTML.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, ""));
-        const printed = new Set((pageText.match(/\b\d+\b/g) || []));
+        const printed = new Set((VISIBLE.match(/\b\d+\b/g) || []));
         for (const [name, v] of consts) {
             if (printed.has(v))
                 REFUSE(`the animation constant ${name} is ${v}, and ${v} also appears as a number in the page's text — that is how "12 Active Pathfinders" happened`);
@@ -391,6 +425,513 @@ OK(`${domains.length} per-domain connection counts and ${edges.length} printed s
             if (r < 4.5) REFUSE(`--${tn} measures ${r.toFixed(2)}:1 on --${sn}; the floor is 4.5:1`);
         }
     OK(`${texts.length} text tokens × ${surfaces.length} surfaces, worst ${worst.n} at ${worst.r.toFixed(2)}:1`);
+}
+
+/* ==========================================================================
+   11. A RETRACTED CLAIM MAY NOT COME BACK — SHELL.md r6 hole 1, tightened by r10
+
+   THIS SURFACE HAD NO BLOCKLIST AT ALL. It retracted a description of
+   webhost.systems in prose and nothing anywhere stopped the retracted
+   sentence from being written again somewhere else on the page. The
+   retraction was a promise, which is the thing this whole file exists not to
+   accept.
+
+   The bound is written as NUMBERS, not as an equality (r10):
+
+       outside === 0   &&   inside <= 1
+
+   r6's natural implementation — `onPage === inRetraction` — is still
+   defective, and a sibling lane made it approve a lie: the retraction is
+   authored content, so repeating the sentence three times INSIDE it keeps
+   both sides equal and puts the claim on the artifact four times. A check
+   whose two sides are both under the author's control is not a check.
+
+   Hidden occurrences are refused outright as well. A blocklisted string that
+   is in the file but not in the visible text — in an attribute, in a comment,
+   in the JSON-LD — is a claim a crawler reads and a person cannot see, which
+   is strictly worse than one printed honestly.
+   ========================================================================== */
+{
+    /* Every string here was retracted on this page and may not be reinstated.
+       The webhost tagline is the one this revision took down; the rest are
+       claims removed from earlier revisions of this domain, kept blocked so
+       they cannot drift back in a rewrite. */
+    const RETRACTED = [
+        "multi-runtime AI agent deployment platform",
+        "Forking the Landscape of Tomorrow",
+        "next-generation infra",
+        "pioneering",
+    ];
+    const CAP = 1; // times a blocked string may be named inside the retraction
+    const count = (h, s) => (h ? h.split(s).length - 1 : 0);
+
+    const blocks = HTML.match(/<div class="retract">[\s\S]*?<\/div>\s*<\/div>|<div class="retract">[\s\S]*?<\/div>/g) || [];
+    if (blocks.length !== 1)
+        REFUSE(`the page carries ${blocks.length} retraction block(s); a deleted retraction un-retracts everything, silently`);
+    const zone = blocks.join("\n");
+    const zoneText = strip(zone);
+
+    let worst = 0;
+    for (const s of RETRACTED) {
+        const raw = count(HTML, s);
+        const inside = count(zone, s);
+        const visible = seenInText(s);
+        const insideVisible = count(zoneText, s);
+        const outside = raw - inside;
+        worst = Math.max(worst, inside);
+        if (outside !== 0)
+            REFUSE(`"${s}" appears ${raw} time(s) on the page and ${inside} inside the retraction — ${outside} occurrence(s) outside it`);
+        else if (inside > CAP)
+            REFUSE(`"${s}" is named ${inside} times inside the retraction; the bound is ${CAP}. Naming a wrong claim once is a retraction; naming it repeatedly is the claim`);
+        /* raw > visible means an occurrence exists that a reader cannot see. */
+        if (raw > visible)
+            REFUSE(`"${s}" appears ${raw} time(s) in the file but only ${visible} in the visible text — ${raw - visible} hidden occurrence(s)`);
+        if (inside !== insideVisible && inside <= CAP)
+            REFUSE(`"${s}" inside the retraction is not all visible text (${inside} in markup, ${insideVisible} rendered)`);
+    }
+    if (blocks.length === 1)
+        OK(`${RETRACTED.length} retracted claims: none outside the retraction, at most ${worst} inside it (bound ${CAP}), none hidden`);
+}
+
+/* ==========================================================================
+   12. NOTHING ELSE IN THE DEPLOY TREE IS SERVED UNGATED
+       SHELL.md r6 hole 2, in the form it takes on a site with no build
+
+   r6's hole 2 is "nothing proves the artifact came from this build; if the
+   build throws, the previous index.html survives and the gate approves a
+   stale artifact." THIS SITE HAS NO BUILD, so that exact mechanism cannot
+   fire here and it would be dishonest to claim it was found and fixed.
+
+   The property underneath it does apply, and it was broken: THE GATE READ ONE
+   FILE AND THE DOMAIN SERVES A DIRECTORY. `old_scrap/v1/index.html` is a
+   previous revision of this very page — 35,861 bytes, 1,212 characters of
+   extractable text, opening "Forking the Landscape of Tomorrow" — sitting in
+   the deploy root, reachable at /old_scrap/v1/, and no gate had ever looked
+   at it. A stale artifact surviving beside an approved one and being served
+   is the same defect; it simply got there by being left behind rather than by
+   a build throwing.
+
+   So: every servable page in the tree is either THE artifact or is declared
+   not-served, and a declaration is only accepted when something in the tree
+   actually enforces it.
+   ========================================================================== */
+{
+    const here = new URL("./", import.meta.url);
+    const found = [];
+    (function walk(dir, rel) {
+        for (const e of readdirSync(new URL(dir, here), { withFileTypes: true })) {
+            if (e.name === ".git" || e.name === "node_modules") continue;
+            const path = rel + e.name;
+            if (e.isDirectory()) walk(dir + e.name + "/", path + "/");
+            else if (/\.html?$/i.test(e.name)) found.push(path);
+        }
+    })("./", "");
+
+    /* NO ALLOWLIST. r10: a check whose two sides are both under the author's
+       control is not a check, and a `not_served` list in the record would be
+       exactly that — the page and its exemption written by the same hand.
+       Either a file in this tree is the gated artifact or it is not an HTML
+       file. The archived v1 page is kept, under the name index.html.txt: the
+       bytes are still there to be read, the URL is not. */
+    const gated = ["index.html"];
+    const loose = found.filter((f) => !gated.includes(f));
+    if (loose.length)
+        REFUSE(`${loose.length} servable page(s) in the deploy tree that this gate never reads: ${loose.join(", ")}. Either gate it or take it out of the served set — a stale artifact beside an approved one is still served.`);
+    else OK(`${found.length} HTML file(s) in the tree, and the gate reads all of them`);
+
+    /* And the directory itself is closed, so a host that lists directories
+       cannot hand a visitor the archive. Declared here and enforceable by the
+       host from a file in the repository; NOT verified against a live
+       deployment, because this revision has not been deployed. */
+    let redirects = "";
+    try { redirects = readFileSync(new URL("./_redirects", here), "utf8"); } catch { }
+    if (!/^\/old_scrap\/\*\s+\/\s+30[12]\s*$/m.test(redirects))
+        REFUSE("_redirects does not close /old_scrap/* — the archive directory stays browsable");
+    else OK("_redirects closes /old_scrap/* (declared; not verified against a live host)");
+
+    /* And the gate must have read the file that is on disk right now. Many
+       sessions share this tree; a check that reads a file at the top and
+       reports on it a second later is reporting on a file that may already
+       have changed under it. */
+    const now = readFileSync(new URL("./index.html", here), "utf8");
+    if (now !== HTML) REFUSE("index.html changed while this gate was running — nothing here describes the file on disk");
+    else OK(`the artifact did not change under the gate (${HTML.length.toLocaleString()} chars)`);
+}
+
+/* ==========================================================================
+   13. THE CTA PAINTS THE COLOUR ITS OWN RULE DECLARES — SHELL.md r7 / r8
+
+   Check 10 above reads DECLARED tokens. It proves --acc on --ink is legible.
+   It cannot see a button that never receives its declared colour at all, and
+   that is the r7 defect: `.top nav a` is specificity 0,2,1 and `.btn` is
+   0,1,0, so a .btn inside the header nav has its colour decided by a rule
+   that knows nothing about buttons.
+
+   MEASURED ON THIS SURFACE BEFORE THE FIX, 2026-08-17: it did NOT carry the
+   defect. The header CTA here is a <button>, and `.top nav a` cannot match a
+   <button> at any specificity — it painted rgb(26,4,16) on rgb(255,94,168),
+   correctly, and so did every other .btn on the page. r7 reports the defect
+   as confirmed on all nine surfaces; on this one it was not there. The rule
+   is scoped anyway and this check exists anyway, because the day somebody
+   writes <a class="btn"> in that nav the defect is back and the CSS comment
+   saying "measured clean" would still be sitting there.
+
+   So this RESOLVES THE CASCADE over the artifact — the whole stylesheet in
+   source order, with specificity, !important, @media, :not() and inline
+   style, against a real ancestor tree parsed out of the emitted HTML — and
+   refuses any .btn whose winning `color` comes from a rule that is not about
+   buttons, at rest and hovered.
+
+   VALIDATED AGAINST A BROWSER before it was trusted: the resolver's answer
+   equals getComputedStyle().color for all 5 .btn on this page and all 4 on
+   gpscoord.com, at rest and hovered. A resolver that disagreed with a browser
+   would be worse than no check at all.
+   ========================================================================== */
+{
+    const VOIDEL = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input",
+        "link", "meta", "param", "source", "track", "wbr"]);
+    const STATEP = new Set(["hover", "focus", "focus-visible", "focus-within",
+        "active", "visited", "link", "any-link", "target"]);
+    const splitTop = (s, ch) => {
+        const out = []; let buf = "", d = 0;
+        for (const c of s) {
+            if (c === "(") d++; else if (c === ")") d--;
+            if (c === ch && d === 0) { out.push(buf); buf = ""; continue; }
+            buf += c;
+        }
+        out.push(buf); return out;
+    };
+    const declsOf = (body) => splitTop(body, ";").map((part) => {
+        const k = part.indexOf(":");
+        if (k < 0) return null;
+        const prop = part.slice(0, k).trim().toLowerCase();
+        let val = part.slice(k + 1).trim();
+        const imp = /!important\s*$/i.test(val);
+        if (imp) val = val.replace(/!important\s*$/i, "").trim();
+        return prop ? { prop, val, imp } : null;
+    }).filter(Boolean);
+
+    /* every <style> in the artifact, flattened, @media preserved as context */
+    function sheetOf(html) {
+        const css = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)]
+            .map((m) => m[1]).join("\n").replace(/\/\*[\s\S]*?\*\//g, "");
+        const rules = []; let order = 0;
+        (function walk(src, media) {
+            let i = 0;
+            for (;;) {
+                const open = src.indexOf("{", i);
+                if (open < 0) break;
+                const prelude = src.slice(i, open).trim();
+                let depth = 1, j = open + 1;
+                while (j < src.length && depth) {
+                    if (src[j] === "{") depth++; else if (src[j] === "}") depth--;
+                    j++;
+                }
+                const body = src.slice(open + 1, j - 1);
+                if (prelude.startsWith("@")) {
+                    /* rules inside a @media are candidates too: a colour that
+                       only breaks at 430px is still a colour that breaks. */
+                    if (/^@(media|supports|layer|scope)\b/i.test(prelude))
+                        walk(body, media ? media + " / " + prelude : prelude);
+                } else if (prelude) {
+                    for (const sel of splitTop(prelude, ",")) {
+                        const s = sel.trim();
+                        if (s) rules.push({ sel: s, body, order: order++, media: media || "" });
+                    }
+                }
+                i = j;
+            }
+        })(css, "");
+        return rules;
+    }
+
+    /* the artifact as an ancestor tree — `.top nav a` needs real ancestry */
+    function domOf(html) {
+        const root = { tag: "#root", attrs: {}, cls: new Set(), children: [], parent: null };
+        const stack = [root]; const all = [];
+        const re = /<!--[\s\S]*?-->|<!\[[\s\S]*?\]>|<!doctype[^>]*>|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>|<\/([a-zA-Z][\w-]*)\s*>|<([a-zA-Z][\w-]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/gi;
+        let m;
+        while ((m = re.exec(html))) {
+            if (m[1]) continue;
+            if (m[2]) {
+                const tag = m[2].toLowerCase();
+                for (let i = stack.length - 1; i > 0; i--)
+                    if (stack[i].tag === tag) { stack.length = i; break; }
+                continue;
+            }
+            if (!m[3]) continue;
+            const attrs = {};
+            for (const a of (m[4] || "").matchAll(/([\w:.-]+)(?:\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g))
+                attrs[a[1].toLowerCase()] = a[3] ?? a[4] ?? a[5] ?? "";
+            const el = {
+                tag: m[3].toLowerCase(), attrs,
+                cls: new Set((attrs.class || "").trim().split(/\s+/).filter(Boolean)),
+                children: [], parent: stack[stack.length - 1],
+            };
+            el.parent.children.push(el);
+            all.push(el);
+            if (!VOIDEL.has(el.tag) && !/\/\s*$/.test(m[4] || "")) stack.push(el);
+        }
+        return all;
+    }
+
+    function parseCompound(s) {
+        const c = { tag: "", id: "", classes: [], attrs: [], pseudos: [], nots: [], pseudoEl: false, unknown: [] };
+        let i = 0;
+        const name = () => { let n = ""; while (i < s.length && /[\w-]/.test(s[i])) n += s[i++]; return n; };
+        while (i < s.length) {
+            const ch = s[i];
+            if (ch === "*") { c.tag = "*"; i++; }
+            else if (ch === ".") { i++; c.classes.push(name()); }
+            else if (ch === "#") { i++; c.id = name(); }
+            else if (ch === "[") {
+                const end = s.indexOf("]", i);
+                const mm = s.slice(i + 1, end).match(/^([\w:-]+)\s*(?:([~|^$*]?=)\s*"?([^"\]]*)"?)?$/);
+                if (mm) c.attrs.push({ name: mm[1].toLowerCase(), op: mm[2] || "", val: mm[3] ?? "" });
+                i = end + 1;
+            } else if (ch === ":") {
+                if (s[i + 1] === ":") { c.pseudoEl = true; i += 2; name(); continue; }
+                i++;
+                const n = name();
+                if (s[i] === "(") {
+                    let d = 1, j = i + 1;
+                    while (j < s.length && d) { if (s[j] === "(") d++; else if (s[j] === ")") d--; j++; }
+                    const arg = s.slice(i + 1, j - 1); i = j;
+                    if (n === "not") for (const p of splitTop(arg, ",")) c.nots.push(parseCompound(p.trim()));
+                    else c.unknown.push(n + "()");
+                } else if (STATEP.has(n) || n === "root") c.pseudos.push(n);
+                else c.unknown.push(n);
+            } else if (/[\w-]/.test(ch)) c.tag = name().toLowerCase();
+            else i++;
+        }
+        return c;
+    }
+    function parseSelector(sel) {
+        const parts = []; let buf = "", d = 0, comb = null;
+        for (let i = 0; i < sel.length; i++) {
+            const ch = sel[i];
+            if (ch === "(") d++; else if (ch === ")") d--;
+            if (d === 0 && /[\s>+~]/.test(ch)) {
+                let k = " ", j = i;
+                while (j < sel.length && /[\s>+~]/.test(sel[j])) { if (sel[j] !== " ") k = sel[j]; j++; }
+                if (buf) { parts.push({ comb, c: parseCompound(buf) }); buf = ""; comb = k; }
+                i = j - 1; continue;
+            }
+            buf += ch;
+        }
+        if (buf) parts.push({ comb, c: parseCompound(buf) });
+        return parts;
+    }
+    function specificity(parts) {
+        const s = [0, 0, 0];
+        (function add(list) {
+            for (const p of list) {
+                const c = p.c || p;
+                if (c.id) s[0]++;
+                s[1] += c.classes.length + c.attrs.length + c.pseudos.length + c.unknown.length;
+                if (c.tag && c.tag !== "*") s[2]++;
+                if (c.pseudoEl) s[2]++;
+                add(c.nots);
+            }
+        })(parts);
+        return s;
+    }
+    const prevSib = (el) => {
+        const k = el.parent ? el.parent.children.indexOf(el) : -1;
+        return k > 0 ? el.parent.children[k - 1] : null;
+    };
+    /* true / false / null — and null means THE RESOLVER CANNOT DECIDE, which
+       is refused rather than waved through. A check that cannot decide and
+       reports a pass is the thing this whole file exists to prevent. */
+    function matchCompound(el, c, state) {
+        if (c.pseudoEl) return false;
+        if (c.unknown.length) return null;
+        if (c.tag && c.tag !== "*" && el.tag !== c.tag) return false;
+        if (c.id && el.attrs.id !== c.id) return false;
+        for (const cl of c.classes) if (!el.cls.has(cl)) return false;
+        for (const a of c.attrs) {
+            const v = el.attrs[a.name];
+            if (v === undefined) return false;
+            if (a.op === "=" && v !== a.val) return false;
+            if (a.op === "~=" && !v.split(/\s+/).includes(a.val)) return false;
+            if (a.op === "^=" && !v.startsWith(a.val)) return false;
+            if (a.op === "$=" && !v.endsWith(a.val)) return false;
+            if (a.op === "*=" && !v.includes(a.val)) return false;
+        }
+        for (const p of c.pseudos) {
+            if (p === "root") { if (el.tag !== "html") return false; continue; }
+            if (!state.has(p)) return false;
+        }
+        for (const n of c.nots) {
+            const r = matchCompound(el, n, state);
+            if (r === null) return null;
+            if (r) return false;
+        }
+        return true;
+    }
+    function matchFrom(el, parts, idx, state) {
+        const r = matchCompound(el, parts[idx].c, state);
+        if (r !== true) return r;
+        if (idx === 0) return true;
+        const comb = parts[idx].comb;
+        let undec = false;
+        if (comb === " " || comb === "~") {
+            const next = comb === " " ? (e) => e.parent : prevSib;
+            for (let p = next(el); p && p.tag !== "#root"; p = next(p)) {
+                const q = matchFrom(p, parts, idx - 1, state);
+                if (q === null) undec = true; else if (q) return true;
+            }
+            return undec ? null : false;
+        }
+        if (comb === ">")
+            return el.parent && el.parent.tag !== "#root" ? matchFrom(el.parent, parts, idx - 1, state) : false;
+        if (comb === "+") {
+            const s = prevSib(el);
+            return s ? matchFrom(s, parts, idx - 1, state) : false;
+        }
+        return false;
+    }
+    const expand = (v, vars, n = 0) => (n > 8 || !/var\(/.test(v) ? v : expand(
+        v.replace(/var\(\s*(--[\w-]+)\s*(?:,([^()]*))?\)/g,
+            (m, k, fb) => (vars[k] !== undefined ? vars[k] : (fb || "").trim())), vars, n + 1));
+    function normColour(v) {
+        const s = String(v).trim().toLowerCase();
+        let m = /^#([0-9a-f]{3,8})$/.exec(s);
+        if (m) {
+            let h = m[1];
+            if (h.length === 3 || h.length === 4) h = h.split("").map((c) => c + c).join("");
+            const p = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+            if (h.length === 8) return `rgba(${p[0]}, ${p[1]}, ${p[2]}, ${+(parseInt(h.slice(6, 8), 16) / 255).toFixed(2)})`;
+            return `rgb(${p[0]}, ${p[1]}, ${p[2]})`;
+        }
+        m = /^rgba?\(([^)]*)\)$/.exec(s);
+        if (m) {
+            const p = m[1].split(/[,\s/]+/).filter(Boolean).map(Number);
+            return p.length > 3 && p[3] !== 1
+                ? `rgba(${p[0]}, ${p[1]}, ${p[2]}, ${p[3]})`
+                : `rgb(${p[0]}, ${p[1]}, ${p[2]})`;
+        }
+        return { white: "rgb(255, 255, 255)", black: "rgb(0, 0, 0)", transparent: "rgba(0, 0, 0, 0)" }[s] || s;
+    }
+
+    /* Resolve `color` on one element: the winning declaration, and the rule
+       it came from. Inheritance is walked because a .btn need not declare
+       one at all. */
+    function resolveColour(el, rules, cache, vars, state) {
+        let best = null; const undecidable = [];
+        for (const r of rules) {
+            if (!cache.has(r)) {
+                const parts = parseSelector(r.sel);
+                cache.set(r, { parts, spec: specificity(parts), decls: declsOf(r.body) });
+            }
+            const p = cache.get(r);
+            const m = matchFrom(el, p.parts, p.parts.length - 1, state);
+            if (m === null) {
+                /* only rules that could have changed the answer are worth naming */
+                if (p.decls.some((d) => d.prop === "color")) undecidable.push(r.sel);
+                continue;
+            }
+            if (!m) continue;
+            for (const d of p.decls) {
+                if (d.prop !== "color") continue;
+                const cand = { sel: r.sel, media: r.media, spec: p.spec, imp: d.imp, val: d.val, order: r.order };
+                if (!best) { best = cand; continue; }
+                if (cand.imp !== best.imp) { if (cand.imp) best = cand; continue; }
+                let decided = false;
+                for (let i = 0; i < 3 && !decided; i++)
+                    if (cand.spec[i] !== best.spec[i]) { if (cand.spec[i] > best.spec[i]) best = cand; decided = true; }
+                if (!decided && cand.order >= best.order) best = cand;
+            }
+        }
+        const inline = el.attrs.style && declsOf(el.attrs.style).filter((d) => d.prop === "color").pop();
+        if (inline) best = { sel: "style= attribute", media: "", spec: [1, 0, 0], imp: inline.imp, val: inline.val, order: 1e9 };
+        if (!best) {
+            if (el.parent && el.parent.tag !== "#root") return resolveColour(el.parent, rules, cache, vars, state);
+            return { sel: null, value: null, undecidable };
+        }
+        return { sel: best.sel, media: best.media, value: normColour(expand(best.val, vars)), undecidable };
+    }
+
+    const rules = sheetOf(HTML);
+    const vars = {};
+    for (const r of rules)
+        if (/^(:root|html)$/.test(r.sel))
+            for (const d of declsOf(r.body)) if (d.prop.startsWith("--")) vars[d.prop] = d.val;
+    const cache = new Map();
+    const btns = domOf(HTML).filter((e) => e.cls.has("btn"));
+    if (!btns.length) REFUSE("the page issues no .btn at all, so this check is about nothing");
+    const bad = [], undecided = new Set(), values = new Set();
+    for (const state of [new Set(), new Set(["hover"])]) {
+        const label = state.size ? ":hover" : "at rest";
+        for (const b of btns) {
+            const r = resolveColour(b, rules, cache, vars, state);
+            r.undecidable.forEach((x) => undecided.add(x));
+            const parts = parseSelector(r.sel || "");
+            const subject = parts[parts.length - 1];
+            /* THE RULE: a button's colour is decided by a rule about buttons.
+               `.top nav a` is not one, at any specificity. */
+            const owned = !!subject && subject.c.classes.includes("btn");
+            values.add(r.value);
+            if (!owned)
+                bad.push(`<${b.tag} class="${b.attrs.class}"> ${label} paints ${r.value}, handed to it by ` +
+                    `${JSON.stringify(r.sel)}${r.media ? " in " + r.media : ""} — not a .btn rule`);
+        }
+    }
+    if (bad.length) bad.forEach(REFUSE);
+    else if (undecided.size) REFUSE(`the cascade resolver cannot decide: ${[...undecided].join(", ")}`);
+    else OK(`${btns.length} .btn x 2 states, every one coloured by a .btn rule: ${[...values].join(", ")}`);
+}
+
+/* ==========================================================================
+   14. THE CORRECTION CHANNEL IS A FORM THAT WORKS — SHELL.md r9
+
+   Ruled by Travis 2026-08-17. This surface's record said "deliberately not
+   another surface's Formspree endpoint" and pointed corrections at GitHub
+   issues for want of one; the ruling is to share the ComputeDriven endpoint.
+
+   The endpoint is PINNED to the ruled value rather than merely compared
+   against the record — comparing the page to the record only proves the two
+   agree, and both are written by the same hand (r10). The honeypot is checked
+   by name because a honeypot dropped in a refactor fails silently: no error,
+   no visual change, just more spam six weeks later.
+   ========================================================================== */
+{
+    const RULED_ENDPOINT = "https://formspree.io/f/xaewoadr";
+    const c = SURFACE.contact || {};
+    if (c.kind !== "form" || c.form_endpoint !== RULED_ENDPOINT)
+        REFUSE(`records/surface.json does not declare the endpoint r9 ruled: ${JSON.stringify(c.form_endpoint || c.kind)}`);
+    const form = (HTML.match(/<form\b[^>]*class="say"[^>]*>[\s\S]*?<\/form>/) || [])[0] || "";
+    if (!form) REFUSE("the page carries no contact form");
+    else {
+        const open = (form.match(/<form\b[^>]*>/) || [""])[0];
+        const action = (open.match(/action="([^"]*)"/) || [])[1];
+        if (action !== RULED_ENDPOINT) REFUSE(`the form posts to ${JSON.stringify(action)}, not the declared endpoint`);
+        /* Without action AND method it is not a form, it is a div waiting for
+           JavaScript — and no-JS completeness is this surface's whole claim. */
+        if (!/\bmethod="POST"/i.test(open)) REFUSE("the form has no method, so it does not post with JavaScript off");
+        if (!/\bnovalidate\b/i.test(open)) REFUSE("the form does not carry novalidate, so validation messages are the browser's");
+        const flat = form.replace(/\n/g, " ");
+        if (!/<input[^>]*\bname="_gotcha"[^>]*>/.test(form) ||
+            !/name="_gotcha"[^>]*tabindex="-1"/.test(flat) ||
+            !/name="_gotcha"[^>]*aria-hidden="true"/.test(flat))
+            REFUSE("the form is missing its _gotcha honeypot, or the honeypot is reachable");
+        if (!/<p class="say-msg" role="status" aria-live="polite">/.test(form))
+            REFUSE("the reply paragraph is not announced to a screen reader");
+        if (!/a number of ours you think is wrong/.test(form))
+            REFUSE("the form no longer asks for the message this portfolio most needs");
+        /* Off-screen, not display:none — some bots skip anything a stylesheet
+           has explicitly hidden, which is the one thing a honeypot must not be. */
+        if (!/\.say input\[name=_gotcha\]\{[^}]*position:absolute/.test(HTML) ||
+            /\.say input\[name=_gotcha\]\{[^}]*display:none/.test(HTML))
+            REFUSE("the honeypot is hidden by display rather than by position");
+        /* And the script must be an upgrade, not the mechanism: success is
+           printed only on an actual 2xx. */
+        const up = (HTML.match(/\(function say\(\)[\s\S]*?\n\}\)\(\);/) || [])[0] || "";
+        if (!up || !/r\.ok/.test(up) || !/preventDefault/.test(up))
+            REFUSE("the form's script does not gate its success message on a 2xx from the endpoint");
+        if (!fail.some((m) => /form|honeypot|endpoint|reply paragraph/.test(m)))
+            OK("contact form: ruled endpoint, posts without JavaScript, honeypot present and off-screen, success only on 2xx");
+    }
 }
 
 /* ==========================================================================

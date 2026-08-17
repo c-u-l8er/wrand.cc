@@ -14,7 +14,9 @@
 
   "surface_rung": "live_local",
   "surface_rung_covers": "this page and the gate that checks it — node launch-gate.mjs re-derives every count here from the markup and refuses on a mismatch. It covers nothing on the 25 domains listed below, and this revision has not been served from wrand.cc yet",
-  "verified_at": "2026-08-16",
+  "verified_at": "2026-08-17",
+  "shell_revision": "shell-r10",
+  "_shell_revision_comment": "SHELL.md asks each surface to record the revision it was built against. The document's own header still reads 'REVISION shell-r5' while its table runs to r10, so this records the newest ROW applied rather than the header string. This surface carries r6 (both gate holes), r7 (the header CTA — MEASURED CLEAN here before the fix, because this nav's CTA is a <button> and `.top nav a` cannot match one; scoped anyway), r8 (comments stripped as their own pass; a cascade resolved over the artifact), r9 (the Formspree form) and r10 (the retraction bound written as a number, not an equality).",
 
   "status": {
     "statement": "The inventory on this page parses, counts and cross-checks in a browser on a developer machine, and the publication gate runs against the emitted file. Nothing here executes any of the connections it describes.",
@@ -31,9 +33,10 @@
   "_text_floor_comment": "A FLOOR, not an exact count, on purpose. The previous revision of this site served 72,642 bytes that yielded 157 characters of extractable text, and an external audit read the portfolio as empty. An exact count would have to be re-typed on every edit — and a number that has to be re-typed is the thing this gate exists to catch. A floor is stable and still refuses the regression that mattered.",
 
   "contact": {
-    "kind": "github_issues",
+    "kind": "form",
+    "form_endpoint": "https://formspree.io/f/xaewoadr",
     "url": "https://github.com/c-u-l8er/wrand.cc/issues",
-    "_comment": "Deliberately not a mailto: — Travis's call, 2026-08-11 — and deliberately not another surface's Formspree endpoint. A live URL that works is the actual requirement."
+    "_comment": "SHELL.md r9, ruled by Travis 2026-08-17. This record used to say 'deliberately not another surface's Formspree endpoint' and pointed corrections at GitHub issues for want of one. The ruling is to share the ComputeDriven endpoint. The form is now the primary channel and the issues URL is the second route, which is why both are here. Still never a mailto: (Travis, 2026-08-11) and the gate still refuses one."
   },
 
   "gates": {

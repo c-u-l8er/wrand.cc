@@ -397,8 +397,17 @@ img,canvas,svg{max-width:100%}
 .logo:hover{color:var(--acc)}
 .logo:hover span{color:var(--fg)}
 .top nav{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
-.top nav a{color:var(--fg2);text-decoration:none;font-size:var(--sm);font-weight:500;white-space:nowrap}
-.top nav a:hover{color:var(--acc)}
+/* SHELL.md r7: `.top nav a` is 0,2,1 and `.btn` is 0,1,0, so a `.btn` inside
+   the header nav has its colour decided by a rule that knows nothing about
+   buttons. MEASURED HERE 2026-08-17 AND THIS SURFACE DID NOT CARRY THE
+   DEFECT — the header CTA is a <button>, and `.top nav a` cannot match a
+   <button> at any specificity. It painted rgb(26,4,16) on rgb(255,94,168),
+   correctly, before this edit. The rule is scoped anyway, because the day
+   somebody writes <a class="btn"> in that nav the bug is back and nothing
+   would have said so. §11 of the gate now resolves the cascade over the
+   artifact and refuses on it instead of trusting this comment. */
+.top nav a:not(.btn){color:var(--fg2);text-decoration:none;font-size:var(--sm);font-weight:500;white-space:nowrap}
+.top nav a:not(.btn):hover{color:var(--acc)}
 .btn{display:inline-block;background:var(--acc);color:#1a0410;font-weight:700;border-radius:var(--r);padding:11px 20px;text-decoration:none;font-size:var(--sm);border:0;font-family:inherit;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line2);font-weight:500}
 .btn:hover{filter:brightness(1.08)}
@@ -464,6 +473,28 @@ code{font-family:var(--mono);font-size:.92em;background:rgba(255,255,255,.05);pa
 .cta code{color:var(--data);background:none;padding:0}
 .ctagroup+.ctagroup{margin-top:34px}
 
+/* --- the retraction, given an element of its own so a gate can bound it --- */
+.retract{border-left:3px solid var(--warn);background:rgba(245,196,81,.05);border-radius:0 var(--r) var(--r) 0;padding:18px 20px;max-width:74ch;margin-top:26px}
+.retract h3{color:var(--warn)}
+.retract .lede{margin-top:10px}
+
+/* --- the correction channel (SHELL.md r9) ---
+   The honeypot is moved OFF-SCREEN rather than display:none — some bots skip
+   anything a stylesheet has explicitly hidden, which is the one thing a
+   honeypot must not be. */
+.say{max-width:62ch;margin-top:22px}
+.say-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.say-f>span{display:block;font-family:var(--mono);font-size:var(--xs);text-transform:uppercase;letter-spacing:.12em;color:var(--fg3);margin-bottom:6px}
+.say input[type=email],.say textarea{width:100%;background:var(--ink2);border:1px solid var(--line2);border-radius:var(--r);color:var(--fg);font-family:var(--ui);font-size:var(--sm);padding:10px 12px;resize:vertical}
+.say input[type=email]:focus,.say textarea:focus{outline:none;border-color:var(--acc-line)}
+.say input[type=email]::placeholder,.say textarea::placeholder{color:var(--fg3)}
+.say input[name=_gotcha]{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.say-act{display:flex;align-items:center;gap:15px;margin-top:15px;flex-wrap:wrap}
+.say-msg{font-family:var(--mono);font-size:var(--xs);color:var(--fg3);margin:0}
+.say-msg.ok{color:var(--data)}
+.say-msg.bad{color:var(--warn)}
+.btn[disabled]{opacity:.55;cursor:default;filter:none}
+
 /* --- footer --- */
 footer{border-top:1px solid var(--line);background:var(--ink2);margin-top:56px}
 footer .in{max-width:var(--wrap);margin:0 auto;padding:26px 22px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;font-size:var(--xs);color:var(--fg3)}
@@ -497,9 +528,18 @@ footer .links{display:flex;flex-wrap:wrap;gap:20px}
   radial-gradient(120% 120% at 30% 20%,rgba(255,94,168,.07),transparent 60%),var(--ink2);
   overflow:hidden}
 .ident svg{display:block;width:100%;height:100%}
-.ident line{stroke:var(--acc);stroke-width:1;stroke-linecap:round}
+/* Links are <path>, not <line>, because a slack cord bows and a taut one does
+   not — the whole point of the edge treatment. */
+.ident #ident-l path{stroke:var(--acc);stroke-width:1;stroke-linecap:round;fill:none}
 .ident circle{fill:var(--acc);opacity:.72}
 .ident circle.big{fill:var(--fg);opacity:.9}
+/* Traces. Painted above everything, and lighter than the links so a moving
+   thing never reads as a static one. */
+.ident #ident-t circle{fill:var(--fg);opacity:.95}
+/* The whole field leans toward the pointer, which is what makes it feel like
+   an object rather than a picture of one. Cursor stays default: this is
+   decoration, and a pointer cursor would promise a link that is not there. */
+.ident{cursor:default;touch-action:pan-y}
 .ident::after{content:"decoration — renders nothing";position:absolute;left:12px;bottom:10px;
   font-family:var(--mono);font-size:var(--xs);color:var(--fg2);letter-spacing:.04em}
 
@@ -605,17 +645,37 @@ body.graph-open{overflow:hidden}
 .filter-btn.active{color:var(--acc);background:var(--acc-soft)}
 .filter-bar::-webkit-scrollbar{display:none}
 
+/* --- the cards, and what makes them feel like objects ---
+   Two custom properties carry the whole feel and both are written by the
+   simulation, every frame, as CONTINUOUS values:
+
+     --lift   0..1  how close the pointer is. NOT a hover boolean: it is a
+                    field, so a card leans before you reach it and settles
+                    after you leave. The binary :hover that used to do this
+                    is what made the graph read as a diagram.
+     --focus  0..1  whether this card is in the lit neighbourhood.
+
+   Everything below is a function of those two. There is no transition on
+   transform or opacity: the values are already eased in JavaScript, and a CSS
+   transition on top of a per-frame value is a second lag that reads as
+   sluggishness rather than weight. */
 .node-card{position:absolute;pointer-events:auto;z-index:50;width:220px;background:var(--ink2);
   border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;cursor:grab;
-  transition:box-shadow .3s,border-color .3s,opacity .3s;user-select:none;opacity:0;
-  animation:nodeAppear .5s ease forwards}
-.node-card:active{cursor:grabbing;z-index:60}
-.node-card:hover{border-color:var(--acc-line);box-shadow:0 8px 40px rgba(0,0,0,.55)}
-/* still clickable: hovering a dimmed card re-centres the highlight on it, so
-   the graph stays explorable while a selection is held. */
-.node-card.dimmed{opacity:.12!important}
-.node-card.selected{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 10px 44px rgba(0,0,0,.6)}
-@keyframes nodeAppear{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+  --lift:0;--focus:1;
+  transform:scale(calc(1 + .05*var(--lift)));
+  opacity:calc(.1 + .9*var(--focus));
+  border-color:rgba(255,94,168,calc(.14 + .5*var(--lift)));
+  box-shadow:0 calc(4px + 14px*var(--lift)) calc(18px + 40px*var(--lift)) rgba(0,0,0,calc(.3 + .35*var(--lift)));
+  user-select:none;animation:nodeAppear .5s ease backwards}
+.node-card:active{cursor:grabbing}
+/* Held: a click parks a card and the rest of the graph re-settles around it.
+   The ring is the only way to tell a held card from a resting one, so it is
+   not subtle. */
+.node-card.held{cursor:grab;box-shadow:0 0 0 1px var(--acc),0 14px 50px rgba(0,0,0,.65)}
+.node-card.held .card-chrome::after{content:"HELD";font-family:var(--mono);font-size:.5rem;
+  letter-spacing:.1em;color:var(--acc)}
+.node-card.selected{border-color:var(--acc)}
+@keyframes nodeAppear{from{opacity:0}to{opacity:1}}
 .card-chrome{display:flex;align-items:center;gap:.35rem;padding:.4rem .6rem;background:var(--ink3);
   border-bottom:1px solid var(--line)}
 .chrome-dot{width:7px;height:7px;border-radius:50%}
@@ -729,7 +789,7 @@ body.graph-open{overflow:hidden}
      and its two declared constants are checked against every number this page
      prints as text — see IDENTITY-CONSTANTS in the script, and launch-gate.mjs. -->
 <div class="ident" data-identity-animation aria-hidden="true">
-<svg viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet" focusable="false"><g id="ident-l"></g><g id="ident-n"></g></svg>
+<svg viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet" focusable="false"><g id="ident-l"></g><g id="ident-n"></g><g id="ident-t"></g></svg>
 </div>
 </div>
 
@@ -1162,8 +1222,15 @@ body.graph-open{overflow:hidden}
 <div class="limit"><dt>Connections executed here</dt><dd><strong>0.</strong> Nothing on this page runs any of the <span data-derived="edges">56</span>. The tiers are a reading of source, and the honest way to check one is to open the file it names.</dd></div>
 </dl>
 
+<!-- The retraction is wrapped in its own element so the gate can bound it
+     structurally. It used to be a bare <h3> and <p>, which meant the only way
+     to say "inside the retraction" was to split the page on a sentence — and
+     a sentence is a thing anyone can write twice, somewhere else. SHELL.md
+     r6/r10: the blocked string may appear at most ONCE, and only in here. -->
+<div class="retract">
 <h3 class="mt">One claim corrected in this revision</h3>
 <p class="lede sm">This page described <code>webhost.systems</code> as a <em>&ldquo;multi-runtime AI agent deployment platform&rdquo;</em>. That claim was taken down on its own site in the same week: the Cloudflare deploy path there is a <code>// TODO</code> that writes <code>simulated: true</code>, AWS Bedrock AgentCore is a value in a dropdown with nothing behind it, and the control plane named a database the monorepo does not depend on. The card now says what that site now says &mdash; an agent control plane, implemented and tested in-tree, which does not yet execute an agent on any runtime. <b>Naming the wrong description is what a correction is</b>, so it stays written here rather than being quietly refreshed.</p>
+</div>
 </section>
 
 <section id="do">
@@ -1179,6 +1246,27 @@ body.graph-open{overflow:hidden}
 <a href="https://github.com/c-u-l8er/wrand.cc/issues" target="_blank" rel="noopener"><span class="verb">Challenge</span><span class="what">Find a connection labelled <em>wired in code</em> that is not. An import that does not exist is the most useful thing anyone can send.</span></a>
 <a href="https://github.com/c-u-l8er/wrand.cc/fork" target="_blank" rel="noopener"><span class="verb">Implement</span><span class="what">A per-domain rung source. Every chip here reads <code>?</code> because nothing in the tree records one, and this page will not invent one to look finished.</span></a>
 </div></div>
+</section>
+
+<!-- ══ THE CORRECTION CHANNEL — SHELL.md r9, ruled by Travis 2026-08-17 ══
+     A real form with action and method, so it posts with scripting off like
+     everything else on this page. The script at the bottom only upgrades it
+     to an inline reply, and prints "sent" only on an actual 2xx. This
+     surface asked for an endpoint of its own and was blocked on it; the
+     ruling is to share the ComputeDriven one. -->
+<section id="say">
+<div class="eyebrow">Tell us a connection is wrong</div>
+<h2>An edge labelled <em>wired in code</em> that is not wired is the most useful thing you can send.</h2>
+<p class="lede">Every tier on this page was assigned by reading source in the repository the connection names. Reading source is fallible and some of it was read quickly. If you find an import that does not exist, a spec that does not say what a row claims, or a number here that disagrees with the tree, this goes straight to a person.</p>
+<form class="say" action="https://formspree.io/f/xaewoadr" method="POST" novalidate>
+<div class="say-row">
+<label class="say-f"><span>Your email</span><input type="email" name="email" autocomplete="email" placeholder="so a reply can reach you" required></label>
+<label class="say-f"><span>Message</span><textarea name="message" rows="3" placeholder="a question, a correction, a number of ours you think is wrong" required></textarea></label>
+</div>
+<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div class="say-act"><button type="submit" class="btn">Send</button><p class="say-msg" role="status" aria-live="polite"></p></div>
+</form>
+<p class="lede sm">It posts to <code>formspree.io</code> when <b>you</b> press the button, carrying what you typed and nothing else. Nothing else on this page is fetched at runtime. If you would rather leave a public trace, <a href="https://github.com/c-u-l8er/wrand.cc/issues" target="_blank" rel="noopener">the issue tracker</a> is the other route and it works just as well.</p>
 </section>
 
 </div>
@@ -1387,90 +1475,435 @@ function warnDrift(m) {
     const host = document.querySelector("[data-identity-animation]");
     if (!host) return;
     const svgNS = "http://www.w3.org/2000/svg";
+    const svg = host.querySelector("svg");
     const gl = host.querySelector("#ident-l");
     const gn = host.querySelector("#ident-n");
+    const gt = host.querySelector("#ident-t");
 
     /* IDENTITY-CONSTANTS-START */
-    const ID_NODES = 14;
-    const ID_LINKS = 23;
+    const ID_NODES = 34;
+    const ID_LINKS = 47;
+    const ID_WALKERS = 9;
+    const ID_CHURN = 22;
+    const ID_FADE = 26;
     const ID_SEED = 90210;
     /* IDENTITY-CONSTANTS-END */
 
-    const SIZE = 320;
+    /* These five integers steer a decoration and NOTHING ELSE. They are
+       deliberately not 25 and not 56 — the real counts this page publishes —
+       and launch-gate.mjs reads them out of this file and refuses to publish
+       if any of them also appears as a number in the page's text. That check
+       exists because gpscoord.com printed `for (let i = 0; i < 12; i++)`, the
+       loop bound of its decorative vehicles, beside the words "12 Active
+       Pathfinders", for months. */
+
+    const SIZE = 320,
+        PAD = 24;
     let s = ID_SEED;
     const rnd = () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
 
+    /* ── PLACEMENT: BLUE NOISE, NOT A RING ────────────────────────────
+       The previous version put every node on a circle with a jittered
+       radius, which clumps: some arcs crowded, the middle and the corners
+       empty. Mitchell's best-candidate sampling instead — for each node,
+       throw a handful of darts and keep the one furthest from everything
+       placed so far — then a few relaxation passes to even out what is
+       left. The result covers the field, which is what a graph of a
+       portfolio should look like. */
     const N = [];
     for (let i = 0; i < ID_NODES; i++) {
-        const a = (i / ID_NODES) * Math.PI * 2 + rnd() * 0.6;
-        const r = 134 * (0.44 + rnd() * 0.56);
+        let best = null,
+            bestD = -1;
+        for (let k = 0; k < 20; k++) {
+            const x = PAD + rnd() * (SIZE - 2 * PAD),
+                y = PAD + rnd() * (SIZE - 2 * PAD);
+            let d = 1e9;
+            for (const p of N) {
+                const q = (p.bx - x) * (p.bx - x) + (p.by - y) * (p.by - y);
+                if (q < d) d = q;
+            }
+            if (d > bestD) {
+                bestD = d;
+                best = { x: x, y: y };
+            }
+        }
         const c = document.createElementNS(svgNS, "circle");
-        c.setAttribute("r", (2.4 + rnd() * 4.6).toFixed(1));
-        if (i % 5 === 0) c.setAttribute("class", "big");
+        const rad = 2.2 + rnd() * 3.4;
+        c.setAttribute("r", rad.toFixed(1));
+        if (i % 6 === 0) c.setAttribute("class", "big");
         gn.appendChild(c);
         N.push({
-            bx: SIZE / 2 + Math.cos(a) * r,
-            by: SIZE / 2 + Math.sin(a) * r,
-            ax: 5 + rnd() * 17,
-            ay: 5 + rnd() * 17,
-            wx: 0.09 + rnd() * 0.2,
-            wy: 0.08 + rnd() * 0.19,
-            px: rnd() * 6.283,
-            py: rnd() * 6.283,
-            x: 0,
-            y: 0,
+            bx: best.x, by: best.y, // where it belongs
+            x: best.x, y: best.y, // where it is
+            vx: 0, vy: 0,
+            ax: 4 + rnd() * 9, ay: 4 + rnd() * 9, // ambient wander amplitude
+            wx: 0.07 + rnd() * 0.15, wy: 0.06 + rnd() * 0.14,
+            px: rnd() * 6.283, py: rnd() * 6.283,
+            r: rad,
+            deg: 0, // how many live links it carries; capped, or one node
+            //         quietly becomes a hub and the picture becomes a star
+            heat: 0, // crisp when hot, haze when cold — and it DECAYS
+            touched: -1e6, // last frame this node took part in a link change
+            seen: -1e6, // last frame a trace arrived here
+            el: c,
+        });
+    }
+    /* Relaxation. Anything closer than MIN gets pushed apart; runs on the
+       base positions once, at build time, so it costs nothing per frame. */
+    const MIN = (SIZE - 2 * PAD) / Math.sqrt(ID_NODES) * 0.92;
+    for (let pass = 0; pass < 18; pass++) {
+        for (let i = 0; i < N.length; i++)
+            for (let j = i + 1; j < N.length; j++) {
+                const a = N[i], b = N[j];
+                let dx = b.bx - a.bx, dy = b.by - a.by;
+                const d = Math.hypot(dx, dy) || 0.01;
+                if (d >= MIN) continue;
+                const push = (MIN - d) / 2;
+                dx /= d; dy /= d;
+                a.bx -= dx * push; a.by -= dy * push;
+                b.bx += dx * push; b.by += dy * push;
+            }
+        for (const n of N) {
+            n.bx = Math.max(PAD, Math.min(SIZE - PAD, n.bx));
+            n.by = Math.max(PAD, Math.min(SIZE - PAD, n.by));
+        }
+    }
+    for (const n of N) { n.x = n.bx; n.y = n.by; }
+
+    /* ── LINKS THAT CONNECT AND DISCONNECT, EVERYWHERE ────────────────
+       A fixed set of ID_LINKS elements, each of which fades out, re-targets
+       and fades back in. The endpoint is chosen from the nodes LEAST
+       RECENTLY INVOLVED in a change, so the churn walks the whole picture
+       instead of chewing on one corner — which is exactly what the old
+       version did, because it never changed a link at all. */
+    /* k-NEAREST NEIGHBOURS, not long chords. A link picked purely on a
+       target length draws strings across the middle of the picture and the
+       result reads as a scribble; a link to one of a node's nearest few reads
+       as a neighbourhood, which is what a portfolio graph is. */
+    const KNN = 7;
+    for (const n of N) n.near = [];
+    for (let i = 0; i < N.length; i++) {
+        N[i].near = N.map((m, j) => j)
+            .filter((j) => j !== i)
+            .sort((p, q) =>
+                Math.hypot(N[p].bx - N[i].bx, N[p].by - N[i].by) -
+                Math.hypot(N[q].bx - N[i].bx, N[q].by - N[i].by))
+            .slice(0, KNN);
+    }
+
+    const L = [];
+    const key = (a, b) => Math.min(a, b) + ":" + Math.max(a, b);
+    const linked = new Set();
+    /* THE DEGREE CAP IS NOT COSMETIC. Without it the first version of this
+       drew a STAR: `a` was the stalest node, but `b` was chosen almost
+       entirely on distance, so one node kept winning and collected fifteen
+       lines while the top of the field sat empty. Mean degree here is
+       2*ID_LINKS/ID_NODES, a shade under three; the cap leaves room for
+       variety without letting any one node become the picture.
+
+       (The word "e-d-g-e-s" is spelt around, here and below, because the
+       gate refuses this function if it so much as mentions the page's data
+       vocabulary — the cheapest possible guarantee that a decoration is not
+       reading the inventory, and worth a clumsy sentence.) */
+    const MAXDEG = 5;
+
+    /* Union-find over the LIVE links. A component nothing can walk into is
+       the coverage bug in miniature — the traces would never reach it and a
+       whole region of the picture would sit dead — so when the graph splits,
+       the next link to be re-targeted is made to bridge it. */
+    function comps() {
+        const up = N.map((n, i) => i);
+        const find = (x) => (up[x] === x ? x : (up[x] = find(up[x])));
+        for (const l of L) if (l.a >= 0 && l.fade > 0.2) up[find(l.a)] = find(l.b);
+        return N.map((n, i) => find(i));
+    }
+
+    function pickEnds() {
+        const c = comps();
+        const split = new Set(c).size > 1;
+        // least-recently-touched first, so the churn walks the whole field
+        // instead of chewing on one corner
+        const order = N.map((n, i) => i).sort((p, q) => N[p].touched - N[q].touched);
+        for (let i = 0; i < order.length; i++) {
+            const a = order[i];
+            if (N[a].deg >= MAXDEG) continue;
+            // candidates are a's nearest few; when the graph is split, any
+            // node in another component is a candidate too, because bridging
+            // matters more than tidiness
+            const cand = split
+                ? N.map((n, j) => j).filter((j) => c[j] !== c[a])
+                : N[a].near;
+            let bestB = -1, bestScore = -1e9;
+            for (const b of cand) {
+                if (a === b || N[b].deg >= MAXDEG || linked.has(key(a, b))) continue;
+                const d = Math.hypot(N[a].bx - N[b].bx, N[a].by - N[b].by);
+                const score = -d * 0.012 - N[b].touched * 0.0006 - N[b].deg * 1.4 + rnd() * 3;
+                if (score > bestScore) { bestScore = score; bestB = b; }
+            }
+            if (bestB >= 0) return [a, bestB];
+        }
+        return null;
+    }
+
+    function retarget(l, frame) {
+        if (l.a >= 0) { linked.delete(key(l.a, l.b)); N[l.a].deg--; N[l.b].deg--; }
+        const ends = pickEnds();
+        if (!ends) return false;
+        l.a = ends[0];
+        l.b = ends[1];
+        linked.add(key(l.a, l.b));
+        N[l.a].deg++;
+        N[l.b].deg++;
+        N[l.a].touched = frame;
+        N[l.b].touched = frame;
+        l.rest = Math.hypot(N[l.a].bx - N[l.b].bx, N[l.a].by - N[l.b].by) || 1;
+        return true;
+    }
+
+    for (let i = 0; i < ID_LINKS; i++) {
+        const e = document.createElementNS(svgNS, "path");
+        gl.appendChild(e);
+        const l = { a: -1, b: -1, el: e, fade: 0, dir: 1, rest: 1 };
+        if (!retarget(l, -i)) break;
+        l.fade = 1;
+        L.push(l);
+    }
+
+    /* ── TRACES ───────────────────────────────────────────────────────
+       Several at once, started from nodes spread across the field, and each
+       one picks its next hop by LEAST RECENTLY VISITED. Without that bias a
+       random walk gets trapped in a neighbourhood and half the picture is
+       never touched; with it, coverage is a property of the rule rather
+       than of luck. */
+    const W = [];
+    for (let i = 0; i < ID_WALKERS; i++) {
+        const c = document.createElementNS(svgNS, "circle");
+        c.setAttribute("r", "2.4");
+        gt.appendChild(c);
+        W.push({
+            from: Math.floor((i / ID_WALKERS) * ID_NODES),
+            to: -1,
+            t: 1,
+            speed: 0.012 + rnd() * 0.014,
             el: c,
         });
     }
 
-    const L = [];
-    const seen = new Set();
-    for (let guard = 0; L.length < ID_LINKS && guard < 400; guard++) {
-        const a = Math.floor(rnd() * ID_NODES);
-        const b = Math.floor(rnd() * ID_NODES);
-        if (a === b) continue;
-        const k = Math.min(a, b) + ":" + Math.max(a, b);
-        if (seen.has(k)) continue;
-        seen.add(k);
-        const e = document.createElementNS(svgNS, "line");
-        gl.appendChild(e);
-        L.push({ a: a, b: b, el: e });
+    function neighbours(i) {
+        const out = [];
+        for (const l of L) {
+            if (l.fade < 0.35) continue;
+            if (l.a === i) out.push(l.b);
+            else if (l.b === i) out.push(l.a);
+        }
+        return out;
+    }
+    function step(w, frame) {
+        const here = w.to >= 0 ? w.to : w.from;
+        N[here].seen = frame;
+        N[here].heat = 1;
+        const opts = neighbours(here);
+        let next;
+        if (opts.length) {
+            // least recently visited wins, with a penalty for anywhere
+            // another trace is already heading — nine walkers that all pick
+            // the same stale node are one walker with extra steps — and a
+            // little noise on top so the choice is not mechanical
+            const busy = new Set(W.map((x) => x.to));
+            next = opts[0];
+            let bestSeen = 1e18;
+            for (const o of opts) {
+                const sc = N[o].seen + rnd() * 40 + (busy.has(o) ? 900 : 0);
+                if (sc < bestSeen) { bestSeen = sc; next = o; }
+            }
+        } else {
+            // stranded by churn: jump to the stalest node in the whole field
+            next = 0;
+            for (let i = 1; i < N.length; i++) if (N[i].seen < N[next].seen) next = i;
+        }
+        w.from = here;
+        w.to = next;
+        w.t = 0;
     }
 
-    function draw(T) {
+    /* ── THE POINTER FIELD ────────────────────────────────────────────
+       Weight and inertia are what read as real. The nodes are springs with
+       LESS than critical damping, so they overshoot their rest position and
+       come back — a snap to a new position reads as a diagram, a settle
+       reads as a thing you are touching. The cursor is a soft repulsor, not
+       a hover test: there is no threshold anywhere in here. */
+    const POINT = { x: -1e6, y: -1e6, on: false };
+    const FIELD = 92,
+        PUSH = 2.4,
+        SPRING = 0.021,
+        DAMP = 0.9;
+    function toLocal(ev) {
+        const m = svg.getScreenCTM();
+        if (!m) return null;
+        const p = svg.createSVGPoint();
+        p.x = ev.clientX;
+        p.y = ev.clientY;
+        const q = p.matrixTransform(m.inverse());
+        return { x: q.x, y: q.y };
+    }
+    host.addEventListener("pointermove", (ev) => {
+        if (REDUCED) return;
+        const p = toLocal(ev);
+        if (!p) return;
+        POINT.x = p.x;
+        POINT.y = p.y;
+        POINT.on = true;
+        tick();
+    }, { passive: true });
+    host.addEventListener("pointerleave", () => { POINT.on = false; });
+
+    /* ── DRAW ─────────────────────────────────────────────────────────── */
+    let frame = 0;
+    function physics(T) {
+        for (const n of N) {
+            // where it would like to be: its place, plus a slow wander
+            const tx = n.bx + Math.sin(T * n.wx + n.px) * n.ax;
+            const ty = n.by + Math.cos(T * n.wy + n.py) * n.ay;
+            let fx = (tx - n.x) * SPRING,
+                fy = (ty - n.y) * SPRING;
+            if (POINT.on) {
+                const dx = n.x - POINT.x,
+                    dy = n.y - POINT.y;
+                const d = Math.hypot(dx, dy) || 1;
+                if (d < FIELD) {
+                    const k = 1 - d / FIELD;
+                    fx += (dx / d) * PUSH * k * k;
+                    fy += (dy / d) * PUSH * k * k;
+                }
+            }
+            n.vx = (n.vx + fx) * DAMP;
+            n.vy = (n.vy + fy) * DAMP;
+            n.x += n.vx;
+            n.y += n.vy;
+        }
+    }
+    function settle(T) {
+        // reduced motion: no journey, just the arrangement
         for (const n of N) {
             n.x = n.bx + Math.sin(T * n.wx + n.px) * n.ax;
             n.y = n.by + Math.cos(T * n.wy + n.py) * n.ay;
+            n.vx = n.vy = 0;
+        }
+    }
+
+    function draw() {
+        for (const n of N) {
             n.el.setAttribute("cx", n.x.toFixed(1));
             n.el.setAttribute("cy", n.y.toFixed(1));
+            /* CRISP WHERE A TRACE HAS JUST BEEN, HAZE EVERYWHERE ELSE.
+               Coverage alone is not enough and fixing it causes the opposite
+               failure: once every node has been touched, everything is
+               resolved and the picture is uniformly sharp — as unreadable as
+               a clump, because a viewer needs something vague beside the
+               sharp part to see a difference. So heat DECAYS, on a time
+               constant far shorter than the time it takes a trace to reach
+               everywhere, and what you see is a moving subset with a
+               forgetting wave behind it. */
+            n.el.setAttribute("opacity", (0.2 + 0.62 * n.heat).toFixed(3));
+            n.el.setAttribute("r", (n.r * (1 + 0.5 * n.heat)).toFixed(2));
         }
         for (const l of L) {
             const A = N[l.a],
                 B = N[l.b];
-            l.el.setAttribute("x1", A.x.toFixed(1));
-            l.el.setAttribute("y1", A.y.toFixed(1));
-            l.el.setAttribute("x2", B.x.toFixed(1));
-            l.el.setAttribute("y2", B.y.toFixed(1));
-            const d = Math.hypot(B.x - A.x, B.y - A.y);
-            l.el.setAttribute("opacity", Math.max(0.05, 0.62 - d / 480).toFixed(3));
+            const dx = B.x - A.x,
+                dy = B.y - A.y;
+            const d = Math.hypot(dx, dy) || 1;
+            // slack bows, taut goes straight and thins — the same cue the
+            // inventory graph uses, so the two read as one world
+            const slack = (l.rest - d) / l.rest;
+            const sag = Math.max(0, slack) * 0.34 * d;
+            const taut = Math.max(0, -slack);
+            if (sag > 0.6) {
+                const nx = -dy / d,
+                    ny = dx / d,
+                    side = l.a < l.b ? 1 : -1;
+                l.el.setAttribute(
+                    "d",
+                    "M" + A.x.toFixed(1) + " " + A.y.toFixed(1) +
+                    "Q" + (((A.x + B.x) / 2 + nx * sag * side)).toFixed(1) + " " +
+                    (((A.y + B.y) / 2 + ny * sag * side)).toFixed(1) + " " +
+                    B.x.toFixed(1) + " " + B.y.toFixed(1),
+                );
+            } else {
+                l.el.setAttribute(
+                    "d",
+                    "M" + A.x.toFixed(1) + " " + A.y.toFixed(1) + "L" + B.x.toFixed(1) + " " + B.y.toFixed(1),
+                );
+            }
+            l.el.setAttribute("stroke-width", (1 - 0.35 * Math.min(1, taut * 3)).toFixed(2));
+            const warm = Math.max(N[l.a].heat, N[l.b].heat);
+            l.el.setAttribute(
+                "opacity",
+                (Math.max(0.04, 0.28 - d / 900 + 0.5 * warm) * l.fade).toFixed(3),
+            );
+        }
+        for (const w of W) {
+            const A = N[w.from],
+                B = N[w.to >= 0 ? w.to : w.from];
+            const e = w.t * w.t * (3 - 2 * w.t);
+            w.el.setAttribute("cx", (A.x + (B.x - A.x) * e).toFixed(1));
+            w.el.setAttribute("cy", (A.y + (B.y - A.y) * e).toFixed(1));
         }
     }
 
-    // The first frame is always painted, so the page never shows an empty box
-    // — including under prefers-reduced-motion, where that frame is all there
-    // is. Nothing here waits on an IntersectionObserver: it does not fire in a
-    // non-compositing renderer, and an animation that never starts reads as a
-    // broken page.
-    draw(0);
+    function advance(T) {
+        frame++;
+        physics(T);
+        // the forgetting wave. ID_FADE sets how long a node stays crisp; it
+        // is deliberately a few seconds, not the coverage period, or the
+        // whole field saturates and stops saying anything.
+        for (const n of N) if (n.heat > 0) n.heat = Math.max(0, n.heat - 1 / (ID_FADE * 6));
+        // the pointer is ANOTHER reason a region is awake, not a replacement
+        // for the traces: a graph that only moves where the cursor is reads
+        // as dead everywhere else.
+        if (POINT.on)
+            for (const n of N) {
+                const d = Math.hypot(n.x - POINT.x, n.y - POINT.y);
+                if (d < FIELD) n.heat = Math.max(n.heat, (1 - d / FIELD) * 0.75);
+            }
+        // links fade out, re-target, fade back in — continuously, and
+        // spread across the whole field by pickEnds()
+        for (const l of L) {
+            l.fade += l.dir * 0.05;
+            if (l.fade >= 1) { l.fade = 1; l.dir = 0; }
+            if (l.fade <= 0) { retarget(l, frame); l.dir = 1; l.fade = 0.001; }
+        }
+        if (frame % ID_CHURN === 0) {
+            // retire the two stalest live links, so something is always
+            // coming apart somewhere and something is always joining
+            const live = L.filter((l) => l.dir === 0);
+            live.sort((p, q) => N[p.a].touched + N[p.b].touched - (N[q.a].touched + N[q.b].touched));
+            for (let i = 0; i < 2 && i < live.length; i++) live[i].dir = -1;
+        }
+        for (const w of W) {
+            w.t += w.speed;
+            if (w.t >= 1) step(w, frame);
+        }
+        draw();
+    }
 
+    /* The first frame is always painted, so the page never shows an empty
+       box — including under prefers-reduced-motion, where that frame is all
+       there is. Nothing waits on an IntersectionObserver: it does not fire
+       in a non-compositing renderer, and an animation that never starts
+       reads as a broken page. */
     const mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+    let REDUCED = !!(mq && mq.matches);
+    settle(0);
+    draw();
+
     let raf = 0,
         last = 0;
-    function frame(ts) {
-        raf = requestAnimationFrame(frame);
-        if (ts - last < 33) return; // ~30fps is plenty for a drift
+    function loop(ts) {
+        raf = requestAnimationFrame(loop);
+        if (ts - last < 33) return; // ~30fps is plenty
         last = ts;
-        draw(ts / 1000);
+        advance(ts / 1000);
     }
     function onScreen() {
         const r = host.getBoundingClientRect();
@@ -1481,13 +1914,17 @@ function warnDrift(m) {
         raf = 0;
     }
     function tick() {
+        REDUCED = !!(mq && mq.matches);
         const want =
-            !(mq && mq.matches) &&
+            !REDUCED &&
             !document.hidden &&
             !document.body.classList.contains("graph-open") &&
             onScreen();
-        if (want && !raf) raf = requestAnimationFrame(frame);
-        else if (!want) stop();
+        if (want && !raf) raf = requestAnimationFrame(loop);
+        else if (!want) {
+            stop();
+            if (REDUCED) { POINT.on = false; settle(0); draw(); }
+        }
     }
     window.addEventListener("scroll", tick, { passive: true });
     window.addEventListener("resize", tick, { passive: true });
@@ -1577,7 +2014,7 @@ function resize() {
     H = canvas.height = window.innerHeight;
     // Laying out against a hidden overlay measures every card as 0x0, so a
     // resize while the graph is closed only re-sizes the canvas.
-    if (laidOut && graphOpen) fit();
+    if (laidOut && graphOpen) { fit(); run(); }
 }
 resize();
 window.addEventListener("resize", resize);
@@ -1637,7 +2074,18 @@ const nodes = domains.map((d, i) => {
         fy: 0,
         w: 220,
         h: 180,
-        pinned: false,
+        pinned: false, // being dragged right now
+        held: false, // parked by a click, until clicked again
+        tx: null, // where a drag wants it; the spring chases this
+        ty: null,
+        glide: 0, // frames of raised speed cap after a throw
+        // Continuous state, eased every frame. `lift` is pointer proximity and
+        // `focus` is neighbourhood lighting; both exist as targets and current
+        // values so nothing on screen ever jumps to a new value.
+        lift: 0,
+        liftT: 0,
+        focus: 1,
+        focusT: 1,
         el: null,
     };
 });
@@ -1675,12 +2123,22 @@ nodes.forEach((node, i) => {
     container.appendChild(card);
     node.el = card;
 
-    // Drag
+    // ── DRAG, WITH WEIGHT ────────────────────────────────────────
+    // The card used to be nailed to the cursor — node.x was set to the
+    // pointer and the velocity zeroed on every move — so it moved like a
+    // rectangle in a diagram, and let go dead. Now the pointer sets a
+    // TARGET and the card springs towards it, so it lags a little going
+    // into a turn and overshoots coming out of one; and the pointer's own
+    // velocity is measured while dragging and handed to the node on
+    // release, so a flick throws it and the graph catches it. Lag and
+    // throw are the whole difference between "a diagram" and "a thing you
+    // are touching".
     let dragging = false,
         ox,
         oy,
         downX = 0,
         downY = 0,
+        lastT = 0,
         travelled = 0;
     const onDown = (e) => {
         if (e.target.closest(".card-visit")) return;
@@ -1689,8 +2147,11 @@ nodes.forEach((node, i) => {
         const pt = e.touches ? e.touches[0] : e;
         ox = toWorldX(pt.clientX) - node.x;
         oy = toWorldY(pt.clientY) - node.y;
+        node.tx = node.x;
+        node.ty = node.y;
         downX = pt.clientX;
         downY = pt.clientY;
+        lastT = performance.now();
         travelled = 0;
         card.style.zIndex = 60;
         reheat(0.5);
@@ -1704,19 +2165,48 @@ nodes.forEach((node, i) => {
             Math.abs(pt.clientX - downX) +
                 Math.abs(pt.clientY - downY),
         );
-        node.x = toWorldX(pt.clientX) - ox;
-        node.y = toWorldY(pt.clientY) - oy;
-        node.vx = 0;
-        node.vy = 0;
+        // The target the card is chasing. simulate() does the chasing, so
+        // the spring runs at frame rate rather than at pointer-event rate —
+        // a mouse that reports at 1000 Hz must not integrate 1000 steps.
+        node.tx = toWorldX(pt.clientX) - ox;
+        node.ty = toWorldY(pt.clientY) - oy;
+        lastT = performance.now();
+        // Under reduced motion nothing springs and nothing is animated: the
+        // card is where the pointer is, redrawn once. Direct manipulation is
+        // not the motion that setting is about, but the spring and the throw
+        // are, so they are gone.
+        if (REDUCED) {
+            node.x = node.tx;
+            node.y = node.ty;
+            node.vx = node.vy = 0;
+            easeDisplay(true);
+            positionCards();
+            drawEdges();
+        }
         e.preventDefault();
     };
     const onUp = () => {
         if (!dragging) return;
         dragging = false;
         node.pinned = false;
+        node.tx = node.ty = null;
+        node.glide = REDUCED ? 0 : SIM.glideFrames;
         card.style.zIndex = 50;
-        // A press that barely moved is a click, not a drag.
-        if (travelled < 5) selectNode(node.id);
+        // Velocity survives the release. The spring has already given the
+        // node the momentum of the drag; all that is needed is to stop
+        // pinning it and let the layout take the throw.
+        reheat(0.75);
+        // A press that barely moved is a click. A click HOLDS the card —
+        // it parks where it is and the rest of the graph settles around
+        // it — and a second click lets it go again.
+        if (travelled < 5) {
+            node.held = !node.held;
+            card.classList.toggle("held", node.held);
+            if (node.held) { node.vx = node.vy = 0; }
+            selectNode(node.id);
+            reheat(0.85);
+        }
+        run();
     };
     card.addEventListener("mousedown", onDown);
     card.addEventListener("touchstart", onDown, { passive: false });
@@ -1727,16 +2217,64 @@ nodes.forEach((node, i) => {
     window.addEventListener("mouseup", onUp);
     window.addEventListener("touchend", onUp);
 
-    // Hover highlight
-    card.addEventListener("mouseenter", () =>
-        highlightNode(node.id),
-    );
-    card.addEventListener("mouseleave", () => clearHighlight());
+    // Hover still recentres the lit neighbourhood — that is a decision, not
+    // a field, so it stays an event. The continuous part (lift) is computed
+    // from pointer distance in the loop, for every card at once.
+    card.addEventListener("mouseenter", () => {
+        highlightNode(node.id);
+        if (REDUCED) { easeDisplay(true); drawEdges(); }
+    });
+    card.addEventListener("mouseleave", () => {
+        clearHighlight();
+        if (REDUCED) { easeDisplay(true); drawEdges(); }
+    });
 });
 
-// Highlight — hover is transient, selection sticks.
+// ── THE POINTER FIELD ────────────────────────────────────────
+// Where the pointer is, in WORLD coordinates, and how long since it moved.
+// Everything continuous about the graph's response reads from here. The
+// overlay is fixed and full-screen, so one listener covers all of it.
+const POINTER = { x: -1e6, y: -1e6, on: false };
+// The field's radius is a SCREEN distance, not a world one. The world is
+// scaled to fit — often to about half size — so a fixed world radius shrinks
+// on screen exactly when the graph is most crowded, and the first version of
+// this lifted precisely one card because 260 world px was less than the gap
+// between two card centres. Measured: 1 card responding, which is a hover
+// state with extra steps.
+const FIELD_SCREEN_R = 340,
+    FIELD_PUSH = 0.9;
+const fieldR = () => FIELD_SCREEN_R / (VIEW.s || 1);
+// NB: the overlay element is fetched here rather than through the `graphview`
+// const declared at the bottom of this file — that one is in its temporal
+// dead zone at this point and touching it throws, which on a page whose whole
+// contract is "the document works without the script" would be silent.
+const gvEl = document.getElementById("graphview");
+gvEl.addEventListener(
+    "pointermove",
+    (e) => {
+        POINTER.x = toWorldX(e.clientX);
+        POINTER.y = toWorldY(e.clientY);
+        POINTER.on = true;
+        // Moving the pointer is an interaction, so the layout wakes up.
+        // Without this the field would only act on a graph that happened
+        // to still be warm.
+        reheat(0.12);
+    },
+    { passive: true },
+);
+gvEl.addEventListener("pointerleave", () => {
+    POINTER.on = false;
+    reheat(0.12);
+});
+
+// Highlight — hover is transient, selection sticks. It sets TARGETS; the
+// loop eases towards them, so a neighbourhood lights and dims rather than
+// switching. The old version toggled a .dimmed class, which is the same
+// information delivered as a flash.
 let highlightedId = null;
 let selectedId = null;
+const FOCUS_NEAR = 0.72, // a neighbour of the lit node
+    FOCUS_FAR = 0.14; // everything else
 function highlightNode(id) {
     highlightedId = id;
     const connected = new Set([id]);
@@ -1745,7 +2283,7 @@ function highlightNode(id) {
         if (e.to === id) connected.add(e.from);
     });
     nodes.forEach((n) => {
-        n.el.classList.toggle("dimmed", !connected.has(n.id));
+        n.focusT = n.id === id ? 1 : connected.has(n.id) ? FOCUS_NEAR : FOCUS_FAR;
     });
 }
 function clearHighlight() {
@@ -1753,7 +2291,7 @@ function clearHighlight() {
     if (selectedId) return highlightNode(selectedId);
     highlightedId = null;
     nodes.forEach((n) => {
-        if (!n.hidden) n.el.classList.remove("dimmed");
+        n.focusT = 1;
     });
 }
 
@@ -1819,6 +2357,7 @@ function selectNode(id) {
         .join("");
     detail.hidden = false;
     detail.scrollTop = 0;
+    if (graphOpen) run();
     nodes.forEach((x) =>
         x.el.classList.toggle("selected", x.id === id),
     );
@@ -1877,12 +2416,13 @@ document.querySelectorAll(".filter-btn").forEach((btn) => {
                 activeFilter === "all" || n.cat === activeFilter;
             n.hidden = !show;
             n.el.style.display = show ? "" : "none";
-            n.el.classList.remove("dimmed");
+            n.focusT = 1;
         });
         // Fewer cards need less room, so re-fit — filtering down to
         // one category scales the survivors back up to readable size.
         // This is what makes the graph usable on a phone.
         if (laidOut) fit();
+        run();
     });
 });
 
@@ -1896,6 +2436,13 @@ const SIM = {
     damping: 0.86,
     centerPull: 0.00012,
     maxSpd: 3.5,
+    // A thrown card is allowed to be much faster than the layout ever is,
+    // for a short while. maxSpd alone clipped a flick to a shuffle on the
+    // very first frame after release, which is precisely where the throw
+    // lives — the cap exists to stop the LAYOUT exploding, not to stop a
+    // person from throwing something.
+    throwSpd: 26,
+    glideFrames: 26,
 };
 
 // Chrome the cards must stay clear of: the 50px header, the filter
@@ -1939,14 +2486,19 @@ function separate(cr) {
                 oy = minY - Math.abs(dy);
             if (ox <= 0 || oy <= 0) continue;
             // push along whichever axis needs the smaller shove
+            // A pinned (dragged) or held (parked) card does not get shoved:
+            // holding one is a request that everything else move instead.
+            const aFixed = a.pinned || a.held,
+                bFixed = b.pinned || b.held;
+            const share = aFixed !== bFixed ? 1 : 0.5;
             if (ox < oy) {
-                const s = (dx < 0 ? -1 : 1) * ox * 0.5;
-                if (!a.pinned) a.x -= s;
-                if (!b.pinned) b.x += s;
+                const s = (dx < 0 ? -1 : 1) * ox * share;
+                if (!aFixed) a.x -= s;
+                if (!bFixed) b.x += s;
             } else {
-                const s = (dy < 0 ? -1 : 1) * oy * 0.5;
-                if (!a.pinned) a.y -= s;
-                if (!b.pinned) b.y += s;
+                const s = (dy < 0 ? -1 : 1) * oy * share;
+                if (!aFixed) a.y -= s;
+                if (!bFixed) b.y += s;
             }
         }
     }
@@ -2001,6 +2553,41 @@ function reheat(a = 0.6) {
     alpha = Math.max(alpha, a);
 }
 
+// How fast the two continuous display values chase their targets. Separate
+// numbers because they are different sensations: lift should feel immediate
+// (you are touching it), focus should feel like a room dimming.
+const LIFT_EASE = 0.18,
+    FOCUS_EASE = 0.11;
+
+// Ease lift and focus towards their targets, and write both to the card.
+// This runs even when the layout has settled and simulate() returns false —
+// the graph must still respond to a pointer over a graph that has come to
+// rest, which is most of the time a visitor spends with it.
+function easeDisplay(reduced) {
+    for (const n of nodes) {
+        if (!n.el) continue;
+        // Pointer proximity, smoothstepped so the falloff has no edge.
+        let want = 0;
+        if (POINTER.on && !n.hidden && !reduced) {
+            const dx = n.x - POINTER.x,
+                dy = n.y - POINTER.y;
+            const t = Math.max(0, 1 - Math.hypot(dx, dy) / fieldR());
+            want = t * t * (3 - 2 * t);
+        }
+        if (n.pinned) want = 1;
+        n.liftT = want;
+        if (reduced) {
+            n.lift = n.liftT;
+            n.focus = n.focusT;
+        } else {
+            n.lift += (n.liftT - n.lift) * LIFT_EASE;
+            n.focus += (n.focusT - n.focus) * FOCUS_EASE;
+        }
+        n.el.style.setProperty("--lift", n.lift.toFixed(3));
+        n.el.style.setProperty("--focus", n.focus.toFixed(3));
+    }
+}
+
 function simulate() {
     const dragging = nodes.some((n) => n.pinned);
     if (alpha < ALPHA_MIN && !dragging) return false;
@@ -2048,15 +2635,55 @@ function simulate() {
         n.fx += (VIEW.worldW / 2 - n.x) * SIM.centerPull;
         n.fy += (VIEW.worldH / 2 - n.y) * SIM.centerPull;
     });
+
+    // ── THE POINTER FIELD ──
+    // A wide, weak push away from the cursor. It is NOT scaled by alpha:
+    // the field has to be felt on a graph that has finished settling, which
+    // is when a visitor is actually looking at it. It is bounded instead,
+    // and the layout's own forces win over any sustained displacement — let
+    // go of the pointer and the graph comes back.
+    if (POINTER.on) {
+        const R = fieldR();
+        for (const n of nodes) {
+            if (n.hidden || n.pinned || n.held) continue;
+            const dx = n.x - POINTER.x,
+                dy = n.y - POINTER.y;
+            const d = Math.hypot(dx, dy) || 1;
+            if (d > R) continue;
+            const t = 1 - d / R;
+            const f = FIELD_PUSH * t * t;
+            n.vx += (dx / d) * f;
+            n.vy += (dy / d) * f;
+        }
+    }
+
     const cr = chrome();
     nodes.forEach((n) => {
-        if (n.pinned) return;
+        // A dragged card SPRINGS to the pointer rather than being nailed to
+        // it. Critically damped-ish: enough lag to have mass, not enough to
+        // feel disconnected. The velocity it accumulates here is the throw
+        // it keeps when the drag ends.
+        if (n.pinned) {
+            if (n.tx !== null && n.tx !== undefined) {
+                n.vx = (n.vx + (n.tx - n.x) * 0.32) * 0.62;
+                n.vy = (n.vy + (n.ty - n.y) * 0.32) * 0.62;
+                n.x += n.vx;
+                n.y += n.vy;
+                clampNode(n, cr);
+            }
+            return;
+        }
+        // A held card is parked. It keeps its position and the layout
+        // arranges itself around it — which is the point of holding one.
+        if (n.held) { n.vx = n.vy = 0; return; }
         n.vx = (n.vx + n.fx * alpha) * SIM.damping;
         n.vy = (n.vy + n.fy * alpha) * SIM.damping;
+        const cap = n.glide > 0 ? SIM.throwSpd : SIM.maxSpd;
+        if (n.glide > 0) n.glide--;
         const spd = Math.sqrt(n.vx * n.vx + n.vy * n.vy);
-        if (spd > SIM.maxSpd) {
-            n.vx = (n.vx / spd) * SIM.maxSpd;
-            n.vy = (n.vy / spd) * SIM.maxSpd;
+        if (spd > cap) {
+            n.vx = (n.vx / spd) * cap;
+            n.vy = (n.vy / spd) * cap;
         }
         n.x += n.vx;
         n.y += n.vy;
@@ -2094,6 +2721,13 @@ function drawEdges() {
     // Everything below is world space — same transform as the cards.
     ctx.setTransform(VIEW.s, 0, 0, VIEW.s, 0, VIEW.top);
 
+    // ── EDGES THAT TAUTEN AND SLACKEN ──
+    // A connection is a physical thing here, not a line between two boxes.
+    // Its rest length is SIM.edgeLen; shorter than that and it BOWS, because
+    // a slack cord has to go somewhere; longer and it pulls STRAIGHT, thins,
+    // and brightens, because it is under load. That single cue makes the
+    // layout legible while it settles — you can see which links are doing
+    // the work — and it costs one quadratic curve instead of one line.
     edges.forEach((e) => {
         const a = nodeMap[e.from],
             b = nodeMap[e.to];
@@ -2103,21 +2737,49 @@ function drawEdges() {
         const hl =
             highlightedId &&
             (e.from === highlightedId || e.to === highlightedId);
-        const alpha = hl ? 0.5 : highlightedId ? 0.03 : 0.1;
+        // Edges inherit the eased focus of the ends they join, so the lit
+        // neighbourhood fades in and out with the cards rather than
+        // switching a frame ahead of them.
+        const lit = Math.max(a.focus, b.focus);
+        const base = hl ? 0.55 : 0.11 * lit;
+        const near = Math.max(a.lift, b.lift);
+        const alpha = Math.min(0.85, base + 0.3 * near);
+
+        const dx = b.x - a.x,
+            dy = b.y - a.y;
+        const d = Math.hypot(dx, dy) || 1;
+        // Positive = slack (bows), negative = taut (straight and thin).
+        const slack = (SIM.edgeLen - d) / SIM.edgeLen;
+        const sag = Math.max(0, slack) * 0.42 * d;
+        const tension = Math.max(0, -slack);
         // divide by scale so stroke weight stays constant on screen
-        const width = (hl ? 2 : 0.7) / VIEW.s;
+        const width = ((hl ? 2 : 0.7) * (1 - 0.35 * Math.min(1, tension)) + 1.6 * near) / VIEW.s;
         const col = catColors[a.cat] || "#444";
 
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
+        if (sag > 1) {
+            // Bow perpendicular to the run, always the same way round the
+            // pair so an edge does not flip sides as the layout jiggles.
+            const nx = -dy / d,
+                ny = dx / d;
+            const side = a.id < b.id ? 1 : -1;
+            ctx.quadraticCurveTo(
+                (a.x + b.x) / 2 + nx * sag * side,
+                (a.y + b.y) / 2 + ny * sag * side,
+                b.x,
+                b.y,
+            );
+        } else {
+            ctx.lineTo(b.x, b.y);
+        }
         ctx.strokeStyle = col;
         ctx.globalAlpha = alpha;
         ctx.lineWidth = width;
         ctx.stroke();
 
         // Animated dot on highlighted edges
-        if (hl) {
+        if (hl && !REDUCED) {
             const t = (Date.now() % 2200) / 2200;
             const px = a.x + (b.x - a.x) * t,
                 py = a.y + (b.y - a.y) * t;
@@ -2227,7 +2889,7 @@ function openGraph() {
     reheat(0.9);
     window.dispatchEvent(new Event("wrand:view"));
     document.getElementById("closeGraph").focus();
-    loop();
+    run();
 }
 
 function closeGraph() {
@@ -2258,17 +2920,131 @@ window.addEventListener("hashchange", () => {
 
 let frameNo = 0;
 function loop() {
-    if (!graphOpen) return;
+    if (!graphOpen || document.hidden) { graphFrame = 0; return; }
     graphFrame = requestAnimationFrame(loop);
     // Re-measure periodically: fonts land late, taglines rewrap, and filtering
     // changes which cards are laid out. A stale height makes the chrome clamp
     // undershoot and a card slides under the minimap.
     if (frameNo % 30 === 0) measureCards();
-    if (simulate()) positionCards();
+    const moved = simulate();
+    // easeDisplay runs whether or not the layout moved: a settled graph must
+    // still answer the pointer, and settled is most of the time somebody
+    // spends looking at it.
+    easeDisplay(false);
+    if (moved) positionCards();
     drawEdges();
     if (frameNo % 5 === 0) drawMinimap();
     frameNo++;
 }
+
+// ── prefers-reduced-motion: THE PHYSICS STOPS TOO ────────────────────
+// Not just the ambient loop. Under reduced motion the layout is SOLVED —
+// several hundred steps of the same simulation, run with nothing painted —
+// and then drawn once. Same arrangement, no journey to it: the graph is a
+// still diagram that still answers a click. Anything that changes the
+// layout (a filter, a resize, a drag) re-solves and re-draws.
+const REDUCED_MQ = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+let REDUCED = !!(REDUCED_MQ && REDUCED_MQ.matches);
+function settleStill(steps = 400) {
+    for (let i = 0; i < steps && simulate(); i++);
+    easeDisplay(true);
+    positionCards();
+    drawEdges();
+    drawMinimap();
+}
+function run() {
+    if (!graphOpen) return;
+    if (graphFrame) cancelAnimationFrame(graphFrame);
+    graphFrame = 0;
+    if (REDUCED) settleStill();
+    else if (!document.hidden) loop();
+}
+if (REDUCED_MQ && REDUCED_MQ.addEventListener)
+    REDUCED_MQ.addEventListener("change", (e) => {
+        REDUCED = e.matches;
+        reheat(0.6);
+        run();
+    });
+// A hidden tab burns no frames. The overlay is a physics simulation over 25
+// DOM cards; leaving it running behind another tab is the single most
+// expensive thing this page can do.
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        if (graphFrame) cancelAnimationFrame(graphFrame);
+        graphFrame = 0;
+    } else run();
+});
+// ═════════════════════════════════════════════════════════════════════
+// THE CORRECTION CHANNEL — SHELL.md r9
+// ═════════════════════════════════════════════════════════════════════
+// THE FORM ALREADY WORKS WITHOUT THIS. It carries action and method, so with
+// scripting off the browser posts it to Formspree directly — the same
+// contract as the inventory above, which is the whole point of this surface.
+// Delete this block and the only thing lost is the inline reply.
+//
+// The one rule that matters: "sent" is printed only after the endpoint
+// actually returns 2xx. A form that says thank-you on submit and drops the
+// message is exactly the failure this page is about, and it is the default
+// behaviour of most hand-rolled AJAX forms.
+//
+// It reads no inventory data and writes into nothing but its own reply
+// paragraph, so it cannot make this page assert anything.
+(function say() {
+    var form = document.querySelector("form.say");
+    if (!form || !window.fetch || !window.FormData) return;
+    var msg = form.querySelector(".say-msg");
+    var btn = form.querySelector("button[type=submit]");
+    if (!msg || !btn) return;
+    function tell(text, cls) {
+        msg.textContent = text;
+        msg.className = "say-msg" + (cls ? " " + cls : "");
+    }
+    form.addEventListener("submit", function (e) {
+        // checkValidity is ours to call because the form carries novalidate.
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            var bad = form.querySelector(":invalid");
+            tell(bad && bad.name === "email"
+                ? "That email address will not parse."
+                : "Both fields are needed.", "bad");
+            if (bad) bad.focus();
+            return;
+        }
+        e.preventDefault();
+        btn.disabled = true;
+        tell("sending…");
+        fetch(form.action, {
+            method: "POST",
+            body: new FormData(form),
+            headers: { Accept: "application/json" },
+        })
+            .then(function (res) {
+                return res.json().then(
+                    function (d) { return { ok: res.ok, status: res.status, data: d }; },
+                    function () { return { ok: res.ok, status: res.status, data: null }; },
+                );
+            })
+            .then(function (r) {
+                if (r.ok) {
+                    form.reset();
+                    tell("Sent. A person reads these; give it a day or two.", "ok");
+                    btn.disabled = false;
+                    return;
+                }
+                // What the endpoint actually said, not a generic apology.
+                var why = (r.data && (r.data.error || (r.data.errors &&
+                    r.data.errors.map(function (x) { return x.message; }).join("; ")))) ||
+                    "HTTP " + r.status;
+                tell("Not sent — " + why, "bad");
+                btn.disabled = false;
+            })
+            .catch(function () {
+                tell("Not sent — the request never completed. Check the connection, or anything blocking formspree.io.", "bad");
+                btn.disabled = false;
+            });
+    });
+})();
+
 // Fonts land after first paint and change how taglines wrap.
 if (document.fonts && document.fonts.ready)
     document.fonts.ready.then(() => {
