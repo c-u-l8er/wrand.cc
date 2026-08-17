@@ -1,0 +1,82 @@
+{
+  "schema": "computedriven-surface-v1",
+  "_comment": "The frozen record for this surface. index.html is NOT generated from it — this site deliberately has no build step, and that property is itself evidence. The record is what the page is CHECKED AGAINST: launch-gate.mjs reads the emitted index.html and refuses to publish when the two disagree. The inventory data has exactly one home and it is the markup in index.html; nothing here duplicates it.",
+
+  "version": "0.2.0",
+  "origin": "https://wrand.cc",
+  "repo": "https://github.com/c-u-l8er/wrand.cc",
+  "surface": "wrand.cc",
+  "parent": "ComputeDriven",
+  "nav_tier": 4,
+  "nav_tier_note": "ampersand-nav/src/amp-nav.js records wrand: { place: 4 } — 'Outside, nav removed' — and sync-nav.sh does not target this repo. So the band carries attribution and no layer claim, and the page chrome carries no sibling-domain nav. The inventory links every sibling because listing them is the page's content; that is a different thing.",
+
+  "question": "How many of these connections are real?",
+
+  "surface_rung": "live_local",
+  "surface_rung_covers": "this page and the gate that checks it — node launch-gate.mjs re-derives every count here from the markup and refuses on a mismatch. It covers nothing on the 25 domains listed below, and this revision has not been served from wrand.cc yet",
+  "verified_at": "2026-08-16",
+
+  "status": {
+    "statement": "The inventory on this page parses, counts and cross-checks in a browser on a developer machine, and the publication gate runs against the emitted file. Nothing here executes any of the connections it describes.",
+    "source": "node launch-gate.mjs in this repository, run against the emitted index.html; and checkDrift() in the page itself, which re-derives every printed count from the markup at load.",
+    "limit": "This establishes that the page is internally consistent. It does not establish that any connection was executed: the four evidence tiers were assigned by reading source in a different repository and nothing here re-checks them, and the HTTP 200 sweep establishes only that a server answered."
+  },
+
+  "advance": {
+    "next_rung": "live_deployed",
+    "requires": "Push this revision and re-read https://wrand.cc/. The deployed copy is still the previous revision, so nothing stated here has been checked on the domain it describes."
+  },
+
+  "text_floor": 10000,
+  "_text_floor_comment": "A FLOOR, not an exact count, on purpose. The previous revision of this site served 72,642 bytes that yielded 157 characters of extractable text, and an external audit read the portfolio as empty. An exact count would have to be re-typed on every edit — and a number that has to be re-typed is the thing this gate exists to catch. A floor is stable and still refuses the regression that mattered.",
+
+  "contact": {
+    "kind": "github_issues",
+    "url": "https://github.com/c-u-l8er/wrand.cc/issues",
+    "_comment": "Deliberately not a mailto: — Travis's call, 2026-08-11 — and deliberately not another surface's Formspree endpoint. A live URL that works is the actual requirement."
+  },
+
+  "gates": {
+    "_comment": "A gate may not read approved without its evidence, reviewer and date fields, and launch-gate.mjs enforces that.",
+    "readable_without_a_browser": {
+      "label": "The inventory survives with script and style stripped",
+      "status": "approved",
+      "description": "The 25 domains, their taglines and all 56 connections are present in the served HTML before any JavaScript runs.",
+      "evidence": "curl -s http://127.0.0.1:8177/ | python3 -c \"import sys,re; h=sys.stdin.read(); t=re.sub(r'<script.*?</script>|<style.*?</style>','',h,flags=re.S); t=re.sub(r'<[^>]+>',' ',t); print(len(re.sub(r'\\s+',' ',t)))\" — and the text_floor check in launch-gate.mjs, which re-runs it over the artifact.",
+      "reviewer": "launch-gate.mjs, run against index.html",
+      "date": "2026-08-16"
+    },
+    "deployed_route_check": {
+      "label": "This revision answers on wrand.cc",
+      "status": "pending",
+      "description": "The deployed copy is the previous revision. Until this one is pushed and read back from the domain, the rung is live_local and not live_deployed.",
+      "evidence": null,
+      "reviewer": null,
+      "date": null
+    },
+    "per_domain_rungs": {
+      "label": "A source of per-domain evidence rungs",
+      "status": "pending",
+      "description": "Nothing in this tree records a rung for any of the 25 domains, so all 25 chips read ?. The gate refuses any page where one has been filled in from a planning document.",
+      "evidence": null,
+      "reviewer": null,
+      "date": null
+    },
+    "tier_witnesses": {
+      "label": "The connections labelled 'wired in code' were executed",
+      "status": "pending",
+      "description": "The tiers are a reading of source in other repositories. No test on this domain runs any of them, and the page says so.",
+      "evidence": null,
+      "reviewer": null,
+      "date": null
+    },
+    "independent_use": {
+      "label": "Someone who is not us corrected a row",
+      "status": "pending",
+      "description": "The only rung nobody here can award themselves. A filed issue naming a connection this register gets wrong.",
+      "evidence": null,
+      "reviewer": null,
+      "date": null
+    }
+  }
+}
