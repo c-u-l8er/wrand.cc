@@ -23,9 +23,15 @@
      DOM, and the gate proves it by stripping script and style and counting
      what is left. If that number ever falls because of something in here,
      the nav has stopped being chrome and must come out.
-     Vendored, 51,428 bytes, from ampersand-nav/src via sync-nav.sh; this
-     revision has no renderPlacement(), so the bar renders without a
-     placement strip until lane N syncs. Do not hand-edit this file. -->
+     Vendored, 52,272 bytes, from ampersand-nav/dist; this revision has no
+     renderPlacement(), so the bar renders without a placement strip until the
+     0.9.0 source syncs. Was 51,428 until 2026-08-17, when the contact entry's
+     mail link and bare address came out — they were served in the clear at
+     every domain root, because Cloudflare's email obfuscation masks addresses
+     in HTML and does not rewrite JS. (Written without the banned token: the
+     gate blocklists it across the whole page, comments included, and refused
+     the first draft of this comment. That is the check working.)
+     Do not hand-edit this file. -->
 <script type="module" src="/amp-nav.js"></script>
 
 <!-- Machine-readable inventory. This is a DERIVED copy of the #inventory
