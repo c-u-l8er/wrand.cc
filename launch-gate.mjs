@@ -341,6 +341,71 @@ OK(`${domains.length} per-domain connection counts and ${edges.length} printed s
 }
 
 /* ==========================================================================
+   7b. THE INVENTORY OVERLAY MUST NOT MOVE A NODE THE POINTER IS APPROACHING
+
+   Travis, 2026-08-17, after using it: "disable the on hover movement of the
+   nodes on the main graph because it is hard to click on them and see their
+   details."
+
+   The overlay used to run a repulsive field keyed to the cursor. Measured on
+   the artifact before it was removed: sweeping the pointer 380 px toward a
+   card moved that card's CENTRE 59.9 px before the pointer arrived. The
+   control ran away from the click.
+
+   NOTHING IN THIS GATE COULD HAVE CAUGHT THAT, and that is the reason this
+   check exists rather than a note in a record. The 25 checks above all read
+   the artifact's TEXT and STRUCTURE; a defect in how the page BEHAVES was
+   outside every one of them, so the field could be re-added tomorrow by a
+   lane trying to make the graph feel more alive and nothing would object.
+
+   The rule is narrow and mechanical, and it is a rule about a FORCE, not
+   about hover: the body of simulate() — the only function that writes node
+   velocities and positions — may not read a pointer coordinate. A drag still
+   works, because a drag does not reach the pointer from in here: it sets
+   n.tx / n.ty from its own listener, which is a deliberate act on one node
+   rather than a field over all of them. Hover affordances are unaffected;
+   they live in easeDisplay() and in CSS, and neither can move a node.
+
+   Scoped to the function body (r12/r14): testing the whole document would be
+   satisfied by the word "clientX" appearing in the drag handler, which is
+   exactly where it legitimately appears.
+   ========================================================================== */
+{
+    const at = HTML.indexOf("function simulate()");
+    if (at < 0) REFUSE("the overlay has no simulate() — the layout function this gate scopes its pointer rule to is gone");
+    else {
+        /* Brace-match rather than a lazy regex: simulate() contains nested
+           blocks and a `.test()` over the rest of the file would drag in the
+           render code. */
+        let i = HTML.indexOf("{", at), depth = 0, end = -1;
+        for (let k = i; k < HTML.length; k++) {
+            if (HTML[k] === "{") depth++;
+            else if (HTML[k] === "}") { depth--; if (!depth) { end = k; break; } }
+        }
+        if (end < 0) REFUSE("simulate() does not close — the gate cannot scope its pointer rule to a function body");
+        else {
+            /* COMMENTS OUT FIRST, and this is not a detail — the first run of
+               this check REFUSED on the comment that explains the deletion,
+               which is r8 arriving from the other side: there, a comment hid
+               a defect from a check; here, a comment invented one. A rule
+               about code reads code. (The stripper is deliberately simple:
+               simulate()'s body holds no string or regex literal containing
+               a comment opener, and the brace-match above already proves the
+               slice is that one function.) */
+            const body = HTML.slice(i, end + 1)
+                .replace(/\/\*[\s\S]*?\*\//g, " ")
+                .replace(/\/\/[^\n]*/g, " ");
+            const reads = ["POINTER", "clientX", "clientY", "fieldR", "FIELD_PUSH", "pointerX", "pointerY"]
+                .filter((n) => new RegExp("\\b" + n + "\\b").test(body));
+            if (reads.length)
+                REFUSE(`simulate() reads the pointer (${reads.join(", ")}) — a layout force keyed to the cursor moves the node the visitor is aiming at, which is the defect Travis reported on 2026-08-17`);
+            else
+                OK(`simulate() is ${body.length.toLocaleString()} chars and reads no pointer coordinate: approaching a card cannot move it`);
+        }
+    }
+}
+
+/* ==========================================================================
    8. §0.7 — a CTA the rung has not earned is refused
    ========================================================================== */
 {

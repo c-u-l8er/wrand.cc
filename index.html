@@ -649,10 +649,15 @@ body.graph-open{overflow:hidden}
    Two custom properties carry the whole feel and both are written by the
    simulation, every frame, as CONTINUOUS values:
 
-     --lift   0..1  how close the pointer is. NOT a hover boolean: it is a
-                    field, so a card leans before you reach it and settles
-                    after you leave. The binary :hover that used to do this
-                    is what made the graph read as a diagram.
+     --lift   0..1  is the pointer ON this card. Eased in JS rather than
+                    switched, so it fades up and down — but it is a state of
+                    ONE card, not a distance field. It used to be graded by
+                    proximity and paired with a force that pushed the card
+                    away from the cursor; measured, that moved a card's
+                    centre 59.9 px while the pointer travelled 380 px toward
+                    it, so the thing you were aiming at left. Every property
+                    lift drives below is now deliberately STILL: it changes
+                    what the card looks like and never where its centre is.
      --focus  0..1  whether this card is in the lit neighbourhood.
 
    Everything below is a function of those two. There is no transition on
@@ -662,9 +667,16 @@ body.graph-open{overflow:hidden}
 .node-card{position:absolute;pointer-events:auto;z-index:50;width:220px;background:var(--ink2);
   border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;cursor:grab;
   --lift:0;--focus:1;
-  transform:scale(calc(1 + .05*var(--lift)));
+  /* Scale is about the card's own centre, so it grows the click target
+     without moving it — the opposite of what the force did. Raised from .05
+     because a lift that only one card gets can afford to be legible. */
+  transform:scale(calc(1 + .07*var(--lift)));
   opacity:calc(.1 + .9*var(--focus));
   border-color:rgba(255,94,168,calc(.14 + .5*var(--lift)));
+  /* The ring is the "you are about to click this" mark. outline takes no
+     layout space and cannot nudge a neighbour, which is why it and not a
+     margin, a border width, or a translate. */
+  outline:calc(2px*var(--lift)) solid rgba(255,94,168,calc(.62*var(--lift)));outline-offset:3px;
   box-shadow:0 calc(4px + 14px*var(--lift)) calc(18px + 40px*var(--lift)) rgba(0,0,0,calc(.3 + .35*var(--lift)));
   user-select:none;animation:nodeAppear .5s ease backwards}
 .node-card:active{cursor:grabbing}
@@ -2217,55 +2229,49 @@ nodes.forEach((node, i) => {
     window.addEventListener("mouseup", onUp);
     window.addEventListener("touchend", onUp);
 
-    // Hover still recentres the lit neighbourhood — that is a decision, not
-    // a field, so it stays an event. The continuous part (lift) is computed
-    // from pointer distance in the loop, for every card at once.
+    // Hover recentres the lit neighbourhood AND raises this one card. Both
+    // are now decisions about the card the pointer is over, so both are
+    // events on that card. Nothing here reheats the layout: hovering must
+    // not move anything, and reheat() is how it used to.
     card.addEventListener("mouseenter", () => {
+        hoveredId = node.id;
         highlightNode(node.id);
         if (REDUCED) { easeDisplay(true); drawEdges(); }
     });
     card.addEventListener("mouseleave", () => {
+        if (hoveredId === node.id) hoveredId = null;
         clearHighlight();
         if (REDUCED) { easeDisplay(true); drawEdges(); }
     });
 });
 
-// ── THE POINTER FIELD ────────────────────────────────────────
-// Where the pointer is, in WORLD coordinates, and how long since it moved.
-// Everything continuous about the graph's response reads from here. The
-// overlay is fixed and full-screen, so one listener covers all of it.
-const POINTER = { x: -1e6, y: -1e6, on: false };
-// The field's radius is a SCREEN distance, not a world one. The world is
-// scaled to fit — often to about half size — so a fixed world radius shrinks
-// on screen exactly when the graph is most crowded, and the first version of
-// this lifted precisely one card because 260 world px was less than the gap
-// between two card centres. Measured: 1 card responding, which is a hover
-// state with extra steps.
-const FIELD_SCREEN_R = 340,
-    FIELD_PUSH = 0.9;
-const fieldR = () => FIELD_SCREEN_R / (VIEW.s || 1);
-// NB: the overlay element is fetched here rather than through the `graphview`
-// const declared at the bottom of this file — that one is in its temporal
-// dead zone at this point and touching it throws, which on a page whose whole
-// contract is "the document works without the script" would be silent.
-const gvEl = document.getElementById("graphview");
-gvEl.addEventListener(
-    "pointermove",
-    (e) => {
-        POINTER.x = toWorldX(e.clientX);
-        POINTER.y = toWorldY(e.clientY);
-        POINTER.on = true;
-        // Moving the pointer is an interaction, so the layout wakes up.
-        // Without this the field would only act on a graph that happened
-        // to still be warm.
-        reheat(0.12);
-    },
-    { passive: true },
-);
-gvEl.addEventListener("pointerleave", () => {
-    POINTER.on = false;
-    reheat(0.12);
-});
+// ── HOVER: A STILL AFFORDANCE, NOT A FIELD ───────────────────
+// THIS REPLACED A PROXIMITY FIELD, AND THE REASON IS THE ONLY THING WORTH
+// KNOWING ABOUT THIS BLOCK.
+//
+// Until 2026-08-17 the pointer's world position was tracked here and fed two
+// things: a graded `--lift` computed from distance, and a repulsive force in
+// simulate() that pushed every node inside a 340 screen-px radius away from
+// the cursor. It looked alive. It was also unusable: MEASURED, sweeping the
+// pointer at a normal speed toward a card 380 px away moved that card's
+// CENTRE 59.9 px before the pointer arrived. The click target ran away from
+// the click. A control that flees the pointer is broken however good it
+// looks, and no amount of "it feels physical" survives not being able to
+// open the panel.
+//
+// So the field is gone — force and distance-grading both — and hover is now
+// a state of ONE card: the card the pointer is actually over, the one you
+// are about to click. It is still eased rather than switched (LIFT_EASE), so
+// it fades up and down; easing a value is not moving a node.
+//
+// What is deliberately KEPT, because the complaint was about hover only:
+// drag with its spring and its throw, click-to-hold with the graph settling
+// around a held card, the neighbourhood lighting, and the detail panel.
+//
+// `hoveredId` is separate from `highlightedId` on purpose: clearHighlight()
+// falls back to the selected node, so highlightedId stays set after the
+// pointer leaves. Lift must not.
+let hoveredId = null;
 
 // Highlight — hover is transient, selection sticks. It sets TARGETS; the
 // loop eases towards them, so a neighbourhood lights and dims rather than
@@ -2566,14 +2572,17 @@ const LIFT_EASE = 0.18,
 function easeDisplay(reduced) {
     for (const n of nodes) {
         if (!n.el) continue;
-        // Pointer proximity, smoothstepped so the falloff has no edge.
-        let want = 0;
-        if (POINTER.on && !n.hidden && !reduced) {
-            const dx = n.x - POINTER.x,
-                dy = n.y - POINTER.y;
-            const t = Math.max(0, 1 - Math.hypot(dx, dy) / fieldR());
-            want = t * t * (3 - 2 * t);
-        }
+        // One card at a time: the one the pointer is over. This used to be a
+        // smoothstep over distance, which lit five cards at once and so said
+        // "something near you is interactive" rather than "THIS is what you
+        // are about to click".
+        //
+        // Under reduced motion this still applies, and that is deliberate:
+        // `reduced` writes the target straight to the value below, so the
+        // affordance appears as a state change with no animation — which is
+        // exactly what that setting asks for instead of motion. Withholding
+        // it would leave the reduced-motion visitor with LESS to aim at.
+        let want = n.id === hoveredId && !n.hidden ? 1 : 0;
         if (n.pinned) want = 1;
         n.liftT = want;
         if (reduced) {
@@ -2636,26 +2645,14 @@ function simulate() {
         n.fy += (VIEW.worldH / 2 - n.y) * SIM.centerPull;
     });
 
-    // ── THE POINTER FIELD ──
-    // A wide, weak push away from the cursor. It is NOT scaled by alpha:
-    // the field has to be felt on a graph that has finished settling, which
-    // is when a visitor is actually looking at it. It is bounded instead,
-    // and the layout's own forces win over any sustained displacement — let
-    // go of the pointer and the graph comes back.
-    if (POINTER.on) {
-        const R = fieldR();
-        for (const n of nodes) {
-            if (n.hidden || n.pinned || n.held) continue;
-            const dx = n.x - POINTER.x,
-                dy = n.y - POINTER.y;
-            const d = Math.hypot(dx, dy) || 1;
-            if (d > R) continue;
-            const t = 1 - d / R;
-            const f = FIELD_PUSH * t * t;
-            n.vx += (dx / d) * f;
-            n.vy += (dy / d) * f;
-        }
-    }
+    // NO POINTER FORCE. There was one here — a bounded push away from the
+    // cursor, not scaled by alpha so it acted on a settled graph — and it is
+    // deleted rather than weakened. Weakening it would have kept the defect
+    // and made it harder to see: the ONLY forces in this function are now
+    // the layout's own (repulsion, edges, centre pull) plus a drag the
+    // visitor is performing on purpose. Nothing here reads the pointer's
+    // position, so approaching a card cannot move it. See the hover block
+    // above for the measurement that ended the field.
 
     const cr = chrome();
     nodes.forEach((n) => {
