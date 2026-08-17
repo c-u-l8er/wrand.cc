@@ -15,6 +15,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- The shared portfolio nav. THE ONLY THING ON THIS PAGE THAT NEEDS
+     JAVASCRIPT TO EXIST AT ALL, and that is the deal: <amp-nav> is CHROME.
+     With scripting off the custom element renders nothing and the page loses
+     a way to reach sibling domains from the header — it does not lose a
+     sentence of content. The 25 domains and 56 connections below are real
+     DOM, and the gate proves it by stripping script and style and counting
+     what is left. If that number ever falls because of something in here,
+     the nav has stopped being chrome and must come out.
+     Vendored, 51,428 bytes, from ampersand-nav/src via sync-nav.sh; this
+     revision has no renderPlacement(), so the bar renders without a
+     placement strip until lane N syncs. Do not hand-edit this file. -->
+<script type="module" src="/amp-nav.js"></script>
+
 <!-- Machine-readable inventory. This is a DERIVED copy of the #inventory
      section in the body; it is written by hand rather than generated, because
      a reader that does not execute JS must still see it. It is CHECKED
@@ -627,7 +640,10 @@ body.graph-open{overflow:hidden}
    stacking context — which would otherwise paint the whole card layer under
    the edge canvas. It must be positioned and stacked explicitly. */
 #card-container{position:fixed;inset:0;z-index:50;pointer-events:none}
-.gv-top{position:fixed;top:0;left:0;right:0;z-index:100;height:50px;display:flex;
+/* top is the measured height of <amp-nav>, written onto :root by fit(). The
+   0px fallback is the no-nav page this overlay was built for, and it is what
+   renders if the nav 404s or has not upgraded. */
+.gv-top{position:fixed;top:var(--gv-nav-h,0px);left:0;right:0;z-index:100;height:50px;display:flex;
   align-items:center;justify-content:space-between;gap:12px;padding:0 1rem;
   background:rgba(10,8,16,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
 .gv-title{font-family:var(--mono);font-size:var(--sm);font-weight:600;color:var(--fg);
@@ -718,7 +734,8 @@ body.graph-open{overflow:hidden}
   letter-spacing:.08em;text-transform:uppercase}
 .card-visit:hover{color:var(--acc);background:var(--acc-soft)}
 
-.detail{position:fixed;top:50px;right:0;bottom:0;z-index:110;width:340px;max-width:100vw;
+/* 50px is the overlay's own bar; the variable is the portfolio nav above it. */
+.detail{position:fixed;top:calc(50px + var(--gv-nav-h,0px));right:0;bottom:0;z-index:110;width:340px;max-width:100vw;
   padding:1.1rem 1.2rem 6rem;overflow-y:auto;overscroll-behavior:contain;
   background:rgba(16,13,26,.97);backdrop-filter:blur(18px);border-left:1px solid var(--line2)}
 .detail[hidden]{display:none}
@@ -761,19 +778,23 @@ body.graph-open{overflow:hidden}
 <body>
 
 <!-- ══ PLACEMENT BAND — the tier-4 variant: attribution, not membership ══
-     ampersand-nav records wrand.cc as place: 4, "Outside — nav removed", and
-     sync-nav.sh deliberately does not target this repo. So this band drops the
-     layer sentence: claiming to be "the X layer of ComputeDriven" would assert
-     membership in a portfolio whose own nav excludes this domain. What stays
-     is the rung chip and the covers span, which are honesty machinery rather
-     than branding, and there is no sibling-domain nav anywhere in the page
-     chrome. The inventory below links to every sibling by nature — that is the
-     content, and it is a different thing. -->
+     ampersand-nav records wrand.cc as place: 4, "Outside — nav removed". THE
+     "NAV REMOVED" HALF OF THAT IS SUPERSEDED: Travis ruled on 2026-08-17 that
+     <amp-nav> belongs on every website, and, asked specifically about the two
+     tier-4 surfaces, "yes add the nav to those too". So the nav is below.
+
+     THE BAND TEXT IS NOT SUPERSEDED and is unchanged. It still drops the layer
+     sentence, because those are two different claims: carrying the portfolio's
+     nav says these domains are related, which is true and is the whole subject
+     of this page; saying "the X layer of ComputeDriven" would assert a place
+     in a hierarchy this domain does not occupy. What stays is the rung chip
+     and the covers span, which are honesty machinery rather than branding. -->
 <div class="band" data-tier="4">
 <span class="where">A <b>ComputeDriven</b> project</span>
 <span class="rung" data-rung="live_local" title="spec · in_tree · live_local · live_deployed · external">live_local</span>
 <span class="covers">That rung covers this page and the gate that checks it &mdash; <code>node launch-gate.mjs</code> re-derives every count here from the markup and refuses on a mismatch. It covers nothing on the 25 domains listed below, and this revision has not been served from wrand.cc yet.</span>
 </div>
+<amp-nav property="wrand"></amp-nav>
 
 <div id="drift" hidden></div>
 
@@ -1967,8 +1988,51 @@ function bottomInset() {
     return fb ? H - fb.getBoundingClientRect().top + 12 : 60;
 }
 
+/* ── THE OVERLAY STARTS BELOW THE PORTFOLIO NAV ──────────────────────
+   Travis, 2026-08-17: "the ampersand-nav on the graph page of wrand.cc is
+   interfering with the existing header."
+
+   <amp-nav> is position:fixed at top:0 with z-index 9999. The overlay is a
+   full-viewport fixed layer written when nothing else was up there, so its
+   own bar, its detail panel and the top row of cards all began at y=50 —
+   seven pixels above the nav's lower edge, at z-index 50 against 9999. They
+   were not clipped, they were BURIED.
+
+   The nav injects `body { padding-top: 56px }` into the host document, which
+   is why the DOCUMENT view never collided: normal flow was already pushed
+   down. A fixed layer does not participate in that, so it had to be told.
+
+   The overlay is inset below the nav rather than covering it or hiding it,
+   because the nav was just ruled onto every site and the graph is where
+   people spend their time here — removing it in that view would undo most of
+   the ruling. Everything vertical in the overlay already flows through
+   VIEW.top: the card container's transform, the canvas transform, and
+   toWorldY(). So this is the one seam, and the drag bounds follow for free —
+   fit() derives the world height from `H - VIEW.top - VIEW.bottom`, so a
+   thrown card is clamped into the smaller field and cannot land under the bar.
+
+   MEASURED, NOT HARD-CODED. The component publishes --amp-nav-height, but
+   that value is a hard-coded "56px" default in the vendored file, not a
+   measurement — the element actually renders 57 px, so consuming the variable
+   would leave a one-pixel overlap at every width. Measure the box, publish
+   the result as --gv-nav-h, and let the CSS read that. If the nav is absent,
+   fails to load, or has not upgraded yet, this is 0 and the overlay is
+   exactly what it was before the nav existed. */
+function navInset() {
+    const n = document.querySelector("amp-nav");
+    const h = n ? Math.round(n.getBoundingClientRect().height) : 0;
+    /* Custom-element upgrade is async. Before it happens the element is an
+       unstyled inline box a few pixels tall, and baking that in would inset
+       the overlay by a number that is about to change — so anything under a
+       plausible bar height counts as "not there yet" and re-measures on the
+       next fit(). */
+    return h >= 20 ? h : 0;
+}
+
 function fit() {
-    VIEW.top = 50;
+    const nav = navInset();
+    document.documentElement.style.setProperty("--gv-nav-h", nav + "px");
+    VIEW.top = 50 + nav;
     VIEW.bottom = bottomInset();
     // The open detail panel is not drawable area. It docks right on
     // desktop and along the bottom on narrow screens, so subtract

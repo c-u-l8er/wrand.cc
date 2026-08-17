@@ -556,6 +556,227 @@ OK(`${domains.length} per-domain connection counts and ${edges.length} printed s
     }
     if (blocks.length === 1)
         OK(`${RETRACTED.length} retracted claims: none outside the retraction, at most ${worst} inside it (bound ${CAP}), none hidden`);
+
+    /* ── r15: THE BLOCKLIST RUNS OVER EVERY FILE THE DEPLOY SERVES ──
+       Everything above reads index.html. A sibling surface shipped a retracted
+       claim inside a published .js and its gate passed, because three of its
+       four downloadable files were never opened. A retraction that only binds
+       the HTML is a retraction with a hole the size of the asset directory —
+       and this surface just vendored 51 KB of someone else's JavaScript, which
+       is exactly the shape of file that carries a stale tagline.
+
+       The exemption is /old_scrap/*, and it is NOT an allowlist written for
+       the gate — r10 would refuse that. It is parsed out of `_redirects`, the
+       same file the host obeys, so the only way to exempt a file from this
+       scan is to actually stop serving it. */
+    const here2 = new URL("./", import.meta.url);
+    const redir = (() => { try { return readFileSync(new URL("./_redirects", here2), "utf8"); }
+                           catch { return ""; } })();
+    /* Both shapes of closure, because both are needed: `/dir/*` closes the
+       archive, and a bare `/file` closes a single one. */
+    const closedDirs = [...redir.matchAll(/^(\/\S*?)\/\*\s+\S+\s+30[12]\s*$/gm)].map((m) => m[1] + "/");
+    const closedFiles = [...redir.matchAll(/^(\/\S+?)\s+\S+\s+30[12]\s*$/gm)]
+        .map((m) => m[1]).filter((p) => !p.endsWith("/*"));
+    const published = [];
+    (function walk(dir, rel) {
+        for (const e of readdirSync(new URL(dir, here2), { withFileTypes: true })) {
+            if (e.name === ".git" || e.name === "node_modules") continue;
+            const path = rel + e.name;
+            if (e.isDirectory()) { if (!closedDirs.includes("/" + path + "/")) walk(dir + e.name + "/", path + "/"); }
+            else if (/\.(html?|js|mjs|json|txt|webmanifest|css|svg|xml)$/i.test(e.name)) {
+                /* THE ONLY EXEMPTION IS BEING GENUINELY UNSERVED. launch-gate.mjs
+                   and break-harness.mjs both NAME every retracted claim — a
+                   blocklist and a break harness are made of them — and this
+                   scan refused on both the first time it ran, correctly: the
+                   deploy tree was serving them. They are closed in _redirects
+                   now. Skipping them here by name was the other option and r10
+                   refuses it: an exemption written by the same hand as the page
+                   is not a check. This reads the file the HOST obeys, so the
+                   only way out of the scan is to stop being served. */
+                if (!closedFiles.includes("/" + path)) published.push(path);
+            }
+        }
+    })("./", "");
+    let hits = 0;
+    for (const f of published) {
+        const src = readFileSync(new URL("./" + f, here2), "utf8");
+        for (const s of RETRACTED) {
+            const n = count(src, s);
+            if (!n) continue;
+            /* index.html's own retraction block is already bounded above. */
+            if (f === "index.html" && n === count(zone, s)) continue;
+            hits++;
+            REFUSE(`"${s}" appears ${n} time(s) in published file ${f} — a retracted claim in an asset is still served (r15)`);
+        }
+    }
+    if (!hits)
+        OK(`${published.length} published files scanned for ${RETRACTED.length} retracted claims (r15), ${closedDirs.length + closedFiles.length} redirect-closed path(s) excluded, 0 occurrences`);
+}
+
+/* ==========================================================================
+   11b. THE SHARED NAV IS PRESENT, AND IT IS CHROME
+
+   Travis, 2026-08-17: "the ampersand-nav needs to be on each website!" — and,
+   asked whether the two tier-4 surfaces were exempt, "yes add the nav to
+   those too". The 2026-08-16 "band without nav" ruling is superseded in its
+   "no nav" half only; the band text above is unchanged.
+
+   IT IS GATED BECAUSE IT VANISHED SILENTLY FROM SEVEN SURFACES. A nav that
+   nobody checks is a nav that leaves on the next refactor, and the failure
+   mode is invisible: the page still renders, it just stops being part of the
+   portfolio.
+
+   SCOPED TO THE ELEMENT (r14). A <script src="/amp-nav.js"> is NOT the nav —
+   it is a file that might define one — and neither is the string "amp-nav"
+   in a comment, of which this artifact legitimately has two. The check needs
+   an actual custom element in the body, so comments and script/style bodies
+   come out before it looks. Both halves are required anyway: the element
+   without the module is inert, and the module without the element renders
+   nothing.
+
+   THE SECOND HALF IS THE ONE THAT MATTERS. The nav is the only thing on this
+   page allowed to need JavaScript, and "allowed" has a number attached: the
+   content floor above (§10, text_floor) is measured with script stripped, so
+   if anything the nav brings in ever became load-bearing for content, that
+   check falls before this one passes. Nothing here weakens it — this surface
+   has never asserted "zero JS", it has asserted "no JS the CONTENT depends
+   on", and that is still exactly what is enforced.
+   ========================================================================== */
+{
+    /* Comments and script/style bodies out first, so a mention cannot pass
+       for an element. */
+    const live = decomment(HTML)
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, " ")
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, " ");
+    const els = [...live.matchAll(/<amp-nav\b([^>]*)>/gi)];
+    if (!els.length)
+        REFUSE("there is no <amp-nav> element in the artifact — Travis ruled 2026-08-17 that the shared nav belongs on every site, including the tier-4 surfaces");
+    else if (els.length > 1)
+        REFUSE(`the artifact carries ${els.length} <amp-nav> elements; two navs is a navigation defect, not a redundancy`);
+    else {
+        const prop = (els[0][1].match(/\bproperty="([^"]*)"/) || [])[1];
+        /* The module must be requested as a module: <amp-nav> is a custom
+           element and a classic script would not register it. */
+        const mod = decomment(HTML).match(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]*amp-nav\.js)"[^>]*>/);
+        if (!mod)
+            REFUSE("<amp-nav> is on the page but nothing loads amp-nav.js as a module, so the element never upgrades and renders nothing");
+        else {
+            /* And the file it names has to be in the tree the host serves —
+               a nav that 404s is the same missing nav with a network hop. */
+            let bytes = 0;
+            try { bytes = readFileSync(new URL("." + mod[1], new URL("./", import.meta.url))).length; } catch { }
+            if (!bytes)
+                REFUSE(`the page loads ${mod[1]} and no such file is in the deploy tree — the nav would 404`);
+            else
+                OK(`<amp-nav property="${prop}"> present, ${mod[1]} vendored (${bytes.toLocaleString()} bytes), loaded as a module`);
+        }
+    }
+}
+
+/* ==========================================================================
+   11b2. THE HEADER LABELS ARE THE ONES THE BREAKPOINT WAS MEASURED WITH — r11
+
+   The wrap point of a flex nav is a function of its labels, and r11 is the
+   record of what that costs: renaming one item to "Correct us" — five
+   characters — moved a sibling surface's wrap from 538 to 576, past its 560
+   breakpoint, marooning the logo in a broken two-row state between 561 and
+   575. A measured number whose inputs can change without notice is a stale
+   number waiting to happen.
+
+   So the labels are frozen in records/surface.json beside the breakpoint, and
+   this refuses when the artifact drifts from them. It does NOT re-derive the
+   wrap point — a gate with no layout engine cannot — it refuses to let the
+   recorded measurement go quietly out of date.
+
+   Measured here 2026-08-17 by bisection in a browser: one row from 601 px to
+   1600 px, .top switches to column at exactly 600, no marooned band. Adding
+   <amp-nav> did not move it, because the portfolio nav is a fixed sibling
+   above .top and contributes no width to this nav.
+   ========================================================================== */
+{
+    const nav = (HTML.match(/<div class="top">[\s\S]*?<nav>([\s\S]*?)<\/nav>/) || [])[1];
+    if (!nav) REFUSE("the header nav cannot be found, so the labels its breakpoint was measured with cannot be checked");
+    else {
+        const live = [...nav.matchAll(/<(?:a|button)\b[^>]*>([\s\S]*?)<\/(?:a|button)>/g)]
+            .map((m) => strip(m[1]).trim()).filter(Boolean);
+        const want = SURFACE.nav_labels_at_measure || [];
+        if (!want.length) REFUSE("records/surface.json carries no nav_labels_at_measure — r11 requires the breakpoint be bound to the labels it was measured with");
+        else if (live.length !== want.length || live.some((l, i) => l !== want[i]))
+            REFUSE(`the header nav reads [${live.join(" | ")}] and the breakpoint (${SURFACE.nav_breakpoint_px} px) was measured with [${want.join(" | ")}] — re-bisect before changing a label`);
+        else
+            OK(`${live.length} header labels match the ones the ${SURFACE.nav_breakpoint_px} px breakpoint was bisected with`);
+    }
+}
+
+/* ==========================================================================
+   11c. THE OVERLAY IS INSET BELOW THE NAV, NOT UNDER IT
+
+   Travis, 2026-08-17: "the ampersand-nav on the graph page of wrand.cc is
+   interfering with the existing header."
+
+   <amp-nav> is fixed at top:0, z-index 9999. The graph overlay is a
+   full-viewport fixed layer written when nothing was up there, so its bar,
+   its detail panel and the top row of cards all started at y=50 and were
+   BURIED under the nav — not clipped, buried, at z-index 50 against 9999.
+   The document view never collided because the nav injects
+   `body { padding-top }`, which a fixed layer does not participate in.
+
+   WHAT THIS CHECK CAN AND CANNOT DO, stated because the difference matters.
+   This gate has no DOM and no browser: it cannot compute a rendered
+   rectangle, so it CANNOT check the collision itself. What it checks is the
+   MECHANISM — that every fixed, top-anchored piece of overlay chrome offsets
+   by --gv-nav-h, and that VIEW.top adds the measured nav height. The
+   geometry was measured in a browser at 390/700/790/800/815/1000/1280/1600
+   in both views, and 0 overlay elements had a top edge inside the nav band.
+   A presence check for <amp-nav> would not have caught any of this, which is
+   the point: the nav was there, correct, and on top of everything.
+
+   THE ONE EXEMPTION IS DERIVED, NOT AUTHORED (r10). #graph-canvas and
+   #card-container may run full-viewport, but only because they declare
+   `pointer-events:none` — the gate reads that from the rule rather than
+   taking a list's word for it. A backdrop that cannot be clicked and paints
+   only ink loses nothing to a bar over its top strip; anything that can be
+   clicked or read may not.
+   ========================================================================== */
+{
+    const css = (HTML.match(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/i) || [])[1] || "";
+    /* Comments out first — a `/* top: 0 *\/` note would otherwise read as a
+       declaration, and this file has plenty of them. Then match innermost
+       rules: because the selector class excludes braces, this walks INTO
+       @media blocks and yields the rule rather than the at-rule, which is
+       what is wanted — the narrow-screen override is exactly where a stray
+       `top` would hide. The first version of this check took the whole blob
+       between two braces as one selector, matched nothing, and was saved by
+       its own vacuity guard below. */
+    const clean = css.replace(/\/\*[\s\S]*?\*\//g, " ");
+    const OVERLAY = /^(#graph|#card-container|\.gv-|\.detail|\.node-card|\.filter-bar|\.minimap)/;
+    let checked = 0, backdrops = 0;
+    for (const m of clean.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+        const sels = m[1].split(",").map((s) => s.trim()).filter(Boolean);
+        const sel = sels.find((s) => OVERLAY.test(s));
+        const body = m[2];
+        if (!sel) continue;
+        if (!/position\s*:\s*fixed/.test(body)) continue;
+        const top = (body.match(/(?:^|;)\s*top\s*:\s*([^;]+)/) || [])[1];
+        const inset = /(?:^|;)\s*inset\s*:/.test(body);
+        if (!top && !inset) continue;                    // bottom-anchored, no collision
+        if (top && /^\s*auto\s*$/.test(top)) continue;   // explicitly un-anchored
+        if (/pointer-events\s*:\s*none/.test(body)) { backdrops++; continue; }
+        checked++;
+        if (!/--gv-nav-h/.test(top || ""))
+            REFUSE(`${sel} is fixed and anchored to the top (${(top || "inset").trim()}) without --gv-nav-h — it renders underneath <amp-nav>, which is the defect Travis reported on 2026-08-17`);
+    }
+    if (!checked)
+        REFUSE("no fixed top-anchored overlay rule was found to check — the selector list in this check has gone stale and it is passing vacuously");
+    /* And the world's own origin has to move, or the CARDS stay under the bar
+       even with the chrome corrected. */
+    const vt = (HTML.match(/VIEW\.top\s*=\s*([^;\n]+)/) || [])[1] || "";
+    if (!/nav/i.test(vt))
+        REFUSE(`VIEW.top is set to "${vt.trim()}" and does not include the nav height — the overlay's coordinate origin still starts at the top of the viewport`);
+    else if (!/getBoundingClientRect/.test(HTML.slice(HTML.indexOf("function navInset"), HTML.indexOf("function navInset") + 600)))
+        REFUSE("navInset() does not measure the nav's rendered box — the component publishes --amp-nav-height as a hard-coded 56px while it actually renders 57, so a declared value leaves a 1 px overlap");
+    else
+        OK(`${checked} fixed top-anchored overlay rule(s) offset by --gv-nav-h, ${backdrops} pointer-events:none backdrop(s) exempt, VIEW.top measured from the nav box`);
 }
 
 /* ==========================================================================

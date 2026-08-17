@@ -7,3 +7,21 @@
 # been renamed so no host will serve it as a page; this closes the directory
 # itself. SHELL.md r6, hole 2.
 /old_scrap/*  /  301
+
+# The tools are in the deploy tree and Cloudflare Pages serves the tree, so
+# launch-gate.mjs and break-harness.mjs were BEING SERVED. Two reasons that is
+# wrong, and the second is the one that forced this:
+#
+#   1. they are not the site. Nobody asked wrand.cc for a build script.
+#   2. THEY BOTH NAME EVERY RETRACTED CLAIM, because that is what a blocklist
+#      and a break harness are made of. The r15 scan added on 2026-08-17 —
+#      every published file, not just index.html — refused on its very first
+#      run for exactly this, and it was right to. A retracted sentence is
+#      served whether it arrives in a page or in a script.
+#
+# Skipping them inside the gate by name was the other option and it is worse:
+# r10, an exemption written by the same hand as the page is not a check. This
+# is the same mechanism the host actually obeys, so the only way to be exempt
+# from the scan is to genuinely stop being served.
+/launch-gate.mjs    /  301
+/break-harness.mjs  /  301

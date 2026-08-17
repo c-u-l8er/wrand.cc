@@ -1,44 +1,36 @@
 {
   "schema": "computedriven-surface-v1",
   "_comment": "The frozen record for this surface. index.html is NOT generated from it — this site deliberately has no build step, and that property is itself evidence. The record is what the page is CHECKED AGAINST: launch-gate.mjs reads the emitted index.html and refuses to publish when the two disagree. The inventory data has exactly one home and it is the markup in index.html; nothing here duplicates it.",
-
   "version": "0.2.0",
   "origin": "https://wrand.cc",
   "repo": "https://github.com/c-u-l8er/wrand.cc",
   "surface": "wrand.cc",
   "parent": "ComputeDriven",
   "nav_tier": 4,
-  "nav_tier_note": "ampersand-nav/src/amp-nav.js records wrand: { place: 4 } — 'Outside, nav removed' — and sync-nav.sh does not target this repo. So the band carries attribution and no layer claim, and the page chrome carries no sibling-domain nav. The inventory links every sibling because listing them is the page's content; that is a different thing.",
-
+  "nav_tier_note": "Place 4 in ampersand-nav/src/amp-nav.js reads 'Outside, nav removed'. THE 'NAV REMOVED' HALF IS SUPERSEDED: Travis ruled 2026-08-17 that <amp-nav> belongs on every website and, asked specifically about the two tier-4 surfaces, 'yes add the nav to those too'. The nav is on the page and gated (check 11b). The BAND is unchanged and still carries attribution with no layer claim, because those are two different claims: carrying the shared nav says these domains are related, which is this page's entire subject; a layer sentence would assert a place in a hierarchy this domain does not occupy. The vendored copy is the deployed 51,428-byte revision, which has no renderPlacement(), so the bar renders without a placement strip until lane N syncs the 65,544-byte source. That is expected; do not hand-edit the vendored file.",
   "question": "How many of these connections are real?",
-
   "surface_rung": "live_local",
   "surface_rung_covers": "this page and the gate that checks it — node launch-gate.mjs re-derives every count here from the markup and refuses on a mismatch. It covers nothing on the 25 domains listed below, and this revision has not been served from wrand.cc yet",
   "verified_at": "2026-08-17",
-  "shell_revision": "shell-r10",
-  "_shell_revision_comment": "SHELL.md asks each surface to record the revision it was built against. The document's own header still reads 'REVISION shell-r5' while its table runs to r10, so this records the newest ROW applied rather than the header string. This surface carries r6 (both gate holes), r7 (the header CTA — MEASURED CLEAN here before the fix, because this nav's CTA is a <button> and `.top nav a` cannot match one; scoped anyway), r8 (comments stripped as their own pass; a cascade resolved over the artifact), r9 (the Formspree form) and r10 (the retraction bound written as a number, not an equality).",
-
+  "shell_revision": "shell-r15",
+  "_shell_revision_comment": "SHELL.md asks each surface to record the revision it was built against. The document's own header still reads 'REVISION shell-r5' while its table runs to r10, so this records the newest ROW applied rather than the header string. This surface carries r6 (both gate holes), r7 (the header CTA — MEASURED CLEAN here before the fix, because this nav's CTA is a <button> and `.top nav a` cannot match one; scoped anyway), r8 (comments stripped as their own pass; a cascade resolved over the artifact), r9 (the Formspree form) and r10 (the retraction bound written as a number, not an equality). Adds r11 (the nav breakpoint bisected in a browser and bound to the labels it was measured with, in nav_labels_at_measure), r14 (structural checks scoped to the element: 11b refuses a <script src> or a comment mentioning amp-nav, of which this artifact has two) and r15 (the retraction blocklist runs over every published file, not just index.html; the exemption is parsed from _redirects, the file the host obeys, rather than from an allowlist written for the gate).",
   "status": {
     "statement": "The inventory on this page parses, counts and cross-checks in a browser on a developer machine, and the publication gate runs against the emitted file. Nothing here executes any of the connections it describes.",
     "source": "node launch-gate.mjs in this repository, run against the emitted index.html; and checkDrift() in the page itself, which re-derives every printed count from the markup at load.",
     "limit": "This establishes that the page is internally consistent. It does not establish that any connection was executed: the four evidence tiers were assigned by reading source in a different repository and nothing here re-checks them, and the HTTP 200 sweep establishes only that a server answered."
   },
-
   "advance": {
     "next_rung": "live_deployed",
     "requires": "Push this revision and re-read https://wrand.cc/. The deployed copy is still the previous revision, so nothing stated here has been checked on the domain it describes."
   },
-
   "text_floor": 10000,
   "_text_floor_comment": "A FLOOR, not an exact count, on purpose. The previous revision of this site served 72,642 bytes that yielded 157 characters of extractable text, and an external audit read the portfolio as empty. An exact count would have to be re-typed on every edit — and a number that has to be re-typed is the thing this gate exists to catch. A floor is stable and still refuses the regression that mattered.",
-
   "contact": {
     "kind": "form",
     "form_endpoint": "https://formspree.io/f/xaewoadr",
     "url": "https://github.com/c-u-l8er/wrand.cc/issues",
     "_comment": "SHELL.md r9, ruled by Travis 2026-08-17. This record used to say 'deliberately not another surface's Formspree endpoint' and pointed corrections at GitHub issues for want of one. The ruling is to share the ComputeDriven endpoint. The form is now the primary channel and the issues URL is the second route, which is why both are here. Still never a mailto: (Travis, 2026-08-11) and the gate still refuses one."
   },
-
   "gates": {
     "_comment": "A gate may not read approved without its evidence, reviewer and date fields, and launch-gate.mjs enforces that.",
     "readable_without_a_browser": {
@@ -81,5 +73,15 @@
       "reviewer": null,
       "date": null
     }
-  }
+  },
+  "nav_requires_js": true,
+  "_nav_requires_js_comment": "The nav is the ONLY thing on this surface that needs JavaScript, and it is chrome. This surface has never asserted 'zero JS'; it asserts that no CONTENT depends on JS, and that is what text_floor plus the .inv-item/.inv-edge counts enforce with script and style stripped. Measured either side of adding the nav: 25 .inv-item, 56 .inv-edge, 18,940 characters of extractable text before and after — identical, not merely above the floor.",
+  "nav_breakpoint_px": 600,
+  "nav_labels_at_measure": [
+    "The four tiers",
+    "The inventory",
+    "Evidence",
+    "Open the graph"
+  ],
+  "_nav_breakpoint_comment": "r11: bisected in a browser on 2026-08-17, not derived arithmetically. The header nav holds ONE row from 601 px to 1600 px and .top switches to column at exactly 600, so there is no band in which the nav has wrapped while the logo is still beside it — the marooned state r11 describes does not occur here. ADDING <amp-nav> DID NOT MOVE THIS, and that was measured rather than assumed: the portfolio nav is a fixed sibling ABOVE .top, so it contributes no width to '.top nav' and cannot change where that nav wraps. The labels are recorded because the wrap point is a function of them — r11's five-character rename moved a sibling surface 538 -> 576 and marooned its logo — and the gate refuses when the live labels drift from this list."
 }
